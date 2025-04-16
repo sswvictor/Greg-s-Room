@@ -5,15 +5,9 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 {
     public GameObject prefabToSpawn;
     public ItemSlotController slotController;
-    public Collider roomCollider; // 单个房间范围 Collider
+    public Collider roomCollider;
 
     private GameObject draggingInstance;
-    private Camera cam;
-
-    void Start()
-    {
-        cam = Camera.main;
-    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -31,7 +25,7 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnDrag(PointerEventData eventData)
     {
-        // 拖动逻辑交给拖出的物体自己处理
+        // 拖拽逻辑由实例自己处理
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -41,7 +35,8 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             var tracker = draggingInstance.GetComponent<ItemAutoDestroy>();
             if (tracker != null)
             {
-                tracker.CheckPositionImmediately(); // 主动检测第一次是否在房间内
+                tracker.CheckPositionImmediately();
+                tracker.StopDragging();
             }
         }
     }

@@ -4,13 +4,13 @@ public class CameraMapper : MonoBehaviour
 {
     public Camera[] cameras;
     private int currentIndex = 0;
+    public float panel = -0.15f;
 
     private static Vector3 _mappedMousePosition;
     public static Vector3 MappedMousePosition => _mappedMousePosition;
 
     private void Update()
     {
-        // 实时更新映射的鼠标世界坐标（基于当前相机）
         _mappedMousePosition = GetWorldFromScreen(Input.mousePosition);
     }
 
@@ -34,8 +34,7 @@ public class CameraMapper : MonoBehaviour
         Camera cam = cameras[currentIndex];
         Ray ray = cam.ScreenPointToRay(screenPos);
 
-        // 默认 Y=0 拖拽平面，你可以扩展为动态贴合目标物体
-        Plane dragPlane = new Plane(Vector3.up, Vector3.zero);
+        Plane dragPlane = new Plane(Vector3.up, new Vector3(0, panel, 0));
         if (dragPlane.Raycast(ray, out float enter))
             return ray.GetPoint(enter);
 

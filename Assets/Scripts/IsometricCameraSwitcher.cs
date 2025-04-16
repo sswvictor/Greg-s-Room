@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class IsometricCameraSwitcher : MonoBehaviour
 {
-    public CameraMapper mapper;  // ✅ 引用 CameraMapper（场景中需拖入）
+    public CameraMapper mapper;  // 引用 CameraMapper（场景中需拖入）
 
     public void SwitchCamera()
     {

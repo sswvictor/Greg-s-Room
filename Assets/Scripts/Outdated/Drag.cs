@@ -38,7 +38,14 @@ public class SmartDraggable3D : MonoBehaviour
         {
             transform.position = ray.GetPoint(enter) + offset;
         }
+
+        // 🔁 拖拽过程中，检测右键点击进行旋转
+        if (Input.GetMouseButtonDown(1))
+        {
+            transform.Rotate(0f, 90f, 0f, Space.Self);
+        }
     }
+
 
     void OnMouseUp()
     {
@@ -55,4 +62,5 @@ public class SmartDraggable3D : MonoBehaviour
             // 保持当前位置（有效拖放）
         }
     }
+
 }
