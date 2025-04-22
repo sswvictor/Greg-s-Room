@@ -20,15 +20,28 @@ public class ItemAutoDestroy : MonoBehaviour
     {
         floorGrid = Object.FindFirstObjectByType<FloorGrid>();
         selfCollider = GetComponent<Collider>();
-
-        if (cachedSize == Vector3.zero)
-        {
-            selfCollider.enabled = true;
-            cachedSize = selfCollider.bounds.size;
-            selfCollider.enabled = false;
-            Debug.Log($"[INIT SIZE] cachedSize = {cachedSize}");
-        }
     }
+
+    public void PrepareDragging()
+    {
+        if (selfCollider == null)
+            selfCollider = GetComponent<Collider>();
+
+        if (floorGrid == null)
+            floorGrid = Object.FindFirstObjectByType<FloorGrid>();
+
+        isDragging = true;
+        selfCollider.enabled = true;
+        cachedSize = selfCollider.bounds.size;
+        selfCollider.enabled = false;
+
+        floorGrid?.ShowColoredGrid();
+        Debug.Log("✅ Chiamata a ShowColoredGrid fatta");
+
+        Debug.Log("🔍 PrepareDragging() chiamato");
+        Debug.Log($"[PREPARE DRAGGING] cachedSize = {cachedSize}");
+    }
+
 
     void Update()
     {
@@ -54,7 +67,6 @@ public class ItemAutoDestroy : MonoBehaviour
         {
             transform.Rotate(0f, 90f, 0f, Space.Self);
 
-            // 重新计算尺寸并刷新投影
             selfCollider.enabled = true;
             cachedSize = selfCollider.bounds.size;
             selfCollider.enabled = false;
@@ -72,27 +84,29 @@ public class ItemAutoDestroy : MonoBehaviour
         }
     }
 
-    void OnMouseDown()
-    {
-        isDragging = true;
-        selfCollider.enabled = true;
-        cachedSize = selfCollider.bounds.size;
-        selfCollider.enabled = false;
-    }
-
-    void OnMouseUp()
+    public void TryPlace()
     {
         isDragging = false;
 
         Vector3 center = transform.position;
         Vector3 snapped = Vector3.zero;
 
+        Debug.Log($"TryPlace - center: {center}");
+
         if (floorGrid != null && floorGrid.TrySnapByEdge(center, cachedSize, out snapped))
         {
             transform.position = snapped;
+
+            BedLogic logic = GetComponent<BedLogic>();
+            if (logic != null)
+            {
+                Debug.Log("Call ShowFeedback()");
+                logic.ShowFeedback();
+            }
         }
         else
         {
+            Debug.LogWarning("Snap failed. Obhect destroyed.");
             floorGrid?.HideHighlight();
             originSlot.ClearInstance();
             originSlot.ShowIcon();
@@ -102,7 +116,8 @@ public class ItemAutoDestroy : MonoBehaviour
 
         CheckPositionImmediately();
         selfCollider.enabled = true;
-        floorGrid?.HideHighlight();
+        floorGrid?.HideColoredGrid();
+
     }
 
     public void StopDragging()
@@ -110,6 +125,7 @@ public class ItemAutoDestroy : MonoBehaviour
         isDragging = false;
         selfCollider.enabled = true;
         floorGrid?.HideHighlight();
+        floorGrid?.HideColoredGrid();
     }
 
     public void CheckPositionImmediately()

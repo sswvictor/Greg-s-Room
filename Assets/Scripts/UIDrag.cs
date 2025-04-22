@@ -17,7 +17,11 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         draggingInstance.name = prefabToSpawn.name;
 
         var tracker = draggingInstance.GetComponent<ItemAutoDestroy>();
-        tracker.Init(slotController, roomCollider);
+        if (tracker != null)
+        {
+            tracker.Init(slotController, roomCollider);
+            tracker.PrepareDragging(); // simulate the start of dragging
+        }
 
         slotController.RegisterInstance(draggingInstance);
         slotController.HideIcon();
@@ -25,7 +29,7 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnDrag(PointerEventData eventData)
     {
-        // 拖拽逻辑由实例自己处理
+        // This part is handled in ItemAutoDestroy
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -35,8 +39,7 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             var tracker = draggingInstance.GetComponent<ItemAutoDestroy>();
             if (tracker != null)
             {
-                tracker.CheckPositionImmediately();
-                tracker.StopDragging();
+                tracker.TryPlace(); // simulate the release and try to place the object
             }
         }
     }
