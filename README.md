@@ -24,3 +24,11 @@
 7. Fixed incorrect out-of-bounds detection caused by evaluating the pre-snapped floating position.  
 8. Fixed snapping failures near room boundaries caused by collider interference.  
 9. Note: Prefabs cannot reference scene-specific components directly (e.g., FloorGrid) and must bind via lookup in Start().  
+
+## 2025-04-24
+- Initial commit of .obj-files and PNG image files for the game.
+    - Created in MagicaVoxel 0.99.7.1.
+    - Basketball, bed, couch, room & table
+    - A work-in-progress that'll most likely require tweaking as development of the game continues.
+    - More assets are being worked on.
+    
