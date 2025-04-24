@@ -28,7 +28,7 @@
 ## 2025-04-24
 - Initial commit of .obj-files and PNG image files for the game.
     - Created in MagicaVoxel 0.99.7.1.
-    - Basketball, bed, couch, room & table
+    - Basketball, bed, couch, room & table.
     - A work-in-progress that'll most likely require tweaking as development of the game continues.
     - More assets are being worked on.
     
