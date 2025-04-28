@@ -24,3 +24,16 @@
 7. Fixed incorrect out-of-bounds detection caused by evaluating the pre-snapped floating position.  
 8. Fixed snapping failures near room boundaries caused by collider interference.  
 9. Note: Prefabs cannot reference scene-specific components directly (e.g., FloorGrid) and must bind via lookup in Start().  
+
+## 2025-04-24
+- Initial commit of .obj-files and PNG image files for the game.
+    - Created in MagicaVoxel 0.99.7.1.
+    - Basketball, bed, couch, room & table.
+    - A work-in-progress that'll most likely require tweaking as development of the game continues.
+    - More assets are being worked on.
+
+## 2025-04-28
+- Developed dynamic generation of ItemBox buttons, prefab binding and instantiation, as well as object dragging with floor grid snapping and highlight display for placement zones.
+- Improved the ItemBox interface with pixel art background images, button icons, and title text.
+- Separated the loading page and functional UI into independent canvases with proper rendering order, ensuring the loading screen overlays 3D models correctly without interference.
+- Completed the multi-camera switching logic, synchronized Canvas worldCamera references upon each switch.
