@@ -12,6 +12,9 @@ graph TD
     FloorGrid --> |Provides Grid| UIDragToSpawn
     IsometricCameraSwitcher --> |Controls| CameraMapper
     CameraMapper --> |Updates| Canvas
+    ItemAutoDestroy --> |Notifies| PlacementManager
+    PlacementManager --> |Updates| ChiManager
+    ChiManager --> |Updates| ChiBarUI[Chi Bar UI]
 ```
 
 ## Core Systems
@@ -72,7 +75,34 @@ graph TD
     - Position validation
     - Automatic cleanup for invalid placements
 
-### 5. Camera System
+### 5. Chi Energy System
+- **PlacementManager** (`PlacementManager.cs`)
+  - Implements a static event system for item placement
+  - Acts as a central hub for object placement notifications
+  - Uses C# events for loose coupling between systems
+  - Features:
+    - OnItemPlaced event for successful placements
+    - Expandable PlacedItemData struct for future metadata
+    - Debug logging for placement verification
+
+- **ChiManager** (`ChiManager.cs`)
+  - Manages the Chi energy system
+  - Listens to PlacementManager events
+  - Updates UI based on placement actions
+  - Key features:
+    - Configurable max Chi (default: 60)
+    - Per-item Chi value (default: 10)
+    - Fill bar visualization
+    - Automatic value clamping
+    - Public methods for Chi value access
+
+- **Object Placement Integration**
+  - ItemAutoDestroy validates placement and notifies PlacementManager
+  - ChiManager receives notifications and updates the UI
+  - PlacementManager acts as the decoupling layer
+  - Proper cleanup and unsubscription in OnDisable
+
+### 6. Camera System
 - **Camera Controls** (`IsometricCameraSwitcher.cs` & `CameraMapper.cs`)
   - Multiple camera view support
   - Seamless camera switching
@@ -91,10 +121,12 @@ graph TD
    - Room data structure ready for expansion
    - Transition system in place
 
-2. **Object Placement**
-   - Basic grid system implemented
-   - Snapping and highlighting working
-   - No Chi system implementation yet
+2. **Object Placement & Chi System**
+   - Grid-based placement with snapping
+   - Chi energy accumulation per placement
+   - Validation through ItemAutoDestroy
+   - Event-driven UI updates
+   - Modular design for future expansion
 
 3. **UI System**
    - Flexible item box system
@@ -103,11 +135,11 @@ graph TD
 
 ### Needed for Full Implementation
 
-1. **Chi System**
-   - Add Chi values to placed objects
-   - Implement Chi calculation system
-   - Create Chi visualization
-   - Add Chi effects on gameplay
+1. **Chi System Extensions**
+   - Add variable Chi values per object type
+   - Implement Chi depletion mechanics
+   - Add special effects for Chi milestones
+   - Consider Chi-based room progression
 
 2. **Life Choice System**
    - Extend RoomData to include choice implications
@@ -148,6 +180,8 @@ graph TD
    - UI events for drag and drop
    - Room transition system
    - Camera switch events
+   - Object placement notifications
+   - Chi system updates
 
 ## Future Optimization Opportunities
 
