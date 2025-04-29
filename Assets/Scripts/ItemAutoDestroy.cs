@@ -131,5 +131,10 @@ public class ItemAutoDestroy : MonoBehaviour
             originSlot.ShowIcon();
             Destroy(gameObject);
         }
+        else // Placement is valid
+        {
+            Debug.Log($"[ItemAutoDestroy] Valid placement at position: {pos}. Notifying PlacementManager.");
+            PlacementManager.NotifyItemPlaced(gameObject);
+        }
     }
 }
