@@ -37,3 +37,9 @@
 - Improved the ItemBox interface with pixel art background images, button icons, and title text.
 - Separated the loading page and functional UI into independent canvases with proper rendering order, ensuring the loading screen overlays 3D models correctly without interference.
 - Completed the multi-camera switching logic, synchronized Canvas worldCamera references upon each switch.
+
+## 2025-05-02
+- Merged Feedback Text System. Integrated the placement feedback system into the main architecture. After placing an item, a short message appears at the top of the screen indicating success or failure, adding emotional feedback.
+- Legality Check Aligned with Visual Highlight. Replaced hardcoded position checks with a legality flag derived from the placement highlight color, ensuring consistent logic and visual cues.
+- CHI Progress Bar Finalized. Completed integration of the CHI fill bar. The bar visually reflects CHI updates in real time with a smooth fill animation. Max value is 9 for quick visual scaling.
+- Fix: CHI Not Updating on Deletion. Resolved an issue where deleted items didn’t reduce the CHI immediately. Items are now detached before being destroyed, ensuring accurate scoring and UI updates
