@@ -147,8 +147,9 @@ MonoBehaviour:
   cellSize: 0.05
   floorX: 0.4
   floorZ: 0.4
-  floorY: -0.25
+  floorY: -0.32
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
+  roomCollider: {fileID: 0}
 --- !u!1 &1296137936242621253
 GameObject:
   m_ObjectHideFlags: 0
@@ -416,6 +417,10 @@ PrefabInstance:
     - target: {fileID: 3879661321520626556, guid: 74a3134a09b5bd74ea5718e21055a151, type: 3}
       propertyPath: m_Name
       value: Floor
+      objectReference: {fileID: 0}
+    - target: {fileID: 7692756565444889133, guid: 74a3134a09b5bd74ea5718e21055a151, type: 3}
+      propertyPath: floorY
+      value: -0.32
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

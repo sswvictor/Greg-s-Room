@@ -12,7 +12,6 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     {
         if (slotController.HasSpawned()) return;
 
-        // ✅ 动态查找当前房间的 ItemSpawnRoot
         Transform spawnParent = GameObject.Find("ItemSpawnRoot")?.transform;
         if (spawnParent == null)
         {
@@ -20,7 +19,6 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             return;
         }
 
-        // ✅ 动态查找当前房间的 FloorGrid 上的 Collider（用于碰撞检测、投影等）
         Collider roomCollider = GameObject.Find("Floor")?.GetComponent<Collider>();
         if (roomCollider == null)
         {
@@ -28,15 +26,18 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             return;
         }
 
-        // ✅ 实例化物体并设置为 Room 中的子物体
-        draggingInstance = Instantiate(prefabToSpawn, Vector3.zero, Quaternion.identity, spawnParent);
+        Vector3 spawnPos = CameraMapper.MappedMousePosition;
+        draggingInstance = Instantiate(prefabToSpawn, spawnPos, Quaternion.identity, spawnParent);
         draggingInstance.name = prefabToSpawn.name;
 
-        // ✅ 初始化销毁器（传入 slot 控制器和房间的地面 collider）
         var tracker = draggingInstance.GetComponent<ItemAutoDestroy>();
         if (tracker != null)
         {
             tracker.Init(slotController, roomCollider);
+
+            var grid = Object.FindFirstObjectByType<FloorGrid>();
+            if (grid != null)
+                grid.roomCollider = roomCollider;
         }
 
         slotController.RegisterInstance(draggingInstance);
@@ -45,7 +46,7 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnDrag(PointerEventData eventData)
     {
-        // 拖拽位置逻辑由 draggingInstance 自己负责
+        // 拖拽逻辑由 ItemAutoDestroy.Update() 管理
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -55,9 +56,17 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             var tracker = draggingInstance.GetComponent<ItemAutoDestroy>();
             if (tracker != null)
             {
-                tracker.CheckPositionImmediately(); // 检查落点是否合法
-                tracker.StopDragging();             // 停止更新位置
+                tracker.CheckPositionImmediately();
+                tracker.StopDragging();
+
+                // ✅ 直接自己根据 dropYOffset 修正Y，不依赖FloorGrid
+                Vector3 pos = draggingInstance.transform.position;
+                pos.y -= tracker.dropYOffset;
+                draggingInstance.transform.position = pos;
             }
         }
+
+        RoomManager.Instance?.RefreshCHIScore();
     }
+
 }

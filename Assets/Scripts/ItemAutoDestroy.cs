@@ -10,6 +10,9 @@ public class ItemAutoDestroy : MonoBehaviour
     private Vector3 cachedSize;
     private Collider selfCollider;
 
+    [Tooltip("Drop Y-offset applied when mouse is released.")]
+    public float dropYOffset = 0.1f;
+
     public void Init(ItemSlotController slot, Collider room)
     {
         originSlot = slot;
@@ -54,7 +57,6 @@ public class ItemAutoDestroy : MonoBehaviour
         {
             transform.Rotate(0f, 90f, 0f, Space.Self);
 
-            // 重新计算尺寸并刷新投影
             selfCollider.enabled = true;
             cachedSize = selfCollider.bounds.size;
             selfCollider.enabled = false;
@@ -89,6 +91,7 @@ public class ItemAutoDestroy : MonoBehaviour
 
         if (floorGrid != null && floorGrid.TrySnapByEdge(center, cachedSize, out snapped))
         {
+            snapped.y -= dropYOffset;
             transform.position = snapped;
         }
         else
@@ -96,6 +99,8 @@ public class ItemAutoDestroy : MonoBehaviour
             floorGrid?.HideHighlight();
             originSlot.ClearInstance();
             originSlot.ShowIcon();
+            transform.SetParent(null);
+            RoomManager.Instance?.RefreshCHIScore();
             Destroy(gameObject);
             return;
         }
@@ -103,6 +108,7 @@ public class ItemAutoDestroy : MonoBehaviour
         CheckPositionImmediately();
         selfCollider.enabled = true;
         floorGrid?.HideHighlight();
+        RoomManager.Instance?.RefreshCHIScore();
     }
 
     public void StopDragging()
@@ -129,7 +135,38 @@ public class ItemAutoDestroy : MonoBehaviour
         {
             originSlot.ClearInstance();
             originSlot.ShowIcon();
+
+            // ✅ 放置失败也显示字幕
+            if (FeedbackTextManager.Instance != null && floorGrid != null)
+            {
+                string name = gameObject.name.Replace("(Clone)", "");
+                if (name == "Bed_Prefab")
+                {
+                    FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
+                }
+            }
+
+            transform.SetParent(null);
+            RoomManager.Instance?.RefreshCHIScore();
             Destroy(gameObject);
         }
+
+        else
+        {
+            Debug.Log($"[ItemAutoDestroy] Valid placement at position: {pos}.");
+
+            if (FeedbackTextManager.Instance != null && floorGrid != null)
+            {
+                string name = gameObject.name.Replace("(Clone)", "");
+                if (name == "Bed_Prefab") // ✅ 指定哪些物体需要说话
+                {
+                    if (floorGrid.IsCurrentHighlightValid)
+                        FeedbackTextManager.Instance.ShowMessage("Damn bro, you nailed it", Color.green);
+                    else
+                        FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
+                }
+            }
+        }
+
     }
 }

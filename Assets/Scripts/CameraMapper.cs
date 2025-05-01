@@ -2,13 +2,20 @@ using UnityEngine;
 
 public class CameraMapper : MonoBehaviour
 {
+    public static CameraMapper Instance;   // ✅ 加上这一行
+
     public Camera[] cameras;
-    public Canvas[] canvases;   // 要同步的Canvas数组
+    public Canvas[] canvases;
     private int currentIndex = 0;
     public float panel = -0.15f;
 
     private static Vector3 _mappedMousePosition;
     public static Vector3 MappedMousePosition => _mappedMousePosition;
+
+    private void Awake()
+    {
+        Instance = this;    // ✅ 在 Awake() 里赋值
+    }
 
     private void Update()
     {
@@ -26,7 +33,6 @@ public class CameraMapper : MonoBehaviour
 
         Camera activeCamera = cameras[currentIndex];
 
-        // ✅ 同步Canvas
         foreach (var canvas in canvases)
         {
             if (canvas != null)
@@ -36,7 +42,6 @@ public class CameraMapper : MonoBehaviour
             }
         }
 
-        // ✅ 打印调试信息
         Debug.Log($"[CameraMapper] Switched to Camera {currentIndex}: {activeCamera.name}");
     }
 
@@ -56,5 +61,10 @@ public class CameraMapper : MonoBehaviour
             return ray.GetPoint(enter);
 
         return Vector3.zero;
+    }
+
+    public Camera GetCurrentCamera()
+    {
+        return cameras[currentIndex];
     }
 }
