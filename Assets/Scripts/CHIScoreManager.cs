@@ -41,11 +41,18 @@ public class CHIScoreManager : MonoBehaviour
             return 0;
         }
 
-        foreach (Transform child in parent)
-        {
-            int score = GetBaseScore(child.gameObject);
-            Debug.Log($"[CHI] {child.name} contributes {score} points.");
-            totalScore += score;
+        foreach (Transform child in parent){
+            var item = child.GetComponent<ItemAutoDestroy>();
+            if (item != null && item.isValidPlacement)
+            {
+                int score = GetBaseScore(child.gameObject);
+                Debug.Log($"[CHI ✅] {child.name} contributes {score} points.");
+                totalScore += score;
+            }
+            else
+            {
+                Debug.Log($"[CHI ❌] {child.name} skipped (invalid position or no component).");
+            }
         }
 
         Debug.Log($"[CHI] Total CHI in this room = {totalScore}");
