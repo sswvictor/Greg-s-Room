@@ -12,6 +12,8 @@ public class ItemAutoDestroy : MonoBehaviour
 
     [Tooltip("Drop Y-offset applied when mouse is released.")]
     public float dropYOffset = 0.1f;
+    public bool isValidPlacement = false;
+
 
     public void Init(ItemSlotController slot, Collider room)
     {
@@ -118,55 +120,63 @@ public class ItemAutoDestroy : MonoBehaviour
         floorGrid?.HideHighlight();
     }
 
-    public void CheckPositionImmediately()
+   public void CheckPositionImmediately(){
+
+    Vector3 pos = transform.position;
+    Bounds bounds = roomCollider.bounds;
+
+    float allowedMinY = bounds.min.y - 5f;
+    float allowedMaxY = bounds.max.y + 5f;
+
+    bool inside =
+        pos.x >= bounds.min.x && pos.x <= bounds.max.x &&
+        pos.z >= bounds.min.z && pos.z <= bounds.max.z &&
+        pos.y >= allowedMinY && pos.y <= allowedMaxY;
+
+    // Reset the isValidPlacement flag
+    isValidPlacement = false;
+
+    if (!inside)
     {
-        Vector3 pos = transform.position;
-        Bounds bounds = roomCollider.bounds;
+        originSlot.ClearInstance();
+        originSlot.ShowIcon();
 
-        float allowedMinY = bounds.min.y - 5f;
-        float allowedMaxY = bounds.max.y + 5f;
-
-        bool inside =
-            pos.x >= bounds.min.x && pos.x <= bounds.max.x &&
-            pos.z >= bounds.min.z && pos.z <= bounds.max.z &&
-            pos.y >= allowedMinY && pos.y <= allowedMaxY;
-
-        if (!inside)
+        if (FeedbackTextManager.Instance != null && floorGrid != null)
         {
-            originSlot.ClearInstance();
-            originSlot.ShowIcon();
+            string name = gameObject.name.Replace("(Clone)", "");
+            if (name == "Bed_Prefab")
+            {
+                FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
+            }
+        }
 
-            // ✅ 放置失败也显示字幕
-            if (FeedbackTextManager.Instance != null && floorGrid != null)
+        transform.SetParent(null);
+        RoomManager.Instance?.RefreshCHIScore();
+        Destroy(gameObject);
+    }
+    else
+    {
+        Debug.Log($"[ItemAutoDestroy] Valid placement at position: {pos}.");
+
+        if (floorGrid != null)
+        {
+            // ✅ Salva se la posizione è valida (verde)
+            isValidPlacement = floorGrid.IsCurrentHighlightValid;
+
+            // ✅ Feedback visivo coerente con validità
+            if (FeedbackTextManager.Instance != null)
             {
                 string name = gameObject.name.Replace("(Clone)", "");
                 if (name == "Bed_Prefab")
                 {
-                    FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
-                }
-            }
-
-            transform.SetParent(null);
-            RoomManager.Instance?.RefreshCHIScore();
-            Destroy(gameObject);
-        }
-
-        else
-        {
-            Debug.Log($"[ItemAutoDestroy] Valid placement at position: {pos}.");
-
-            if (FeedbackTextManager.Instance != null && floorGrid != null)
-            {
-                string name = gameObject.name.Replace("(Clone)", "");
-                if (name == "Bed_Prefab") // ✅ 指定哪些物体需要说话
-                {
-                    if (floorGrid.IsCurrentHighlightValid)
+                    if (isValidPlacement)
                         FeedbackTextManager.Instance.ShowMessage("Damn bro, you nailed it", Color.green);
                     else
                         FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
                 }
             }
         }
-
     }
+}
+
 }
