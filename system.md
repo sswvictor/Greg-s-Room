@@ -25,13 +25,17 @@ graph TD
   - Manages room data including available items for each room
   - Coordinates with ItemBoxController to display available items
   - Uses a transition panel for smooth room changes
-  ```csharp
-  public class RoomData {
-      public GameObject roomPrefab;
-      public List<Sprite> itemIcons;
-      public List<GameObject> itemPrefabs;
-  }
-  ```
+  - Room transitions use a black screen fade effect (placeholder for future cutscenes)
+  - Rooms are currently represented via camera switches over one shared model
+  - All items are prefabs and can be reused across rooms
+
+```csharp
+public class RoomData {
+    public GameObject roomPrefab;
+    public List<Sprite> itemIcons;
+    public List<GameObject> itemPrefabs;
+}
+```
 
 ### 2. Grid & Placement System
 - **Floor Grid** (`FloorGrid.cs`)
@@ -41,18 +45,34 @@ graph TD
   - Key features:
     - Grid dimensions: 12x12 cells
     - Cell size: 0.1 units
-    - Visual grid in editor for easy setup
-    - Highlight system for valid placement areas
+    - Adjustable grid direction, offset, and anchor logic
+    - Snapping supports rotation-aware bounding box recalculations
+    - Grid debug visuals available for testing
+    - Object auto-destruction and item reset on invalid placement
+
+- **UI Drag System** (`UIDrag.cs`)
+  - Implements drag-and-drop functionality
+  - Integrates with FloorGrid for placement
+  - Manages object lifecycle through ItemAutoDestroy
+  - Features:
+    - Drag preview
+    - Position validation
+    - 90-degree object rotation via right-click
+    - Runtime collider toggling for placement accuracy
+    - Dynamic anchor logic (e.g. top-right)
+    - Post-rotation size recalculation
+    - Ensures prefab-scene communication via runtime component lookup
 
 ### 3. Item Management System
 - **Item Box Controller** (`ItemBoxController.cs`)
   - Manages the UI for available items
-  - Creates and maintains item buttons
+  - Creates and maintains item buttons dynamically based on room state
   - Coordinates with RoomManager for item availability
   - Features:
-    - Dynamic slot system (default: 5 slots)
-    - Customizable button layout
-    - Automatic UI positioning
+    - Dynamic prefab binding on button creation
+    - Customizable button layout (default: 5 slots)
+    - Pixel art UI with background and icons
+    - Room-based refresh logic on transition
 
 - **Item Button Controller** (`ItemButtonController.cs`)
   - Handles individual item button functionality
@@ -66,14 +86,10 @@ graph TD
   - Handles parent hierarchy for spawned objects
   - Maintains organization through ItemSpawnRoot
 
-- **UI Drag System** (`UIDrag.cs`)
-  - Implements drag-and-drop functionality
-  - Integrates with FloorGrid for placement
-  - Manages object lifecycle through ItemAutoDestroy
-  - Features:
-    - Drag preview
-    - Position validation
-    - Automatic cleanup for invalid placements
+- **Item AutoDestroy** (`ItemAutoDestroy.cs`)
+  - Determines whether an object was placed validly
+  - Sends event to PlacementManager on success
+  - Cleans up or resets objects when out-of-bounds
 
 ### 5. Chi Energy System
 - **PlacementManager** (`PlacementManager.cs`)
@@ -102,6 +118,11 @@ graph TD
   - PlacementManager acts as the decoupling layer
   - Proper cleanup and unsubscription in OnDisable
 
+- **Chi UI (Canvas)**
+  - Lightning bolt icon + modular segmented bar
+  - Uses Unity `Image.fillAmount`
+  - Rendered correctly over 3D via Canvas worldCamera sync
+
 ### 6. Camera System
 - **Camera Controls** (`IsometricCameraSwitcher.cs` & `CameraMapper.cs`)
   - Multiple camera view support
@@ -112,6 +133,7 @@ graph TD
     - World-space mouse position tracking
     - Automatic canvas camera assignment
     - Panel offset support (-0.15 units)
+    - Canvas worldCamera references updated on switch
 
 ## Scaling Considerations
 
@@ -119,7 +141,8 @@ graph TD
 1. **Room Progression**
    - Simple linear progression through rooms
    - Room data structure ready for expansion
-   - Transition system in place
+   - Transition system with black screen fade between rooms
+   - Shared room prefab reused via camera angles
 
 2. **Object Placement & Chi System**
    - Grid-based placement with snapping
@@ -130,8 +153,19 @@ graph TD
 
 3. **UI System**
    - Flexible item box system
-   - Camera controls ready for multiple views
-   - Basic drag-and-drop functionality
+   - Pixel-perfect button system
+   - Separate canvases for loading and interaction
+   - Layered render control for UI vs 3D
+
+4. **Drag & Rotation**
+   - Right-click rotation with updated snapping bounds
+   - Runtime collider toggle avoids drag glitches
+   - Dynamic anchor alignment supported
+
+5. **Prefabs & Safety**
+   - All item buttons and objects are prefabs
+   - Object size initialized correctly to avoid embedding issues
+   - Scene references dynamically located via Start()
 
 ### Needed for Full Implementation
 
@@ -164,6 +198,7 @@ graph TD
    - Implement room completion criteria
    - Create dynamic difficulty adjustment
    - Add ambient animations
+   - Cutscenes on room transitions
 
 ## Design Patterns Used
 
@@ -204,3 +239,8 @@ graph TD
    - Add scriptable objects for configuration
    - Implement proper save/load system
    - Add room templates system
+
+5. **Debug & Test Tools**
+   - Add test scenes for each feature
+   - Canvas visibility toggles
+   - Branch testing debug overlay
