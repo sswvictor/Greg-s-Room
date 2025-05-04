@@ -6,8 +6,9 @@ using TMPro;
 [System.Serializable]
 public class RoomData {
     public GameObject roomPrefab;
-    public List<Sprite> itemIcons;
-    public List<GameObject> itemPrefabs;
+    public List<GameObject> buttonPrefabs; // ✅ 改为每个房间的按钮 prefab 列表
+    // public List<Sprite> itemIcons;       // ❌ 已弃用
+    // public List<GameObject> itemPrefabs; // ❌ 已弃用
 }
 
 public class RoomManager : MonoBehaviour
@@ -19,12 +20,13 @@ public class RoomManager : MonoBehaviour
     public ItemBoxController itemBoxController;
     public GameObject transitionPanel;
     public float transitionDuration = 0.5f;
+    public float maxScore = 20f;
 
     public TextMeshProUGUI chiScoreText;
     public ChiFillBar chiFillBar;
 
     private int currentIndex = -1;
-    private GameObject currentRoom;
+    public GameObject currentRoom;
 
     private int currentRoomCHIScore = 0;
     public int totalCHIScore = 0;
@@ -84,13 +86,20 @@ public class RoomManager : MonoBehaviour
 
         currentRoom = Instantiate(room.roomPrefab, roomParent);
 
+        // ✅ 初始化墙体显示为主视角（墙0/1显示，墙2/3压缩）
+        var wallCtrl = currentRoom.GetComponent<WallVisibilityController>();
+        if (wallCtrl != null)
+            wallCtrl.ShowMainView();
+        CameraMapper.Instance.SwitchTo(0); // 强制切换回主视角
+
         var spawnRoot = currentRoom.transform.Find("ItemSpawnRoot");
         if (spawnRoot != null)
             RoomSpawner.Instance.SetSpawnParent(spawnRoot);
         else
             Debug.LogWarning("ItemSpawnRoot not found in current room!");
 
-        itemBoxController.ShowItems(room.itemIcons, room.itemPrefabs);
+        // ✅ 改为使用按钮 prefab 列表生成
+        itemBoxController.ShowButtons(room.buttonPrefabs);
 
         // 等待一帧，确保生成完成再开始淡出
         yield return new WaitForSeconds(0.2f);
@@ -112,7 +121,7 @@ public class RoomManager : MonoBehaviour
         if (chiScoreText != null)
             chiScoreText.text = "CHI Score: 0";
 
-        chiFillBar?.UpdateBar(0, 9f);
+        chiFillBar?.UpdateBar(0, maxScore);
     }
 
     public void RefreshCHIScore()
@@ -136,6 +145,6 @@ public class RoomManager : MonoBehaviour
         currentRoomCHIScore = CHIScoreManager.Instance.CalculateTotalCHI();
         chiScoreText.text = $"CHI Score: {currentRoomCHIScore}";
 
-        chiFillBar?.UpdateBar(currentRoomCHIScore, 9f);
+        chiFillBar?.UpdateBar(currentRoomCHIScore, maxScore);
     }
 }

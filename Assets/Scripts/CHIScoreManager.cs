@@ -23,7 +23,7 @@ public class CHIScoreManager : MonoBehaviour
         // 初始化基础得分（根据你的Prefab名字调整）
         baseScores.Add("Plant", 5);
         baseScores.Add("Bed_Prefab", 3);
-        baseScores.Add("Table", 2);
+        baseScores.Add("Basketball_Prefab", 10);
         baseScores.Add("TrashBin", -3);
         baseScores.Add("Toilet", -5);
         // 可继续添加更多物品...

@@ -3,32 +3,38 @@ using UnityEngine.EventSystems;
 
 public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public GameObject prefabToSpawn;
-    public ItemSlotController slotController;
-
     private GameObject draggingInstance;
+    private ItemSlotController slotController;
+
+    private void Awake()
+    {
+        slotController = GetComponent<ItemSlotController>();
+    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (slotController.HasSpawned()) return;
+        if (slotController == null || slotController.HasSpawned())
+            return;
 
         Transform spawnParent = GameObject.Find("ItemSpawnRoot")?.transform;
         if (spawnParent == null)
         {
-            Debug.LogWarning("[UIDragToSpawn] ItemSpawnRoot not found. Abort spawn.");
+            Debug.LogWarning("[UIDrag] ItemSpawnRoot not found.");
             return;
         }
 
-        Collider roomCollider = GameObject.Find("Floor")?.GetComponent<Collider>();
+        Collider roomCollider = GameObject.Find("floor")?.GetComponent<Collider>();
         if (roomCollider == null)
         {
-            Debug.LogWarning("[UIDragToSpawn] FloorGrid collider not found.");
+            Debug.LogWarning("[UIDrag] Floor collider not found.");
             return;
         }
 
         Vector3 spawnPos = CameraMapper.MappedMousePosition;
-        draggingInstance = Instantiate(prefabToSpawn, spawnPos, Quaternion.identity, spawnParent);
-        draggingInstance.name = prefabToSpawn.name;
+        GameObject prefab = slotController.modelPrefab;
+
+        draggingInstance = Instantiate(prefab, spawnPos, Quaternion.identity, spawnParent);
+        draggingInstance.name = prefab.name;
 
         var tracker = draggingInstance.GetComponent<ItemAutoDestroy>();
         if (tracker != null)
@@ -41,12 +47,12 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         }
 
         slotController.RegisterInstance(draggingInstance);
-        slotController.HideIcon();
+        slotController.SetSpawned(true);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        // 拖拽逻辑由 ItemAutoDestroy.Update() 管理
+        // 拖拽行为在 ItemAutoDestroy 中处理
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -59,7 +65,6 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                 tracker.CheckPositionImmediately();
                 tracker.StopDragging();
 
-                // ✅ 直接自己根据 dropYOffset 修正Y，不依赖FloorGrid
                 Vector3 pos = draggingInstance.transform.position;
                 pos.y -= tracker.dropYOffset;
                 draggingInstance.transform.position = pos;
@@ -68,5 +73,4 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
         RoomManager.Instance?.RefreshCHIScore();
     }
-
 }

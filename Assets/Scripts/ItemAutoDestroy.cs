@@ -148,6 +148,10 @@ public class ItemAutoDestroy : MonoBehaviour
             {
                 FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
             }
+            if (name == "Basketball_Prefab")
+            {
+                FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
+            }
         }
 
         transform.SetParent(null);
@@ -168,6 +172,13 @@ public class ItemAutoDestroy : MonoBehaviour
             {
                 string name = gameObject.name.Replace("(Clone)", "");
                 if (name == "Bed_Prefab")
+                {
+                    if (isValidPlacement)
+                        FeedbackTextManager.Instance.ShowMessage("Damn bro, you nailed it", Color.green);
+                    else
+                        FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
+                }
+                if (name == "Basketball_Prefab")
                 {
                     if (isValidPlacement)
                         FeedbackTextManager.Instance.ShowMessage("Damn bro, you nailed it", Color.green);
