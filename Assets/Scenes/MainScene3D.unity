@@ -1430,7 +1430,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 974546203}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -2827,7 +2827,7 @@ MonoBehaviour:
   roomParent: {fileID: 1766673514}
   itemBoxController: {fileID: 1022528132}
   transitionPanel: {fileID: 974546203}
-  transitionDuration: 1
+  transitionDuration: 2
   chiScoreText: {fileID: 781249380}
   chiFillBar: {fileID: 889666648}
   totalCHIScore: 0
