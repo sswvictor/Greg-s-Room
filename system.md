@@ -4,17 +4,43 @@
 
 ```mermaid
 graph TD
-    RoomManager[RoomManager] --> |Manages| ItemBoxController
-    RoomManager --> |Creates| RoomSpawner
+    subgraph RoomManagement
+        RoomManager[RoomManager]
+    end
+    subgraph ItemManagement
+        ItemBoxController
+        ItemButtonController
+        RoomSpawner[RoomSpawner]
+    end
+    subgraph PlacementAndFeedback
+        FloorGrid[FloorGrid]
+        UIDragToSpawn[UIDragToSpawn]
+        ItemAutoDestroy[ItemAutoDestroy]
+        FeedbackTextManager[FeedbackTextManager]
+    end
+    subgraph ChiSystem
+        CHIScoreManager[CHIScoreManager]
+        ChiFillBar[ChiFillBar]
+    end
+    subgraph CameraSystem
+        IsometricCameraSwitcher
+        CameraMapper
+        Canvas
+    end
+
+    RoomManager --> |Manages| ItemBoxController
+    RoomManager --> |Creates Rooms| RoomSpawner
+    RoomManager --> |Calls| CHIScoreManager
+    RoomManager --> |Updates| ChiFillBar
     ItemBoxController --> |Creates| ItemButtonController
     ItemButtonController --> |Spawns via| RoomSpawner
     UIDragToSpawn --> |Uses| ItemAutoDestroy
-    FloorGrid --> |Provides Grid| UIDragToSpawn
+    FloorGrid --> |Provides Grid & Validity| ItemAutoDestroy
     IsometricCameraSwitcher --> |Controls| CameraMapper
     CameraMapper --> |Updates| Canvas
-    ItemAutoDestroy --> |Notifies| PlacementManager
-    PlacementManager --> |Updates| ChiManager
-    ChiManager --> |Updates| ChiBarUI[Chi Bar UI]
+    ItemAutoDestroy --> |Calls| RoomManager
+    ItemAutoDestroy --> |Shows Message| FeedbackTextManager
+    CHIScoreManager -.-> |Reads Validity| ItemAutoDestroy
 ```
 
 ## Core Systems
@@ -49,6 +75,8 @@ public class RoomData {
     - Snapping supports rotation-aware bounding box recalculations
     - Grid debug visuals available for testing
     - Object auto-destruction and item reset on invalid placement
+    - Provides IsCurrentHighlightValid flag for visual-logic alignment
+    - Highlight color indicates placement validity (red/green)
 
 - **UI Drag System** (`UIDrag.cs`)
   - Implements drag-and-drop functionality
@@ -92,36 +120,36 @@ public class RoomData {
   - Cleans up or resets objects when out-of-bounds
 
 ### 5. Chi Energy System
-- **PlacementManager** (`PlacementManager.cs`)
-  - Implements a static event system for item placement
-  - Acts as a central hub for object placement notifications
-  - Uses C# events for loose coupling between systems
-  - Features:
-    - OnItemPlaced event for successful placements
-    - Expandable PlacedItemData struct for future metadata
-    - Debug logging for placement verification
+- **Feedback Text System** (`FeedBack.cs`)
+  - Singleton pattern for global access via FeedbackTextManager.Instance
+  - Shows temporary placement feedback messages (2-second duration)
+  - Color-coded messages (green for success, red for failure)
+  - Uses TextMeshProUGUI for pixel-perfect text rendering
+  - Automatically hides messages after delay
+  - Supports message interruption/override
 
-- **ChiManager** (`ChiManager.cs`)
-  - Manages the Chi energy system
-  - Listens to PlacementManager events
-  - Updates UI based on placement actions
-  - Key features:
-    - Configurable max Chi (default: 60)
-    - Per-item Chi value (default: 10)
-    - Fill bar visualization
-    - Automatic value clamping
-    - Public methods for Chi value access
+- **CHIScoreManager** (`CHIScoreManager.cs`)
+  - Singleton managing CHI score calculations
+  - Features:
+    - Dictionary-based score mapping (prefab name to point value)
+    - Calculates total CHI by iterating through placed items
+    - Checks ItemAutoDestroy.isValidPlacement status for each item
+    - Example scores: Plant (5), Bed (3), Table (2), TrashBin (-3)
+    - Debug logging for score calculation transparency
+    - Called by RoomManager for score updates
 
 - **Object Placement Integration**
-  - ItemAutoDestroy validates placement and notifies PlacementManager
-  - ChiManager receives notifications and updates the UI
-  - PlacementManager acts as the decoupling layer
-  - Proper cleanup and unsubscription in OnDisable
+  - ItemAutoDestroy determines validity from FloorGrid.IsCurrentHighlightValid
+  - Triggers RoomManager.RefreshCHIScore after placement/deletion
+  - Items detached before destruction for accurate score updates
+  - Immediate recalculation ensures up-to-date CHI display
 
-- **Chi UI (Canvas)**
-  - Lightning bolt icon + modular segmented bar
-  - Uses Unity `Image.fillAmount`
-  - Rendered correctly over 3D via Canvas worldCamera sync
+- **Chi Bar UI (`ChiFillBar.cs`)**
+  - Visual progress bar using Unity UI Image
+  - Smooth fill amount updates via chiFillImage.fillAmount
+  - Maximum value set to 9 for clear visual scaling
+  - Updated by RoomManager after score calculations
+  - Supports immediate visual feedback on placement/deletion
 
 ### 6. Camera System
 - **Camera Controls** (`IsometricCameraSwitcher.cs` & `CameraMapper.cs`)
@@ -145,11 +173,12 @@ public class RoomData {
    - Shared room prefab reused via camera angles
 
 2. **Object Placement & Chi System**
-   - Grid-based placement with snapping
-   - Chi energy accumulation per placement
-   - Validation through ItemAutoDestroy
-   - Event-driven UI updates
-   - Modular design for future expansion
+   - Grid-based placement with visual validity feedback
+   - Chi energy system with visual progress bar (max 9)
+   - Validation through FloorGrid highlight color
+   - Score recalculation on place/destroy
+   - Immediate UI updates with feedback messages
+   - Per-item CHI scores with both positive and negative values
 
 3. **UI System**
    - Flexible item box system
@@ -170,10 +199,11 @@ public class RoomData {
 ### Needed for Full Implementation
 
 1. **Chi System Extensions**
-   - Add variable Chi values per object type
+   - Add pixel pop-up showing points gained/lost on placement
    - Implement Chi depletion mechanics
    - Add special effects for Chi milestones
    - Consider Chi-based room progression
+   - Extend base score system for all item types
 
 2. **Life Choice System**
    - Extend RoomData to include choice implications
@@ -211,12 +241,13 @@ public class RoomData {
    - Modular system design
    - Easy to extend and modify
 
-3. **Event-Based Communication**
+3. **System Communication**
    - UI events for drag and drop
    - Room transition system
    - Camera switch events
-   - Object placement notifications
-   - Chi system updates
+   - Direct score recalculation
+   - Visual feedback messages
+   - Real-time UI updates
 
 ## Future Optimization Opportunities
 
