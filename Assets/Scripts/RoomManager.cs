@@ -21,7 +21,7 @@ public class RoomManager : MonoBehaviour
     public float transitionDuration = 0.5f;
 
     public TextMeshProUGUI chiScoreText;
-    public ChiFillBar chiFillBar;  // ✅ 用于更新进度条
+    public ChiFillBar chiFillBar;
 
     private int currentIndex = -1;
     private GameObject currentRoom;
@@ -41,6 +41,21 @@ public class RoomManager : MonoBehaviour
             else
                 Debug.LogWarning("[RoomManager] ChiScoreText not found in scene.");
         }
+
+        // ✅ 启动前先隐藏场景内容，确保只显示加载页
+        if (transitionPanel != null)
+        {
+            transitionPanel.SetActive(true);
+            var cg = transitionPanel.GetComponent<CanvasGroup>();
+            if (cg != null)
+                cg.alpha = 1f;
+        }
+    }
+
+    private void Start()
+    {
+        // ✅ 避免中间显示空白，直接协程生成房间
+        StartCoroutine(SwitchRoomCoroutine());
     }
 
     public void LoadNextRoom()
@@ -52,12 +67,12 @@ public class RoomManager : MonoBehaviour
     {
         var cg = transitionPanel.GetComponent<CanvasGroup>();
         transitionPanel.SetActive(true);
-        while (cg.alpha < 1f)
-        {
-            cg.alpha += Time.deltaTime * 2;
-            yield return null;
-        }
 
+        // ✅ 确保加载遮罩不透明
+        cg.alpha = 1f;
+        yield return null;
+
+        // 清除旧房间
         totalCHIScore += currentRoomCHIScore;
         Debug.Log($"[GLOBAL CHI] Added {currentRoomCHIScore} points. Total now = {totalCHIScore}");
 
@@ -77,7 +92,9 @@ public class RoomManager : MonoBehaviour
 
         itemBoxController.ShowItems(room.itemIcons, room.itemPrefabs);
 
+        // 等待一帧，确保生成完成再开始淡出
         yield return new WaitForSeconds(0.2f);
+
         while (cg.alpha > 0f)
         {
             cg.alpha -= Time.deltaTime * 2;
@@ -95,7 +112,7 @@ public class RoomManager : MonoBehaviour
         if (chiScoreText != null)
             chiScoreText.text = "CHI Score: 0";
 
-        chiFillBar?.UpdateBar(0, 9f); // ✅ 同步进度条清零
+        chiFillBar?.UpdateBar(0, 9f);
     }
 
     public void RefreshCHIScore()
@@ -119,6 +136,6 @@ public class RoomManager : MonoBehaviour
         currentRoomCHIScore = CHIScoreManager.Instance.CalculateTotalCHI();
         chiScoreText.text = $"CHI Score: {currentRoomCHIScore}";
 
-        chiFillBar?.UpdateBar(currentRoomCHIScore, 9f); // ✅ 动态更新进度条
+        chiFillBar?.UpdateBar(currentRoomCHIScore, 9f);
     }
 }
