@@ -4,7 +4,7 @@
 o 
 
 # material
-mtllib floor_test.mtl
+mtllib floor00_test.mtl
 usemtl palette
 
 # normals
