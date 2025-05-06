@@ -13,20 +13,32 @@ public class PauseMenuManager : MonoBehaviour
 
     private bool isPaused = false;
     private PlayerInput playerInput;
+    private CanvasGroup overlayGroup;
 
     private void Awake()
     {
         Instance = this;
+
+        // Get CanvasGroup from NewOverlayPanel
+        if (pauseMenuRoot != null)
+        {
+            Transform overlayPanel = pauseMenuRoot.transform.Find("NewOverlayPanel");
+            if (overlayPanel != null)
+            {
+                overlayGroup = overlayPanel.GetComponent<CanvasGroup>();
+            }
+        }
 
         // Setup button listeners
         if (resumeButton != null) resumeButton.onClick.AddListener(ResumeGame);
         if (timelinesButton != null) timelinesButton.onClick.AddListener(OpenTimelines);
         if (saveQuitButton != null) saveQuitButton.onClick.AddListener(SaveAndQuit);
 
-        // Ensure menu starts hidden
+        // Ensure menu starts hidden and non-interactive
         if (pauseMenuRoot != null)
         {
             pauseMenuRoot.SetActive(false);
+            SetPauseMenuInteractivity(false);
         }
     }
 
@@ -46,6 +58,16 @@ public class PauseMenuManager : MonoBehaviour
         TogglePause();
     }
 
+    private void SetPauseMenuInteractivity(bool interactive)
+    {
+        if (overlayGroup != null)
+        {
+            overlayGroup.interactable = interactive;
+            overlayGroup.blocksRaycasts = interactive;
+            overlayGroup.alpha = interactive ? 1f : 0f;
+        }
+    }
+
     public void TogglePause()
     {
         isPaused = !isPaused;
@@ -54,6 +76,13 @@ public class PauseMenuManager : MonoBehaviour
         if (pauseMenuRoot != null)
         {
             pauseMenuRoot.SetActive(isPaused);
+            SetPauseMenuInteractivity(isPaused);
+
+            // When paused, move PauseMenuRoot to be the last child of Canvas for proper UI layering
+            if (isPaused && pauseMenuRoot.transform.parent != null)
+            {
+                pauseMenuRoot.transform.SetAsLastSibling();
+            }
         }
     }
 
