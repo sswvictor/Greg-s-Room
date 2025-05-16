@@ -6,6 +6,7 @@
 graph TD
     subgraph RoomManagement
         RoomManager[RoomManager]
+        WallVisibilityController[WallVisibilityController]
     end
     subgraph ItemManagement
         ItemBoxController
@@ -32,6 +33,7 @@ graph TD
     RoomManager --> |Creates Rooms| RoomSpawner
     RoomManager --> |Calls| CHIScoreManager
     RoomManager --> |Updates| ChiFillBar
+    RoomManager --> |Controls| WallVisibilityController
     ItemBoxController --> |Creates| ItemButtonController
     ItemButtonController --> |Spawns via| RoomSpawner
     UIDragToSpawn --> |Uses| ItemAutoDestroy
@@ -50,28 +52,32 @@ graph TD
   - Controls room progression and transitions
   - Manages room data including available items for each room
   - Coordinates with ItemBoxController to display available items
-  - Uses a transition panel for smooth room changes
-  - Room transitions use a black screen fade effect (placeholder for future cutscenes)
-  - Rooms are currently represented via camera switches over one shared model
-  - All items are prefabs and can be reused across rooms
+  - Uses a transition panel for smooth room changes (2-second duration)
+  - Room transitions use a black screen fade effect
+  - Tracks both current room CHI score and total CHI score
+  - Maximum CHI score set to 20 points
+  - Manages wall visibility through WallVisibilityController
+  - Automatically switches to main camera view on room change
 
 ```csharp
 public class RoomData {
     public GameObject roomPrefab;
-    public List<Sprite> itemIcons;
-    public List<GameObject> itemPrefabs;
+    public List<GameObject> buttonPrefabs; // Updated to use button prefabs directly
 }
 ```
 
 ### 2. Grid & Placement System
 - **Floor Grid** (`FloorGrid.cs`)
-  - Implements an isometric grid system (12x12 by default)
+  - Implements an isometric grid system (100x100 by default)
   - Provides snapping functionality for placed objects
   - Visual feedback through highlight tiles
   - Key features:
-    - Grid dimensions: 12x12 cells
-    - Cell size: 0.1 units
-    - Adjustable grid direction, offset, and anchor logic
+    - Grid dimensions: 100x100 cells
+    - Cell size: 0.05 units
+    - Floor offset configuration (X: 0.4, Y: -0.32, Z: 0.4)
+    - Edge-based snapping system
+    - Highlight tile prefab system
+    - Dynamic room collider reference
     - Snapping supports rotation-aware bounding box recalculations
     - Grid debug visuals available for testing
     - Object auto-destruction and item reset on invalid placement
@@ -95,12 +101,14 @@ public class RoomData {
 - **Item Box Controller** (`ItemBoxController.cs`)
   - Manages the UI for available items
   - Creates and maintains item buttons dynamically based on room state
-  - Coordinates with RoomManager for item availability
+  - Uses prefab-based button system
   - Features:
-    - Dynamic prefab binding on button creation
+    - Direct prefab instantiation
+    - Dynamic button layout
+    - Room-specific button configurations
+    - Automatic cleanup on room change
     - Customizable button layout (default: 5 slots)
     - Pixel art UI with background and icons
-    - Room-based refresh logic on transition
 
 - **Item Button Controller** (`ItemButtonController.cs`)
   - Handles individual item button functionality
@@ -110,14 +118,21 @@ public class RoomData {
 ### 4. Object Spawning & Placement
 - **Room Spawner** (`RoomSpawner.cs`)
   - Singleton pattern for global access
-  - Manages object instantiation
-  - Handles parent hierarchy for spawned objects
-  - Maintains organization through ItemSpawnRoot
+  - Manages object instantiation under ItemSpawnRoot
+  - Features:
+    - Dynamic parent hierarchy
+    - Mouse position to world space conversion
+    - Camera-aware placement system
+    - Integration with CameraMapper for accurate spawning
 
 - **Item AutoDestroy** (`ItemAutoDestroy.cs`)
-  - Determines whether an object was placed validly
-  - Sends event to PlacementManager on success
-  - Cleans up or resets objects when out-of-bounds
+  - Validates object placement within room bounds
+  - Manages placement feedback and cleanup
+  - Features:
+    - Room bounds checking with 5-unit vertical tolerance
+    - Custom feedback messages per item type
+    - Automatic cleanup of invalid placements
+    - CHI score update triggers
 
 ### 5. Chi Energy System
 - **Feedback Text System** (`FeedBack.cs`)
@@ -131,12 +146,18 @@ public class RoomData {
 - **CHIScoreManager** (`CHIScoreManager.cs`)
   - Singleton managing CHI score calculations
   - Features:
-    - Dictionary-based score mapping (prefab name to point value)
+    - Dictionary-based score mapping
+    - Current implemented scores:
+      - Plant: 5 points
+      - Bed: 3 points
+      - Basketball: 10 points
+      - TrashBin: -3 points
+      - Toilet: -5 points
+    - Real-time score calculation
+    - Validity checking through ItemAutoDestroy
+    - Debug logging system
     - Calculates total CHI by iterating through placed items
     - Checks ItemAutoDestroy.isValidPlacement status for each item
-    - Example scores: Plant (5), Bed (3), Table (2), TrashBin (-3)
-    - Debug logging for score calculation transparency
-    - Called by RoomManager for score updates
 
 - **Object Placement Integration**
   - ItemAutoDestroy determines validity from FloorGrid.IsCurrentHighlightValid
@@ -147,7 +168,7 @@ public class RoomData {
 - **Chi Bar UI (`ChiFillBar.cs`)**
   - Visual progress bar using Unity UI Image
   - Smooth fill amount updates via chiFillImage.fillAmount
-  - Maximum value set to 9 for clear visual scaling
+  - Maximum value set to 20 for clear visual scaling
   - Updated by RoomManager after score calculations
   - Supports immediate visual feedback on placement/deletion
 
@@ -163,6 +184,56 @@ public class RoomData {
     - Panel offset support (-0.15 units)
     - Canvas worldCamera references updated on switch
 
+- **Camera Setup**
+  - Main Camera: (-7.25, 10.79, -7.25) at 30° X, 45° Y
+  - Side Camera: (7.25, 10.79, -7.25) at 30° X, 315° Y
+  - Lighting System:
+    - Key Light: 50° angle at 135° rotation
+    - Fill Light: 50° angle at 315° rotation
+    - Top Light: 90° straight down
+  - Canvas positioned at (11.12, -4.21, 11.12) with 0.022 scale
+
+### 7. UI System
+- **Main Canvas Layout**
+  - Camera Switch Button: (760, 410)
+  - Next Room Button: (760, -340)
+  - Item Box Panel: (-760, -3.2)
+    - Content area offset: (0, -50)
+    - Title text offset: (0, 480)
+  - CHI Bar System:
+    - Base position: (-400, 480)
+    - Score display: (825, -15)
+    - Feedback text: (400, -900)
+
+## Current Implementation Status
+
+1. **Room System**
+   - Multiple room support implemented
+   - Smooth transitions with fade effect
+   - Wall visibility control system
+   - Automatic camera positioning
+   - ItemSpawnRoot organization
+
+2. **Placement System**
+   - Grid-based placement
+   - Edge snapping system
+   - Bounds validation
+   - Custom feedback per item
+   - Rotation support
+
+3. **CHI System**
+   - Score tracking per room
+   - Global score accumulation
+   - Visual feedback
+   - Item-specific scoring
+   - Real-time updates
+
+4. **Camera System**
+   - Dual camera setup
+   - Three-point lighting
+   - Dynamic canvas updating
+   - Screen-to-world conversion
+
 ## Scaling Considerations
 
 ### Current Implementation
@@ -174,7 +245,7 @@ public class RoomData {
 
 2. **Object Placement & Chi System**
    - Grid-based placement with visual validity feedback
-   - Chi energy system with visual progress bar (max 9)
+   - Chi energy system with visual progress bar (max 20)
    - Validation through FloorGrid highlight color
    - Score recalculation on place/destroy
    - Immediate UI updates with feedback messages
@@ -196,39 +267,31 @@ public class RoomData {
    - Object size initialized correctly to avoid embedding issues
    - Scene references dynamically located via Start()
 
-### Needed for Full Implementation
+## Future Development Priorities
 
-1. **Chi System Extensions**
-   - Add pixel pop-up showing points gained/lost on placement
-   - Implement Chi depletion mechanics
-   - Add special effects for Chi milestones
-   - Consider Chi-based room progression
-   - Extend base score system for all item types
+1. **CHI System Extensions**
+   - Add more item scores
+   - Implement score animations
+   - Add milestone rewards
+   - Expand feedback system
 
-2. **Life Choice System**
-   - Extend RoomData to include choice implications
-   - Add special object types for life choices
-   - Implement choice tracking system
-   - Create outcome calculation system
-
-3. **Save/Load System**
-   - Add room state persistence
-   - Save player choices
-   - Track Chi history
-   - Store multiple playthroughs
-
-4. **UI Enhancements**
-   - Add Chi score display
-   - Implement choice preview system
-   - Create outcome summary screen
-   - Add tutorial elements
-
-5. **Gameplay Extensions**
-   - Add object interaction system
+2. **Room System**
+   - Add more room templates
    - Implement room completion criteria
-   - Create dynamic difficulty adjustment
-   - Add ambient animations
-   - Cutscenes on room transitions
+   - Add environmental interactions
+   - Expand wall visibility options
+
+3. **UI Improvements**
+   - Add tutorial system
+   - Implement help overlays
+   - Add item descriptions
+   - Enhance feedback visuals
+
+4. **Technical Optimizations**
+   - Implement object pooling
+   - Add save/load system
+   - Optimize grid calculations
+   - Add undo/redo system
 
 ## Design Patterns Used
 
