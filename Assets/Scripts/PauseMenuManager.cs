@@ -19,6 +19,8 @@ public class PauseMenuManager : MonoBehaviour
     {
         Instance = this;
 
+
+
         // Get CanvasGroup from NewOverlayPanel
         if (pauseMenuRoot != null)
         {
@@ -28,6 +30,7 @@ public class PauseMenuManager : MonoBehaviour
                 overlayGroup = overlayPanel.GetComponent<CanvasGroup>();
             }
         }
+
 
         // Setup button listeners
         if (resumeButton != null) resumeButton.onClick.AddListener(ResumeGame);
@@ -73,9 +76,13 @@ public class PauseMenuManager : MonoBehaviour
         isPaused = !isPaused;
         Time.timeScale = isPaused ? 0f : 1f;
 
+
         if (pauseMenuRoot != null)
         {
             pauseMenuRoot.SetActive(isPaused);
+            pauseMenuRoot.transform.localScale = Vector3.one;
+            pauseMenuRoot.transform.localPosition = Vector3.zero;
+
             SetPauseMenuInteractivity(isPaused);
 
             // When paused, move PauseMenuRoot to be the last child of Canvas for proper UI layering
