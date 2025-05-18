@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8df74b11c2a0d49f8ad10fc3e07aeca3, type: 3}
+  m_Name: BedroomRules
+  m_EditorClassIdentifier: 
+  ruleSets:
+  - objectType: Bed_Prefab
+    roomType: Bedroom
+    directionalRules:
+    - mainDirection: {x: 0, y: 0, z: 1}
+      positionRules:
+      - positionType: 1
+        zoneQuality: 0
+        scoreModifier: 5
+        feedbackMessage: Perfect! A bed in the north-east corner promotes good energy flow.
+      - positionType: 8
+        zoneQuality: 1
+        scoreModifier: 0
+        feedbackMessage: The center of the room is acceptable for a bed, but not ideal.
+      - positionType: 5
+        zoneQuality: 2
+        scoreModifier: -3
+        feedbackMessage: A bed in the south-west corner blocks positive energy.
+      - positionType: 9
+        zoneQuality: 0
+        scoreModifier: 3
+        feedbackMessage: Beds are best placed with their head against a wall for support.
+    - mainDirection: {x: 1, y: 0, z: 0}
+      positionRules:
+      - positionType: 2
+        zoneQuality: 0
+        scoreModifier: 5
+        feedbackMessage: Perfect! A bed in the east promotes good rising energy.
+      - positionType: 8
+        zoneQuality: 1
+        scoreModifier: 0
+        feedbackMessage: The center of the room is acceptable for a bed, but not ideal.
+      - positionType: 6
+        zoneQuality: 2
+        scoreModifier: -3
+        feedbackMessage: A bed in the west blocks positive energy flow.
+      - positionType: 9
+        zoneQuality: 0
+        scoreModifier: 3
+        feedbackMessage: Beds are best placed with their head against a wall for support.
+  - objectType: Plant
+    roomType: Bedroom
+    directionalRules:
+    - mainDirection: {x: 0, y: 0, z: 1}
+      positionRules:
+      - positionType: 2
+        zoneQuality: 0
+        scoreModifier: 3
+        feedbackMessage: Great! Plants in the east corner bring fresh energy.
+      - positionType: 0
+        zoneQuality: 0
+        scoreModifier: 3
+        feedbackMessage: Perfect! Plants in the north promote growing energy.
+      - positionType: 8
+        zoneQuality: 2
+        scoreModifier: -2
+        feedbackMessage: Plants in the center of the room can disrupt energy flow.
+      - positionType: 10
+        zoneQuality: 2
+        scoreModifier: -2
+        feedbackMessage: Plants near doors disrupt the flow of energy into the room. 

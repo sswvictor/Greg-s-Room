@@ -9,6 +9,9 @@ public class ItemAutoDestroy : MonoBehaviour
 
     private Vector3 cachedSize;
     private Collider selfCollider;
+    
+    // Reference to the feng shui visualizer
+    private FengShuiVisualizer fengShuiVisualizer;
 
     [Tooltip("Drop Y-offset applied when mouse is released.")]
     public float dropYOffset = 0.1f;
@@ -25,6 +28,9 @@ public class ItemAutoDestroy : MonoBehaviour
     {
         floorGrid = Object.FindFirstObjectByType<FloorGrid>();
         selfCollider = GetComponent<Collider>();
+        
+        // Find the feng shui visualizer
+        fengShuiVisualizer = FindObjectOfType<FengShuiVisualizer>();
 
         if (cachedSize == Vector3.zero)
         {
@@ -48,10 +54,20 @@ public class ItemAutoDestroy : MonoBehaviour
             if (floorGrid != null && floorGrid.TrySnapByEdge(center, cachedSize, out snapped))
             {
                 transform.position = snapped;
+                
+                // Show feng shui zones when dragging
+                if (fengShuiVisualizer != null)
+                {
+                    string roomType = RoomManager.Instance?.GetCurrentRoomType() ?? "";
+                    fengShuiVisualizer.ShowZonesForObject(gameObject, roomType);
+                }
             }
             else
             {
                 floorGrid?.HideHighlight();
+                
+                // Clear feng shui zones when not over valid grid
+                fengShuiVisualizer?.ClearAllHighlights();
             }
         }
 
@@ -68,10 +84,20 @@ public class ItemAutoDestroy : MonoBehaviour
             if (floorGrid != null && floorGrid.TrySnapByEdge(center, cachedSize, out snapped))
             {
                 transform.position = snapped;
+                
+                // Update feng shui zones after rotation
+                if (fengShuiVisualizer != null)
+                {
+                    string roomType = RoomManager.Instance?.GetCurrentRoomType() ?? "";
+                    fengShuiVisualizer.ShowZonesForObject(gameObject, roomType);
+                }
             }
             else
             {
                 floorGrid?.HideHighlight();
+                
+                // Clear feng shui zones when not over valid grid
+                fengShuiVisualizer?.ClearAllHighlights();
             }
         }
     }
@@ -99,6 +125,13 @@ public class ItemAutoDestroy : MonoBehaviour
         else
         {
             floorGrid?.HideHighlight();
+            
+            // Clear feng shui zones
+            if (fengShuiVisualizer != null)
+            {
+                fengShuiVisualizer.ClearAllHighlights();
+            }
+            
             originSlot.ClearInstance();
             originSlot.ShowIcon();
             transform.SetParent(null);
@@ -110,6 +143,13 @@ public class ItemAutoDestroy : MonoBehaviour
         CheckPositionImmediately();
         selfCollider.enabled = true;
         floorGrid?.HideHighlight();
+        
+        // Clear feng shui zones after placement
+        if (fengShuiVisualizer != null)
+        {
+            fengShuiVisualizer.ClearAllHighlights();
+        }
+        
         RoomManager.Instance?.RefreshCHIScore();
     }
 
@@ -118,6 +158,12 @@ public class ItemAutoDestroy : MonoBehaviour
         isDragging = false;
         selfCollider.enabled = true;
         floorGrid?.HideHighlight();
+        
+        // Clear feng shui zones
+        if (fengShuiVisualizer != null)
+        {
+            fengShuiVisualizer.ClearAllHighlights();
+        }
     }
 
    public void CheckPositionImmediately(){
@@ -141,17 +187,9 @@ public class ItemAutoDestroy : MonoBehaviour
         originSlot.ClearInstance();
         originSlot.ShowIcon();
 
-        if (FeedbackTextManager.Instance != null && floorGrid != null)
+        if (FeedbackTextManager.Instance != null)
         {
-            string name = gameObject.name.Replace("(Clone)", "");
-            if (name == "Bed_Prefab")
-            {
-                FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
-            }
-            if (name == "Basketball_Prefab")
-            {
-                FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
-            }
+            FeedbackTextManager.Instance.ShowMessage("Out of room bounds", Color.red);
         }
 
         transform.SetParent(null);
@@ -164,27 +202,14 @@ public class ItemAutoDestroy : MonoBehaviour
 
         if (floorGrid != null)
         {
-            // ✅ Salva se la posizione è valida (verde)
+            // Set placement validity based on grid highlight
             isValidPlacement = floorGrid.IsCurrentHighlightValid;
 
-            // ✅ Feedback visivo coerente con validità
-            if (FeedbackTextManager.Instance != null)
+            // Feng shui feedback will be shown by the CHIScoreManager during RefreshCHIScore
+            // However, still show basic invalid position feedback
+            if (!isValidPlacement && FeedbackTextManager.Instance != null)
             {
-                string name = gameObject.name.Replace("(Clone)", "");
-                if (name == "Bed_Prefab")
-                {
-                    if (isValidPlacement)
-                        FeedbackTextManager.Instance.ShowMessage("Damn bro, you nailed it", Color.green);
-                    else
-                        FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
-                }
-                if (name == "Basketball_Prefab")
-                {
-                    if (isValidPlacement)
-                        FeedbackTextManager.Instance.ShowMessage("Damn bro, you nailed it", Color.green);
-                    else
-                        FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
-                }
+                FeedbackTextManager.Instance.ShowMessage("Invalid position", Color.red);
             }
         }
     }

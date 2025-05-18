@@ -7,6 +7,7 @@ using TMPro;
 public class RoomData {
     public GameObject roomPrefab;
     public List<GameObject> buttonPrefabs; // ✅ 改为每个房间的按钮 prefab 列表
+    public string roomType = ""; // Room type for feng shui rules (e.g., "Bedroom", "LivingRoom")
     // public List<Sprite> itemIcons;       // ❌ 已弃用
     // public List<GameObject> itemPrefabs; // ❌ 已弃用
 }
@@ -65,6 +66,16 @@ public class RoomManager : MonoBehaviour
         StartCoroutine(SwitchRoomCoroutine());
     }
 
+    // Get the current room type for feng shui calculations
+    public string GetCurrentRoomType()
+    {
+        if (currentIndex >= 0 && currentIndex < rooms.Count)
+        {
+            return rooms[currentIndex].roomType;
+        }
+        return "";
+    }
+
     private IEnumerator SwitchRoomCoroutine()
     {
         var cg = transitionPanel.GetComponent<CanvasGroup>();
@@ -85,6 +96,20 @@ public class RoomManager : MonoBehaviour
         var room = rooms[currentIndex];
 
         currentRoom = Instantiate(room.roomPrefab, roomParent);
+        
+        // Tag the room for feng shui position detection
+        if (currentRoom.tag != "Room")
+        {
+            currentRoom.tag = "Room";
+            Debug.Log("[FENG SHUI] Tagged room for position detection");
+        }
+
+        // Set the current room type in CHIScoreManager
+        if (CHIScoreManager.Instance != null)
+        {
+            CHIScoreManager.Instance.SetCurrentRoomType(room.roomType);
+            Debug.Log($"[FENG SHUI] Current room type set to: {room.roomType}");
+        }
 
         // ✅ 初始化墙体显示为主视角（墙0/1显示，墙2/3压缩）
         var wallCtrl = currentRoom.GetComponent<WallVisibilityController>();
