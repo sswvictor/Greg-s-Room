@@ -73,7 +73,7 @@ public class ItemBoxController : MonoBehaviour
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(300f, 300f);  // ✅ 修复按钮压扁：设定固定尺寸
+            // rect.sizeDelta = new Vector2(300f, 300f);  // ✅ 修复按钮压扁：设定固定尺寸
 
             float yPos = startYPosition - i * (buttonHeight + spacing);
             rect.anchoredPosition = new Vector2(0f, yPos);

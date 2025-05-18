@@ -9,6 +9,12 @@ public class FloorGrid : MonoBehaviour
     public float floorZ = 0.4f;
     public float floorY = -0.33f;
 
+    public float GetFloorY()
+    {
+        return floorY;
+    }
+
+
     public GameObject highlightTilePrefab; // Assign a prefab with SpriteRenderer
     public Collider roomCollider; // 外部设置的房间碰撞器
 
@@ -67,45 +73,72 @@ public class FloorGrid : MonoBehaviour
         }
 
         Vector3 center = corner - new Vector3(w * 0.5f * cellSize, 0.01f, h * 0.5f * cellSize);
-
         highlightInstance.transform.position = center;
         highlightInstance.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
         highlightInstance.transform.localScale = new Vector3(w * cellSize, h * cellSize, 0.05f);
-
         highlightInstance.SetActive(true);
 
         bool isValid = true;
+
+        // ✅ 第一阶段：房间边界判断
         if (roomCollider != null)
         {
             Bounds highlightBounds = highlightInstance.GetComponent<Renderer>().bounds;
             Bounds roomBounds = roomCollider.bounds;
+            const float epsilon = 0.1f;
 
-            // ✅ 打点1：打印高亮的bounds
-            // Debug.Log($"[Highlight Bounds] min=({highlightBounds.min.x:F3}, {highlightBounds.min.y:F3}, {highlightBounds.min.z:F3}), max=({highlightBounds.max.x:F3}, {highlightBounds.max.y:F3}, {highlightBounds.max.z:F3})");
+            // Debug.Log($"[CHECK BOUND] RoomX: ({roomBounds.min.x:F3}, {roomBounds.max.x:F3})");
+            // Debug.Log($"[CHECK BOUND] HighX: ({highlightBounds.min.x:F3}, {highlightBounds.max.x:F3})");
 
-            // ✅ 打点2：打印房间floor的bounds
-            // Debug.Log($"[Floor Bounds] min=({roomBounds.min.x:F3}, {roomBounds.min.y:F3}, {roomBounds.min.z:F3}), max=({roomBounds.max.x:F3}, {roomBounds.max.y:F3}, {roomBounds.max.z:F3})");
-
-            const float epsilon = 0.05f;
+            // Debug.Log($"[CHECK BOUND] RoomZ: ({roomBounds.min.z:F3}, {roomBounds.max.z:F3})");
+            // Debug.Log($"[CHECK BOUND] HighZ: ({highlightBounds.min.z:F3}, {highlightBounds.max.z:F3})");
 
             bool xValid = highlightBounds.min.x >= roomBounds.min.x - epsilon &&
-                          highlightBounds.max.x <= roomBounds.max.x + epsilon;
+                        highlightBounds.max.x <= roomBounds.max.x + epsilon;
+
             bool zValid = highlightBounds.min.z >= roomBounds.min.z - epsilon &&
-                          highlightBounds.max.z <= roomBounds.max.z + epsilon;
+                        highlightBounds.max.z <= roomBounds.max.z + epsilon;
 
             isValid = xValid && zValid;
+
+            // Debug.Log($"[VALIDITY] xValid = {xValid}, zValid = {zValid}, final = {isValid}");
+        }
+
+
+        // ✅ 第二阶段：重叠检测（避免放到已有物体上）
+        if (isValid)
+        {
+            Collider[] overlapping = Physics.OverlapBox(
+                highlightInstance.transform.position,
+                highlightInstance.transform.localScale * 0.5f,
+                highlightInstance.transform.rotation
+            );
+
+            foreach (var col in overlapping)
+            {
+                if (col == null || col.isTrigger) continue;
+                if (col.gameObject == highlightInstance) continue;
+                if (col == roomCollider) continue;
+
+                // // ✅ 可拓展：支持堆叠的物体加特殊标签/脚本后跳过
+                // if (col.GetComponent<SupportsStacking>() != null) continue;
+
+                isValid = false;
+                break;
+            }
         }
 
         IsCurrentHighlightValid = isValid;
 
         var sr = highlightInstance.GetComponent<SpriteRenderer>();
         sr.color = isValid
-            ? new Color(0f, 0.8f, 0.3f, 0.8f)  // ✅ 合法绿色，80%不透明
-            : new Color(1f, 0f, 0f, 0.8f);     // ❌ 非法红色，80%不透明
+            ? new Color(0f, 0.8f, 0.3f, 0.8f)  // ✅ 合法绿色
+            : new Color(1f, 0f, 0f, 0.8f);     // ❌ 遮挡/非法：红色
 
         sr.sortingLayerName = "UI";
         sr.sortingOrder = 100;
     }
+
 
     public void HideHighlight()
     {

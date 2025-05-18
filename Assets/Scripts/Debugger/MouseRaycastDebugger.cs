@@ -3,6 +3,7 @@ using UnityEngine;
 public class MouseRaycastDebugger : MonoBehaviour
 {
     public CameraMapper mapper;  // 拖入你的 CameraMapper 实例
+    public bool drawDebugRay = true;
 
     void Update()
     {
@@ -12,23 +13,31 @@ public class MouseRaycastDebugger : MonoBehaviour
 
             if (cam == null)
             {
-                Debug.LogWarning("[RAYCAST DEBUG] No valid camera found.");
+                Debug.LogWarning("[RAYCAST DEBUG] ❌ No valid camera found.");
                 return;
             }
 
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            Vector3 screenPos = Input.mousePosition;
+            Ray ray = cam.ScreenPointToRay(screenPos);
+
+            Debug.Log($"[RAYCAST DEBUG] 👆 Mouse clicked at screen {screenPos}, using camera: {cam.name}");
+
             if (Physics.Raycast(ray, out RaycastHit hit, 100f))
             {
-                Debug.Log($"[RAYCAST DEBUG] Mouse clicked on: {hit.collider.name} (layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)})");
+                Collider col = hit.collider;
+                Debug.Log($"[RAYCAST DEBUG ✅] Hit object: {col.name}, worldPos: {hit.point:F3}, layer: {LayerMask.LayerToName(col.gameObject.layer)}, colliderEnabled: {col.enabled}");
             }
             else
             {
-                Debug.Log("[RAYCAST DEBUG] Mouse clicked on nothing.");
+                Debug.Log($"[RAYCAST DEBUG ❌] No object hit. Ray origin: {ray.origin:F3}, direction: {ray.direction.normalized:F3}");
             }
+
+            if (drawDebugRay)
+                Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 2f);
         }
     }
 
-    // 用反射或扩展方法获取当前索引（因为 currentIndex 是 private）
+    // 用反射读取 CameraMapper 的私有字段 currentIndex
     private int mapperCurrentIndex()
     {
         var field = typeof(CameraMapper).GetField("currentIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

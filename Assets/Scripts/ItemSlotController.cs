@@ -11,13 +11,7 @@ public class ItemSlotController : MonoBehaviour
 
     private GameObject spawnedInstance;
 
-    public void OnClick()
-    {
-        if (HasSpawned() || modelPrefab == null) return;
 
-        RoomSpawner.Instance.Spawn(modelPrefab);
-        SetSpawned(true);
-    }
 
     public void RegisterInstance(GameObject obj)
     {
@@ -34,11 +28,11 @@ public class ItemSlotController : MonoBehaviour
         if (!state)
         {
             ClearInstance();
-            ShowIcon();   // ✅ 恢复图标
+            ShowIcon();
         }
         else
         {
-            HideIcon();   // ✅ 隐藏图标
+            HideIcon();
         }
     }
 
@@ -62,5 +56,50 @@ public class ItemSlotController : MonoBehaviour
     public GameObject GetSpawnedInstance()
     {
         return spawnedInstance;
+    }
+
+    // ✅ 提取辅助函数（用于单击与拖拽共用）
+    private static Collider FindTargetCollider(PlacementType type)
+    {
+        if (type == PlacementType.Floor)
+        {
+            GameObject floorGO = GameObject.Find("floor");
+            return floorGO?.GetComponent<Collider>();
+        }
+
+        if (type == PlacementType.Wall)
+        {
+            string[] wallNames = { "wall0", "wall1", "wall2", "wall3" };
+            Vector3 mouse = CameraMapper.MappedMousePositionXY;
+            float minDelta = float.MaxValue;
+            Collider closest = null;
+
+            foreach (string name in wallNames)
+            {
+                GameObject wall = GameObject.Find(name);
+                if (wall == null) continue;
+                if (wall.transform.localScale.y < 0.2f) continue;
+
+                Collider col = wall.GetComponent<Collider>();
+                if (col == null || !col.enabled) continue;
+
+                Vector3 forward = wall.transform.forward;
+                float delta = Mathf.Abs(
+                    Mathf.Abs(forward.z) > Mathf.Abs(forward.x)
+                    ? wall.transform.position.z - mouse.z
+                    : wall.transform.position.x - mouse.x
+                );
+
+                if (delta < minDelta)
+                {
+                    minDelta = delta;
+                    closest = col;
+                }
+            }
+
+            return closest;
+        }
+
+        return null;
     }
 }

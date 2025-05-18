@@ -1,18 +1,40 @@
+// ✅ ItemAutoDestroy.cs（保持 HashSet 封装，但嵌入类内部）
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ItemAutoDestroy : MonoBehaviour
 {
     private ItemSlotController originSlot;
     private Collider roomCollider;
-    private FloorGrid floorGrid;
+    public FloorGrid floorGrid;
+    public WallGrid wallGrid;
     private bool isDragging = true;
 
     private Vector3 cachedSize;
     private Collider selfCollider;
 
-    [Tooltip("Drop Y-offset applied when mouse is released.")]
-    public float dropYOffset = 0.1f;
     public bool isValidPlacement = false;
+
+    // ✅ 内部封装销毁列表
+    private static readonly HashSet<string> destroyIfInvalid = new()
+    {
+        "Bed_Prefab",
+        "Bookshelf_Prefab",
+        "Couch_Prefab",
+        "Nightstand_Prefab",
+        "Basketball_Prefab",
+        "Frame_Prefab"
+    };
+
+    private bool ShouldDestroy(string name)
+    {
+        return destroyIfInvalid.Contains(name);
+    }
+
+    // public void AssignFloorGrid(FloorGrid grid)
+    // {
+    //     floorGrid = grid;
+    // }
 
 
     public void Init(ItemSlotController slot, Collider room)
@@ -26,33 +48,47 @@ public class ItemAutoDestroy : MonoBehaviour
         floorGrid = Object.FindFirstObjectByType<FloorGrid>();
         selfCollider = GetComponent<Collider>();
 
+        if (selfCollider == null)
+        {
+            Debug.LogError($"[ItemAutoDestroy ❌] {name} has NO collider attached!");
+            return;
+        }
+
         if (cachedSize == Vector3.zero)
         {
             selfCollider.enabled = true;
             cachedSize = selfCollider.bounds.size;
-            selfCollider.enabled = false;
-            Debug.Log($"[INIT SIZE] cachedSize = {cachedSize}");
+
+            // ❗ 只有是拖拽生成的物体（isDragging 为 true）才临时关闭 collider
+            if (isDragging)
+            {
+                selfCollider.enabled = false;
+                Debug.Log($"[INIT SIZE] {name} -> size = {cachedSize:F3}, collider TEMP disabled for drag");
+            }
+            else
+            {
+                Debug.Log($"[INIT SIZE] {name} -> size = {cachedSize:F3}, collider REMAINS enabled for click");
+            }
         }
     }
+
 
     void Update()
     {
         if (!isDragging) return;
+        if (GamePauseState.IsPaused) return;
 
         if (Input.GetMouseButton(0))
         {
-            transform.position = CameraMapper.MappedMousePosition;
+            Vector3 mousePos = GetMappedMousePosition();
+            transform.position = mousePos;
 
             Vector3 center = transform.position;
             Vector3 snapped;
-            if (floorGrid != null && floorGrid.TrySnapByEdge(center, cachedSize, out snapped))
-            {
+            if (TrySnapByEdge(center, cachedSize, out snapped))
                 transform.position = snapped;
-            }
             else
-            {
-                floorGrid?.HideHighlight();
-            }
+                HideHighlight();
         }
 
         if (Input.GetMouseButtonDown(1))
@@ -65,24 +101,34 @@ public class ItemAutoDestroy : MonoBehaviour
 
             Vector3 center = transform.position;
             Vector3 snapped;
-            if (floorGrid != null && floorGrid.TrySnapByEdge(center, cachedSize, out snapped))
-            {
+            if (TrySnapByEdge(center, cachedSize, out snapped))
                 transform.position = snapped;
-            }
             else
-            {
-                floorGrid?.HideHighlight();
-            }
+                HideHighlight();
         }
     }
 
     void OnMouseDown()
     {
+        if (GamePauseState.IsPaused)
+        {
+            Debug.Log("[MouseDown] Ignored due to pause");
+            return;
+        }
+
+        Debug.Log($"[MouseDown ✅] {gameObject.name} clicked!");
+
         isDragging = true;
+
+        if (selfCollider == null)
+            selfCollider = GetComponent<Collider>();
+
         selfCollider.enabled = true;
         cachedSize = selfCollider.bounds.size;
         selfCollider.enabled = false;
     }
+
+
 
     void OnMouseUp()
     {
@@ -91,14 +137,26 @@ public class ItemAutoDestroy : MonoBehaviour
         Vector3 center = transform.position;
         Vector3 snapped = Vector3.zero;
 
-        if (floorGrid != null && floorGrid.TrySnapByEdge(center, cachedSize, out snapped))
+        if (TrySnapByEdge(center, cachedSize, out snapped))
         {
-            snapped.y -= dropYOffset;
+            PlacementType type = GetPlacementType();
+
+            if (type == PlacementType.Floor && floorGrid != null)
+            {
+                float modelHalfHeight = cachedSize.y * 0.5f;
+                snapped.y = floorGrid.GetFloorY() + modelHalfHeight;
+            }
+            else if (type == PlacementType.Wall && wallGrid != null)
+            {
+                float modelHalfDepth = cachedSize.z * 0.5f;
+                snapped.z = wallGrid.GetWallZ() - modelHalfDepth;
+            }
+
             transform.position = snapped;
         }
         else
         {
-            floorGrid?.HideHighlight();
+            HideHighlight();
             originSlot.ClearInstance();
             originSlot.ShowIcon();
             transform.SetParent(null);
@@ -109,85 +167,164 @@ public class ItemAutoDestroy : MonoBehaviour
 
         CheckPositionImmediately();
         selfCollider.enabled = true;
-        floorGrid?.HideHighlight();
+        HideHighlight();
         RoomManager.Instance?.RefreshCHIScore();
     }
 
     public void StopDragging()
     {
         isDragging = false;
+
+        if (selfCollider == null)
+            selfCollider = GetComponent<Collider>();
+
         selfCollider.enabled = true;
-        floorGrid?.HideHighlight();
+        HideHighlight();
     }
 
-   public void CheckPositionImmediately(){
 
-    Vector3 pos = transform.position;
-    Bounds bounds = roomCollider.bounds;
 
-    float allowedMinY = bounds.min.y - 5f;
-    float allowedMaxY = bounds.max.y + 5f;
 
-    bool inside =
-        pos.x >= bounds.min.x && pos.x <= bounds.max.x &&
-        pos.z >= bounds.min.z && pos.z <= bounds.max.z &&
-        pos.y >= allowedMinY && pos.y <= allowedMaxY;
-
-    // Reset the isValidPlacement flag
-    isValidPlacement = false;
-
-    if (!inside)
+    private void HideHighlight()
     {
-        originSlot.ClearInstance();
-        originSlot.ShowIcon();
+        floorGrid?.HideHighlight();
+        wallGrid?.HideHighlight();
+    }
 
-        if (FeedbackTextManager.Instance != null && floorGrid != null)
+    private bool TrySnapByEdge(Vector3 center, Vector3 size, out Vector3 snapped)
+    {
+        PlacementType type = GetPlacementType();
+        if (type == PlacementType.Floor && floorGrid != null)
+            return floorGrid.TrySnapByEdge(center, size, out snapped);
+        if (type == PlacementType.Wall && wallGrid != null)
+            return wallGrid.TrySnapByEdge(center, size, out snapped);
+
+        snapped = center;
+        return false;
+    }
+
+    private Vector3 GetMappedMousePosition()
+    {
+        PlacementType type = GetPlacementType();
+        if (type == PlacementType.Floor)
+            return CameraMapper.MappedMousePositionXZ;
+        if (type == PlacementType.Wall)
+            return CameraMapper.MappedMousePositionXY;
+        return CameraMapper.MappedMousePosition;
+    }
+
+    private PlacementType GetPlacementType()
+    {
+        return GetComponent<ItemType>()?.type ?? PlacementType.Floor;
+    }
+
+    private Bounds GetActiveColliderBounds()
+    {
+        PlacementType type = GetPlacementType();
+
+        if (type == PlacementType.Floor && floorGrid?.roomCollider != null)
         {
-            string name = gameObject.name.Replace("(Clone)", "");
-            if (name == "Bed_Prefab")
-            {
-                FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
-            }
-            if (name == "Basketball_Prefab")
-            {
-                FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
-            }
+            Debug.Log("[CheckBounds] Using FloorGrid bounds.");
+            return floorGrid.roomCollider.bounds;
         }
 
-        transform.SetParent(null);
-        RoomManager.Instance?.RefreshCHIScore();
-        Destroy(gameObject);
-    }
-    else
-    {
-        Debug.Log($"[ItemAutoDestroy] Valid placement at position: {pos}.");
-
-        if (floorGrid != null)
+        if (type == PlacementType.Wall && wallGrid?.roomCollider != null)
         {
-            // ✅ Salva se la posizione è valida (verde)
-            isValidPlacement = floorGrid.IsCurrentHighlightValid;
+            Debug.Log("[CheckBounds] Using WallGrid bounds.");
+            return wallGrid.roomCollider.bounds;
+        }
 
-            // ✅ Feedback visivo coerente con validità
-            if (FeedbackTextManager.Instance != null)
+        Debug.Log("[CheckBounds] Using fallback bounds.");
+        return roomCollider?.bounds ?? new Bounds(transform.position, Vector3.one);
+    }
+
+    // public void AssignWallGrid(WallGrid grid)
+    // {
+    //     wallGrid = grid;
+    // }
+
+    public WallGrid GetWallGrid()
+    {
+        return wallGrid;
+    }
+
+    public FloorGrid GetFloorGrid()
+    {
+        return floorGrid;
+    }
+
+    public void EnableDraggingOnClick()
+    {
+        isDragging = false;  // ✅ 准备下一次点击重新拖
+        if (selfCollider == null)
+            selfCollider = GetComponent<Collider>();
+
+        selfCollider.enabled = true;  // ✅ 确保后续点击能触发 OnMouseDown()
+    }
+
+
+    public void CheckPositionImmediately()
+    {
+        Vector3 pos = transform.position;
+        Bounds bounds = GetActiveColliderBounds();
+
+        bool inside;
+
+        if (GetPlacementType() == PlacementType.Wall)
+        {
+            inside =
+                pos.x >= bounds.min.x && pos.x <= bounds.max.x &&
+                pos.y >= bounds.min.y && pos.y <= bounds.max.y &&
+                Mathf.Abs(pos.z - bounds.center.z) <= 12f;
+        }
+        else // Floor
+        {
+            inside =
+                pos.x >= bounds.min.x && pos.x <= bounds.max.x &&
+                pos.z >= bounds.min.z && pos.z <= bounds.max.z &&
+                Mathf.Abs(pos.y - bounds.center.y) <= 12f;
+        }
+
+        isValidPlacement = false;
+
+        if (!inside)
+        {
+            originSlot.ClearInstance();
+            originSlot.ShowIcon();
+
+            if (FeedbackTextManager.Instance != null && floorGrid != null)
             {
                 string name = gameObject.name.Replace("(Clone)", "");
-                if (name == "Bed_Prefab")
+                if (ShouldDestroy(name))
                 {
-                    if (isValidPlacement)
-                        FeedbackTextManager.Instance.ShowMessage("Damn bro, you nailed it", Color.green);
-                    else
-                        FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
+                    FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
                 }
-                if (name == "Basketball_Prefab")
+            }
+
+            transform.SetParent(null);
+            RoomManager.Instance?.RefreshCHIScore();
+            Destroy(gameObject);
+        }
+        else
+        {
+            Debug.Log($"[ItemAutoDestroy] Valid placement at position: {pos}.");
+
+            if (floorGrid != null || wallGrid != null)
+            {
+                isValidPlacement = (floorGrid?.IsCurrentHighlightValid ?? false) || (wallGrid?.IsCurrentHighlightValid ?? false);
+
+                if (FeedbackTextManager.Instance != null)
                 {
-                    if (isValidPlacement)
-                        FeedbackTextManager.Instance.ShowMessage("Damn bro, you nailed it", Color.green);
-                    else
-                        FeedbackTextManager.Instance.ShowMessage("What the hell", Color.red);
+                    string name = gameObject.name.Replace("(Clone)", "");
+                    if (ShouldDestroy(name))
+                    {
+                        FeedbackTextManager.Instance.ShowMessage(
+                            isValidPlacement ? "Damn bro, you nailed it" : "What the hell",
+                            isValidPlacement ? Color.green : Color.red
+                        );
+                    }
                 }
             }
         }
     }
-}
-
 }

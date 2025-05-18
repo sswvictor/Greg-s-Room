@@ -1,3 +1,4 @@
+// ✅ RoomSpawner.cs（保留结构 + 接入 CameraMapper 坐标 + 支持 grid 生成）
 using UnityEngine;
 
 public class RoomSpawner : MonoBehaviour
@@ -24,20 +25,34 @@ public class RoomSpawner : MonoBehaviour
             return;
         }
 
-        // ✅ 重新映射一次鼠标位置，确保最新
-        Vector3 startPos = GetWorldFromScreen(Input.mousePosition);
+        Vector3 startPos = GetSpawnPositionFor(prefab);
         var instance = Instantiate(prefab, startPos, Quaternion.identity, spawnParent);
         Debug.Log("[RoomSpawner] Spawned item under: " + spawnParent.name);
+    }
+
+    private Vector3 GetSpawnPositionFor(GameObject prefab)
+    {
+        if (prefab == null)
+            return Vector3.zero;
+
+        var type = prefab.GetComponent<ItemType>()?.type ?? PlacementType.Floor;
+
+        if (type == PlacementType.Wall)
+            return CameraMapper.MappedMousePositionXY + Vector3.forward * 0.01f;
+        else if (type == PlacementType.Floor)
+            return CameraMapper.MappedMousePositionXZ;
+        else
+            return GetWorldFromScreen(Input.mousePosition);
     }
 
     private Vector3 GetWorldFromScreen(Vector3 screenPos)
     {
         Camera cam = CameraMapper.Instance.GetCurrentCamera();
         Ray ray = cam.ScreenPointToRay(screenPos);
-        Plane dragPlane = new Plane(Vector3.up, new Vector3(0, CameraMapper.Instance.panel, 0));
+        Plane dragPlane = new Plane(Vector3.up, new Vector3(0, CameraMapper.Instance.ProjY, 0));
         if (dragPlane.Raycast(ray, out float enter))
             return ray.GetPoint(enter);
 
         return Vector3.zero;
     }
-}
+} 
