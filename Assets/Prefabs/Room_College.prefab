@@ -81,9 +81,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62de82d79336ffe4b84a28c42cdff452, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wall0: {fileID: 597893330145622474}
-  wall1: {fileID: 39339881110723681}
-  wall2: {fileID: 6024418824018580652}
+  wall0: {fileID: 39339881110723681}
+  wall1: {fileID: 6024418824018580652}
+  wall2: {fileID: 597893330145622474}
   wall3: {fileID: 3711171402444793646}
   visibleScaleY: 1
   hiddenScaleY: 0.1
