@@ -244,7 +244,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 12, y: 12, z: 0.5}
+  m_Size: {x: 9.1, y: 12, z: 0.5}
   m_Center: {x: 0, y: 6, z: 0}
 --- !u!114 &6986655595106151597
 MonoBehaviour:
@@ -258,12 +258,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b6c8c82b81380c4388fee1816f8c4b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridWidth: 12
+  gridWidth: 9
   gridHeight: 12
   cellSize: 1
   wallX: 0
   wallY: 6
-  wallZ: -5.45
+  wallZ: -5.4
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
   roomCollider: {fileID: 3736796965290795497}
 --- !u!1001 &885707984839205168
@@ -367,11 +367,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b6c8c82b81380c4388fee1816f8c4b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridWidth: 12
-  gridHeight: 12
+  gridWidth: 9
+  gridHeight: 11
   cellSize: 1
   wallX: 0
-  wallY: 6
+  wallY: 6.33
   wallZ: 5.45
   highlightTilePrefab: {fileID: 0}
   roomCollider: {fileID: 0}
@@ -610,7 +610,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b6c8c82b81380c4388fee1816f8c4b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridWidth: 12
+  gridWidth: 10
   gridHeight: 12
   cellSize: 1
   wallX: -4.5
@@ -724,11 +724,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b6c8c82b81380c4388fee1816f8c4b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridWidth: 12
-  gridHeight: 12
+  gridWidth: 11
+  gridHeight: 11
   cellSize: 1
   wallX: 4.4
-  wallY: 6
+  wallY: 6.35
   wallZ: -5.5
   highlightTilePrefab: {fileID: 0}
   roomCollider: {fileID: 0}
