@@ -204,6 +204,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall30
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6146d9fab6ce2f743bad842d4d46f60a, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -240,12 +244,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 9.1, y: 12.2, z: 0.5}
-  m_Center: {x: 0, y: 6, z: -0.12}
+  m_Center: {x: 0, y: 6, z: 0}
 --- !u!114 &6986655595106151597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,6 +322,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall31
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3305847fa97b33b4d9ac1ee9f4d6ed22, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -349,7 +357,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -561,6 +569,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall33
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3d792adc22766554d9188c1d8ebb91da, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -592,12 +604,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 10.8, y: 12.2, z: 0.9}
-  m_Center: {x: 0, y: 6, z: 0.2}
+  m_Center: {x: 0, y: 6, z: 0}
 --- !u!114 &7008132790589983739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -675,6 +687,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall32
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 340ce6ee7f6e5454db5c2339538df414, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -711,7 +727,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 12, y: 12.5, z: 0.4}
-  m_Center: {x: 0, y: 6, z: -0.02}
+  m_Center: {x: 0, y: 6, z: 0}
 --- !u!114 &328739955335860015
 MonoBehaviour:
   m_ObjectHideFlags: 0

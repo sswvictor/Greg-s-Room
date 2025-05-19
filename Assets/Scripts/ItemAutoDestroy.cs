@@ -285,6 +285,7 @@ public class ItemAutoDestroy : MonoBehaviour
                 Mathf.Abs(pos.y - bounds.center.y) <= 12f;
         }
 
+
         isValidPlacement = false;
 
         if (!inside)
@@ -325,6 +326,20 @@ public class ItemAutoDestroy : MonoBehaviour
                     }
                 }
             }
+            // ✅ Aggiunta feedback basato sul punteggio feng-shui dinamico
+            var fengLogic = GetComponent<FengShuiLogic>();
+            if (fengLogic != null)
+            {
+                int score = fengLogic.EvaluateFengShuiScore();
+
+                string msg = score >= 10 ? "🌿 Perfect placement!" :
+                            score >= 5  ? "🧘 Good energy!" :
+                            score >= 0  ? "😐 Could be better." :
+                                        "🚫 Feng-shui disaster!";
+
+                FeedbackTextManager.Instance?.ShowMessage(msg, score >= 0 ? Color.green : Color.red);
+            }
+
         }
     }
 }
