@@ -4,12 +4,15 @@ using UnityEngine;
 using TMPro;
 
 [System.Serializable]
-public class RoomData {
+public class RoomData
+{
     public GameObject roomPrefab;
     public List<GameObject> buttonPrefabs; // ✅ 改为每个房间的按钮 prefab 列表
     // public List<Sprite> itemIcons;       // ❌ 已弃用
     // public List<GameObject> itemPrefabs; // ❌ 已弃用
 }
+
+
 
 public class RoomManager : MonoBehaviour
 {
@@ -27,6 +30,18 @@ public class RoomManager : MonoBehaviour
 
     private int currentIndex = -1;
     public GameObject currentRoom;
+
+    public Transform doorMarker;
+    public Transform windowMarker;
+
+
+    public Vector3 GetDoorPosition(){
+        return doorMarker != null ? doorMarker.position : Vector3.zero;
+    }
+
+    public Vector3 GetWindowPosition(){
+        return windowMarker != null ? windowMarker.position : Vector3.zero;
+    }
 
     private int currentRoomCHIScore = 0;
     public int totalCHIScore = 0;
@@ -108,6 +123,14 @@ public class RoomManager : MonoBehaviour
 
         var room = rooms[currentIndex];
         currentRoom = Instantiate(room.roomPrefab, roomParent);
+        doorMarker = currentRoom.transform.Find("DoorMarker");
+        windowMarker = currentRoom.transform.Find("WindowMarker");
+
+        if (doorMarker == null)
+            Debug.LogWarning("[RoomManager] ❌ DoorMarker not found!");
+
+        if (windowMarker == null)
+            Debug.LogWarning("[RoomManager] ❌ WindowMarker not found!");
 
         // ✅ 初始化墙体显示为主视角（墙0/1显示，墙2/3压缩）
         var wallCtrl = currentRoom.GetComponent<WallVisibilityController>();
