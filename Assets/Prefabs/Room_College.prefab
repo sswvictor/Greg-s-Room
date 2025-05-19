@@ -244,8 +244,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 9.1, y: 12, z: 0.5}
-  m_Center: {x: 0, y: 6, z: 0}
+  m_Size: {x: 9.1, y: 12.2, z: 0.5}
+  m_Center: {x: 0, y: 6, z: -0.12}
 --- !u!114 &6986655595106151597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,7 +260,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 9
   gridHeight: 12
-  cellSize: 1
+  cellSize: 0.98
   wallX: 0
   wallY: 6
   wallZ: -5.4
@@ -353,8 +353,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 10, y: 12, z: 0.6}
+  m_Center: {x: 0, y: 6, z: 0}
 --- !u!114 &1982069146066769645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -369,7 +369,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 9
   gridHeight: 11
-  cellSize: 1
+  cellSize: 0.98
   wallX: 0
   wallY: 6.33
   wallZ: 5.45
@@ -475,8 +475,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 8.18, y: 0.1, z: 9.96}
-  m_Center: {x: 0, y: 0.83, z: -0.2}
+  m_Size: {x: 10, y: 0.1, z: 11.8}
+  m_Center: {x: 0, y: 0.83, z: 0.5}
 --- !u!114 &8925167050749188391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -596,8 +596,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 10.8, y: 12.2, z: 0.9}
+  m_Center: {x: 0, y: 6, z: 0.2}
 --- !u!114 &7008132790589983739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -610,12 +610,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b6c8c82b81380c4388fee1816f8c4b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridWidth: 10
+  gridWidth: 11
   gridHeight: 12
-  cellSize: 1
+  cellSize: 0.98
   wallX: -4.5
   wallY: 6
-  wallZ: -5.5
+  wallZ: -5.4
   highlightTilePrefab: {fileID: 0}
   roomCollider: {fileID: 0}
 --- !u!4 &4092481332574109076 stripped
@@ -710,8 +710,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 12, y: 12.5, z: 0.4}
+  m_Center: {x: 0, y: 6, z: -0.02}
 --- !u!114 &328739955335860015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -726,7 +726,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 11
   gridHeight: 11
-  cellSize: 1
+  cellSize: 0.98
   wallX: 4.4
   wallY: 6.35
   wallZ: -5.5
