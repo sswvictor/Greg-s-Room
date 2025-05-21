@@ -10,6 +10,8 @@ public class CutsceneDirector : MonoBehaviour
         public float parallaxSpeed = 1f;
         public Vector2 startPosition;
         public bool preserveAspect = true;
+        public float zPosition = 0f;
+        public Vector2 scale = Vector2.one;
     }
 
     public ParallaxLayer[] parallaxLayers;
@@ -27,8 +29,16 @@ public class CutsceneDirector : MonoBehaviour
         {
             if (layer.layerImage != null)
             {
-                layer.startPosition = layer.layerImage.rectTransform.anchoredPosition;
+                var rectTransform = layer.layerImage.rectTransform;
+                // Store the initial position from the editor instead of overwriting it
+                layer.startPosition = layer.startPosition;  // Preserve the position set in the inspector
                 layer.layerImage.preserveAspect = layer.preserveAspect;
+                
+                // Set initial scale and z-position
+                rectTransform.localScale = layer.scale;
+                Vector3 pos = rectTransform.localPosition;
+                pos.z = layer.zPosition;
+                rectTransform.localPosition = pos;
             }
         }
     }

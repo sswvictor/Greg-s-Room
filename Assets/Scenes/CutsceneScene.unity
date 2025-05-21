@@ -225,6 +225,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 352510358}
+  - component: {fileID: 352510359}
   m_Layer: 0
   m_Name: CutSceneDirector
   m_TagString: Untagged
@@ -247,6 +248,62 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1975784568}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &352510359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 352510357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da2188ee3defa43c5a2364ec38b7ffd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parallaxLayers:
+  - layerImage: {fileID: 1477359643}
+    parallaxSpeed: 0
+    startPosition: {x: 0, y: 0}
+    preserveAspect: 1
+    zPosition: 0
+    scale: {x: 1.3, y: 1.3}
+  - layerImage: {fileID: 701026810}
+    parallaxSpeed: 0.5
+    startPosition: {x: 0, y: 0}
+    preserveAspect: 1
+    zPosition: -10
+    scale: {x: 1, y: 1}
+  - layerImage: {fileID: 907988922}
+    parallaxSpeed: 0
+    startPosition: {x: 0, y: 0}
+    preserveAspect: 1
+    zPosition: 0
+    scale: {x: 1, y: 1}
+  transitionDuration: 1
+  transitionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &701026808
 GameObject:
   m_ObjectHideFlags: 0
@@ -273,7 +330,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 701026808}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -332}
+  m_LocalPosition: {x: 0, y: 0, z: 696}
   m_LocalScale: {x: 0.58, y: 0.58, z: 0.58}
   m_ConstrainProportionsScale: 1
   m_Children: []
