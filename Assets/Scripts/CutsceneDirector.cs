@@ -7,17 +7,22 @@ public class CutsceneDirector : MonoBehaviour
     public class ParallaxLayer
     {
         public Image layerImage;
-        public float parallaxSpeed = 1f;
-        public Vector2 startPosition;
+        [Tooltip("Controls how much this layer moves relative to others")]
+        public float parallaxMultiplier = 1f;
+        [Tooltip("Starting position in Canvas space")]
+        public Vector2 startAnchoredPos;
+        [Tooltip("Ending position in Canvas space")]
+        public Vector2 endAnchoredPos;
         public bool preserveAspect = true;
-        public float zPosition = 0f;
         public Vector2 scale = Vector2.one;
+        [Tooltip("Higher numbers draw on top")]
+        public int sortingOrder;
     }
 
     public ParallaxLayer[] parallaxLayers;
     public float transitionDuration = 1f;
     public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
+    
     private void Start()
     {
         InitializeLayers();
@@ -29,52 +34,68 @@ public class CutsceneDirector : MonoBehaviour
         {
             if (layer.layerImage != null)
             {
+                // Get the parent Canvas (should be set up in scene)
+                var canvas = layer.layerImage.GetComponentInParent<Canvas>();
+                if (canvas != null)
+                {
+                    canvas.overrideSorting = true;
+                    canvas.sortingOrder = layer.sortingOrder;
+                }
+                else
+                {
+                    Debug.LogError($"Layer {layer.layerImage.name} must be child of a Canvas!");
+                    continue;
+                }
+                
+                // Setup image
                 var rectTransform = layer.layerImage.rectTransform;
-                // Store the initial position from the editor instead of overwriting it
-                layer.startPosition = layer.startPosition;  // Preserve the position set in the inspector
+                rectTransform.localScale = layer.scale;
                 layer.layerImage.preserveAspect = layer.preserveAspect;
                 
-                // Set initial scale and z-position
-                rectTransform.localScale = layer.scale;
-                Vector3 pos = rectTransform.localPosition;
-                pos.z = layer.zPosition;
-                rectTransform.localPosition = pos;
+                // Store current position if start position not set
+                if (layer.startAnchoredPos == Vector2.zero)
+                {
+                    layer.startAnchoredPos = rectTransform.anchoredPosition;
+                }
+                rectTransform.anchoredPosition = layer.startAnchoredPos;
             }
         }
     }
 
-    public void UpdateParallax(float normalizedPosition)
+    public void UpdateParallax(float progress)
     {
+        float curveValue = transitionCurve.Evaluate(progress);
+        
         foreach (var layer in parallaxLayers)
         {
             if (layer.layerImage != null)
             {
-                Vector2 targetPosition = layer.startPosition + new Vector2(normalizedPosition * layer.parallaxSpeed, 0);
-                layer.layerImage.rectTransform.anchoredPosition = targetPosition;
+                Vector2 movement = layer.endAnchoredPos - layer.startAnchoredPos;
+                Vector2 scaledMovement = movement * layer.parallaxMultiplier;
+                Vector2 targetPos = layer.startAnchoredPos + (scaledMovement * curveValue);
+                
+                layer.layerImage.rectTransform.anchoredPosition = targetPos;
             }
         }
     }
 
-    public void TransitionToRoom(float targetPosition)
+    public void TransitionToRoom(float targetProgress = 1f)
     {
-        StartCoroutine(TransitionCoroutine(targetPosition));
+        StartCoroutine(TransitionCoroutine(targetProgress));
     }
 
-    private System.Collections.IEnumerator TransitionCoroutine(float targetPosition)
+    private System.Collections.IEnumerator TransitionCoroutine(float targetProgress)
     {
         float startTime = Time.time;
-        float currentPosition = 0f;
+        float progress = 0f;
 
         while (Time.time - startTime < transitionDuration)
         {
-            float normalizedTime = (Time.time - startTime) / transitionDuration;
-            float curveValue = transitionCurve.Evaluate(normalizedTime);
-            currentPosition = Mathf.Lerp(0, targetPosition, curveValue);
-            
-            UpdateParallax(currentPosition);
+            progress = (Time.time - startTime) / transitionDuration;
+            UpdateParallax(progress);
             yield return null;
         }
 
-        UpdateParallax(targetPosition);
+        UpdateParallax(targetProgress);
     }
 }
