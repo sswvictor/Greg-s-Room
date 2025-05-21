@@ -7,6 +7,7 @@ TagManager:
   - ItemBox
   - Door
   - Wall
+  - Window
   layers:
   - Default
   - TransparentFX

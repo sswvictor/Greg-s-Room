@@ -40,9 +40,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9209328519990361304}
+  - component: {fileID: 2945759248693706804}
   m_Layer: 0
   m_Name: WindowMarker
-  m_TagString: Untagged
+  m_TagString: Window
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -62,6 +63,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7514547411630005125}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2945759248693706804
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2757666193477081874}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 7, z: 5}
+  m_Center: {x: -0.6, y: 1, z: 0.2}
 --- !u!1 &6462529950501038574
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,7 +652,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10.8, y: 12.2, z: 0.9}
+  m_Size: {x: 10.8, y: 12.2, z: 0.5}
   m_Center: {x: 0, y: 6, z: 0}
 --- !u!114 &7008132790589983739
 MonoBehaviour:

@@ -35,11 +35,13 @@ public class RoomManager : MonoBehaviour
     public Transform windowMarker;
 
 
-    public Vector3 GetDoorPosition(){
+    public Vector3 GetDoorPosition()
+    {
         return doorMarker != null ? doorMarker.position : Vector3.zero;
     }
 
-    public Vector3 GetWindowPosition(){
+    public Vector3 GetWindowPosition()
+    {
         return windowMarker != null ? windowMarker.position : Vector3.zero;
     }
 
@@ -395,6 +397,29 @@ public class RoomManager : MonoBehaviour
 
         return false;
     }
+    
+    private void OnDrawGizmos()
+    {
+        if (Application.isPlaying && currentRoom != null)
+        {
+            Vector3 center = GetRoomCenter();
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawSphere(center, 0.2f);
+        }
+    }
+
+    public Vector3 GetRoomCenter()
+    {
+        var floor = currentRoom?.GetComponentInChildren<FloorGrid>();
+        if (floor != null && floor.roomCollider != null)
+        {
+            return floor.roomCollider.bounds.center;
+        }
+
+        return currentRoom != null ? currentRoom.transform.position : Vector3.zero;
+    }
+    
+    
 
 
 }

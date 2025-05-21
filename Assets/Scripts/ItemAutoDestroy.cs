@@ -91,7 +91,8 @@ public class ItemAutoDestroy : MonoBehaviour
                 HideHighlight();
         }
 
-        if (Input.GetMouseButtonDown(1))
+        // added the C button to rotate the object because i don't have a moouse atm (sorry guys -riccardo)
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.C))
         {
             transform.Rotate(0f, 90f, 0f, Space.Self);
 
@@ -326,7 +327,8 @@ public class ItemAutoDestroy : MonoBehaviour
                     }
                 }
             }
-            // ✅ Aggiunta feedback basato sul punteggio feng-shui dinamico
+
+            // TO DO: re-define the score system
             var fengLogic = GetComponent<FengShuiLogic>();
             if (fengLogic != null)
             {
