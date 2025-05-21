@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class CutsceneDirector : MonoBehaviour
 {
@@ -22,10 +23,13 @@ public class CutsceneDirector : MonoBehaviour
     public ParallaxLayer[] parallaxLayers;
     public float transitionDuration = 1f;
     public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public event Action OnCutsceneComplete;
 
     private void Start()
     {
         InitializeLayers();
+        // Auto-play on start
+        PlayParallax();
     }
 
     private void InitializeLayers()
@@ -103,5 +107,9 @@ public class CutsceneDirector : MonoBehaviour
         }
 
         UpdateParallax(targetProgress);
+        OnCutsceneComplete?.Invoke();
+        
+        // Notify SceneController to unload cutscene
+        SceneController.Instance.UnloadCutscene();
     }
 }
