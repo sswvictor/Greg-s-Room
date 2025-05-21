@@ -22,7 +22,7 @@ public class CutsceneDirector : MonoBehaviour
     public ParallaxLayer[] parallaxLayers;
     public float transitionDuration = 1f;
     public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    
+
     private void Start()
     {
         InitializeLayers();
@@ -46,17 +46,16 @@ public class CutsceneDirector : MonoBehaviour
                     Debug.LogError($"Layer {layer.layerImage.name} must be child of a Canvas!");
                     continue;
                 }
-                
+
                 // Setup image
                 var rectTransform = layer.layerImage.rectTransform;
                 rectTransform.localScale = layer.scale;
                 layer.layerImage.preserveAspect = layer.preserveAspect;
-                
+
                 // Store current position if start position not set
                 if (layer.startAnchoredPos == Vector2.zero)
-                {
                     layer.startAnchoredPos = rectTransform.anchoredPosition;
-                }
+
                 rectTransform.anchoredPosition = layer.startAnchoredPos;
             }
         }
@@ -65,7 +64,7 @@ public class CutsceneDirector : MonoBehaviour
     public void UpdateParallax(float progress)
     {
         float curveValue = transitionCurve.Evaluate(progress);
-        
+
         foreach (var layer in parallaxLayers)
         {
             if (layer.layerImage != null)
@@ -73,10 +72,17 @@ public class CutsceneDirector : MonoBehaviour
                 Vector2 movement = layer.endAnchoredPos - layer.startAnchoredPos;
                 Vector2 scaledMovement = movement * layer.parallaxMultiplier;
                 Vector2 targetPos = layer.startAnchoredPos + (scaledMovement * curveValue);
-                
+
                 layer.layerImage.rectTransform.anchoredPosition = targetPos;
             }
         }
+    }
+
+    // **This is the public, parameterless method you can now hook to your Button**
+    public void PlayParallax()
+    {
+        TransitionToRoom(1f);
+        Debug.Log("Parallax Play Test");
     }
 
     public void TransitionToRoom(float targetProgress = 1f)
