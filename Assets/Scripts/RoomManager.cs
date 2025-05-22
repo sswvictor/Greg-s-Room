@@ -40,6 +40,18 @@ public class RoomManager : MonoBehaviour
     private int currentIndex = -1;
     public GameObject currentRoom;
 
+    public Transform doorMarker;
+    public Transform windowMarker;
+
+
+    public Vector3 GetDoorPosition(){
+        return doorMarker != null ? doorMarker.position : Vector3.zero;
+    }
+
+    public Vector3 GetWindowPosition(){
+        return windowMarker != null ? windowMarker.position : Vector3.zero;
+    }
+
     private int currentRoomCHIScore = 0;
     public int totalCHIScore = 0;
 
@@ -156,6 +168,14 @@ public class RoomManager : MonoBehaviour
         // ✅ 实例化新房间
         var room = rooms[currentIndex];
         currentRoom = Instantiate(room.roomPrefab, roomParent);
+        doorMarker = currentRoom.transform.Find("DoorMarker");
+        windowMarker = currentRoom.transform.Find("WindowMarker");
+
+        if (doorMarker == null)
+            Debug.LogWarning("[RoomManager] ❌ DoorMarker not found!");
+
+        if (windowMarker == null)
+            Debug.LogWarning("[RoomManager] ❌ WindowMarker not found!");
 
         var wallCtrl = currentRoom.GetComponent<WallVisibilityController>();
         if (wallCtrl != null)
