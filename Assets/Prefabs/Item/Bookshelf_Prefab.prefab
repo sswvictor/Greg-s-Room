@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &317027787898809598
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6451464027151981401}
+  m_Layer: 0
+  m_Name: Head
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6451464027151981401
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 317027787898809598}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.01, z: 0.11}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 800280004399998874}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &905666705490002033
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -70,7 +101,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: b7a4e18ede8d4fc429cd0dee9eb27049, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6451464027151981401}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b7a4e18ede8d4fc429cd0dee9eb27049, type: 3}
       insertIndex: -1
@@ -84,6 +118,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b7a4e18ede8d4fc429cd0dee9eb27049, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3553685391565039520}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b7a4e18ede8d4fc429cd0dee9eb27049, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3588749544876729595}
   m_SourcePrefab: {fileID: 100100000, guid: b7a4e18ede8d4fc429cd0dee9eb27049, type: 3}
 --- !u!1 &22793701175360800 stripped
 GameObject:
@@ -102,6 +139,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c85388e926fcfac41ab5f1af56d6d256, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  floorGrid: {fileID: 0}
+  wallGrid: {fileID: 0}
   isValidPlacement: 0
 --- !u!114 &345144010220935103
 MonoBehaviour:
@@ -149,3 +188,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 0
+--- !u!114 &3588749544876729595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 22793701175360800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5616afca7a9a54cfc9579fdd3555defb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectType: Bookshelf
+  headTransform: {fileID: 6451464027151981401}
+--- !u!4 &800280004399998874 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b7a4e18ede8d4fc429cd0dee9eb27049, type: 3}
+  m_PrefabInstance: {fileID: 905666705490002033}
+  m_PrefabAsset: {fileID: 0}

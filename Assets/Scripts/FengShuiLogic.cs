@@ -7,7 +7,7 @@ public class FengShuiLogic : MonoBehaviour
 
 
     // we use this only for the bed in order to check the direction of the head.
-    public Transform headTransform;   
+    public Transform headTransform;
 
     public int EvaluateFengShuiScore()
     {
@@ -23,8 +23,8 @@ public class FengShuiLogic : MonoBehaviour
                 score += EvaluateCouchRules();
                 break;
 
-            case "TrashBin":
-                score -= 5;
+            case "Bookshelf":
+                score += EvaluateBookshelfRules();
                 break;
 
             default:
@@ -47,8 +47,8 @@ public class FengShuiLogic : MonoBehaviour
 
         Vector3 origin = headTransform.position;
         Vector3 direction = headTransform.right;
-        
-        
+
+
 
         // debug ray for checking the direction of the bed
         Debug.DrawRay(origin, direction * 2f, Color.red, 5f);
@@ -78,10 +78,12 @@ public class FengShuiLogic : MonoBehaviour
         return score;
     }
 
-    private int EvaluateCouchRules(){
+    private int EvaluateCouchRules()
+    {
         int score = 0;
 
-        if (headTransform == null){
+        if (headTransform == null)
+        {
             //Debug.LogError("[FengShui] ❌ headTransform non assegnato per il couch!");
             return score;
         }
@@ -95,28 +97,34 @@ public class FengShuiLogic : MonoBehaviour
         float alignment = Vector3.Dot(facing, toCenter);
         //Debug.Log($"[FengShui] Couch alignment via HEAD: {alignment:F2}");
 
-        if (alignment > 0.5f){
-           FeedbackTextManager.Instance?.ShowMessage("Nice placement facing the room!", Color.green);
+        if (alignment > 0.5f)
+        {
+            FeedbackTextManager.Instance?.ShowMessage("Nice placement facing the room!", Color.green);
             score += 5;
         }
-        else if (alignment < -0.6f){
+        else if (alignment < -0.6f)
+        {
             FeedbackTextManager.Instance?.ShowMessage("Don't ignore the room, bro.", Color.red);
             score -= 5;
         }
-        else{
+        else
+        {
             score += 2;
         }
 
-        if (Physics.Raycast(headTransform.position, facing, out RaycastHit hitFront, 2f)){
+        if (Physics.Raycast(headTransform.position, facing, out RaycastHit hitFront, 2f))
+        {
             Debug.Log($"[Raycast FRONT] Hit: {hitFront.collider.name}, Tag: {hitFront.collider.tag}");
 
-            if (hitFront.collider.CompareTag("Door")){
+            if (hitFront.collider.CompareTag("Door"))
+            {
                 Debug.Log("[FengShui] ❌ The couch is positioned in front of a door → -10");
                 FeedbackTextManager.Instance?.ShowMessage("Don't sit facing the door, bro.", Color.red);
                 score -= 10;
-            }   
+            }
         }
-        else{
+        else
+        {
             Debug.Log("[Raycast FRONT] no object hit in front of the couch.");
         }
 
@@ -152,6 +160,51 @@ public class FengShuiLogic : MonoBehaviour
             score -= 5;
         }
 
+        return score;
+    }
+
+
+    private int EvaluateBookshelfRules()
+    {
+        int score = 0;
+        
+        Debug.DrawRay(headTransform.position, -headTransform.forward * 4f, Color.magenta, 5f); // retro
+        Debug.DrawRay(headTransform.position,  headTransform.forward * 2f, Color.yellow, 5f);  // fronte
+
+
+        if (Physics.Raycast(headTransform.position, headTransform.forward, out RaycastHit hitBack, 4f))
+        {
+            Debug.Log($"[Bookshelf BACK] Hit {hitBack.collider.name}, Tag: {hitBack.collider.tag}");
+            if (hitBack.collider.CompareTag("Wall"))
+            {
+                score += 5;
+                Debug.Log("[FengShui] ✅ Bookshelf have a wall behind → +5");
+            }
+            else if (hitBack.collider.CompareTag("Window") || hitBack.collider.CompareTag("Door"))
+            {
+                score -= 5;
+                Debug.Log("[FengShui] ❌ Bookshelf is against a windor or a Door → -5");
+            }
+            else
+            {
+                score -= 3;
+                Debug.Log("[FengShui] ❌ Bookshelf is against something else → -3");
+            }
+        }
+        else
+        {
+            score -= 3;
+            Debug.Log("[FengShui] ❌ Nothing behind the bookshelf → -3");
+        }
+
+        if (Physics.Raycast(headTransform.position, -headTransform.forward, out RaycastHit hitFront, 2f)){
+            Debug.Log($"[Bookshelf FRONT] Hit {hitFront.collider.name}, Tag: {hitFront.collider.tag}");
+
+            if (hitFront.collider.CompareTag("Window")|| hitFront.collider.CompareTag("Door")){
+                score -= 5;
+                Debug.Log("[FengShui] ❌ Bookshelf is in front of a window or a door → -5");
+            }
+        }
         return score;
     }
 }
