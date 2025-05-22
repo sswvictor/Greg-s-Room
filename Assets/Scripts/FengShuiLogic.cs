@@ -27,6 +27,10 @@ public class FengShuiLogic : MonoBehaviour
                 score += EvaluateBookshelfRules();
                 break;
 
+            case "Nightstand":
+                score += EvaluateNightstandRules();
+                break;
+
             default:
                 Debug.LogWarning($"[FengShui] No rules for type: {objectType}");
                 break;
@@ -167,9 +171,9 @@ public class FengShuiLogic : MonoBehaviour
     private int EvaluateBookshelfRules()
     {
         int score = 0;
-        
+
         Debug.DrawRay(headTransform.position, -headTransform.forward * 4f, Color.magenta, 5f); // retro
-        Debug.DrawRay(headTransform.position,  headTransform.forward * 2f, Color.yellow, 5f);  // fronte
+        Debug.DrawRay(headTransform.position, headTransform.forward * 2f, Color.yellow, 5f);  // fronte
 
 
         if (Physics.Raycast(headTransform.position, headTransform.forward, out RaycastHit hitBack, 4f))
@@ -197,14 +201,92 @@ public class FengShuiLogic : MonoBehaviour
             Debug.Log("[FengShui] ❌ Nothing behind the bookshelf → -3");
         }
 
-        if (Physics.Raycast(headTransform.position, -headTransform.forward, out RaycastHit hitFront, 2f)){
+        if (Physics.Raycast(headTransform.position, -headTransform.forward, out RaycastHit hitFront, 2f))
+        {
             Debug.Log($"[Bookshelf FRONT] Hit {hitFront.collider.name}, Tag: {hitFront.collider.tag}");
 
-            if (hitFront.collider.CompareTag("Window")|| hitFront.collider.CompareTag("Door")){
+            if (hitFront.collider.CompareTag("Window") || hitFront.collider.CompareTag("Door") || hitFront.collider.CompareTag("Wall"))
+            {
                 score -= 5;
                 Debug.Log("[FengShui] ❌ Bookshelf is in front of a window or a door → -5");
             }
         }
         return score;
     }
+    
+    private int EvaluateNightstandRules(){
+        int score = 0;
+
+        if (headTransform == null)
+        {
+            Debug.LogWarning("[FengShui] ⚠️ No headTransform assigned for nightstand.");
+            return score;
+        }
+
+        Vector3 origin = headTransform.position;
+        Vector3 forward = - headTransform.forward;
+        Vector3 back = - forward;
+        Vector3 right = headTransform.right;
+        Vector3 left = -headTransform.right;
+
+        // 1. Check if there's a bed to the left or right (X axis)
+        if (Physics.Raycast(origin, left, out RaycastHit hitLeft, 2f))
+        {
+            Debug.Log($"[Raycast LEFT] Hit: {hitLeft.collider.name}");
+            if (hitLeft.collider.name.Contains("Bed"))
+            {
+                Debug.Log("[FengShui] ✅ Nightstand next to bed (left) → +10 points");
+                score += 10;
+            }
+        }
+
+        if (Physics.Raycast(origin, right, out RaycastHit hitRight, 2f))
+        {
+            Debug.Log($"[Raycast RIGHT] Hit: {hitRight.collider.name}");
+            if (hitRight.collider.name.Contains("Bed"))
+            {
+                Debug.Log("[FengShui] ✅ Nightstand next to bed (right) → +10 points");
+                score += 10;
+            }
+        }
+
+        // 2. Check BACK (-Z)
+        if (Physics.Raycast(origin, back, out RaycastHit hitBack, 2f))
+        {
+            Debug.Log($"[Raycast BACK] Hit: {hitBack.collider.name}, Tag: {hitBack.collider.tag}");
+
+            if (hitBack.collider.CompareTag("Wall"))
+            {
+                Debug.Log("[FengShui] ✅ Nightstand is backed by a wall → +5 points");
+                score += 5;
+            }
+            else if (hitBack.collider.CompareTag("Door"))
+            {
+                Debug.Log("[FengShui] ❌ Nightstand is backed by a door → -5 points");
+                score -= 5;
+            }
+        }
+
+        // 3. Check FRONT (+Z)
+        if (Physics.Raycast(origin, forward, out RaycastHit hitFront, 2f))
+        {
+            Debug.Log($"[Raycast FRONT] Hit: {hitFront.collider.name}, Tag: {hitFront.collider.tag}");
+
+            if (hitFront.collider.CompareTag("Door"))
+            {
+                Debug.Log("[FengShui] ❌ Nightstand is facing a door → -5 points");
+                score -= 5;
+            }
+        }
+
+        // Visual Debug
+        Debug.DrawRay(origin, forward * 2f, Color.yellow, 3f);
+        Debug.DrawRay(origin, back * 2f, Color.magenta, 3f);
+        Debug.DrawRay(origin, right * 2f, Color.green, 3f);
+        Debug.DrawRay(origin, left * 2f, Color.cyan, 3f);
+
+        return score;
+    }
+
+
 }

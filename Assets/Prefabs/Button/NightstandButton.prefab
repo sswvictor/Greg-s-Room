@@ -203,5 +203,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83a0b37d7ac16d346a69d1dd730a7422, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelPrefab: {fileID: 4041897623720522654, guid: 9143783800a22b34d9f186b3ef94a306, type: 3}
+  modelPrefab: {fileID: 162132674255879510, guid: 3e91351fbe4dc4bc9b9fd60baf7eb321, type: 3}
   iconObject: {fileID: 1976680172451706908}
