@@ -4,12 +4,24 @@ using UnityEngine;
 using TMPro;
 
 [System.Serializable]
-public class RoomData {
+public class RoomData
+{
     public GameObject roomPrefab;
     public List<GameObject> buttonPrefabs; // ✅ 改为每个房间的按钮 prefab 列表
+
+
+    // public GameObject cutscenePrefab;  // ✅ 新增字段
     // public List<Sprite> itemIcons;       // ❌ 已弃用
     // public List<GameObject> itemPrefabs; // ❌ 已弃用
 }
+
+[System.Serializable]
+public class CutsceneEntry
+{
+    public string itemName;             // 例如 "Basketball_Prefab"
+    public GameObject cutscenePrefab;   // 对应的动画 prefab
+}
+
 
 public class RoomManager : MonoBehaviour
 {
@@ -30,6 +42,10 @@ public class RoomManager : MonoBehaviour
 
     private int currentRoomCHIScore = 0;
     public int totalCHIScore = 0;
+
+    public List<CutsceneEntry> cutsceneMapping;
+    private bool hasStarted = false;
+
 
     private void Awake()
     {
@@ -67,53 +83,85 @@ public class RoomManager : MonoBehaviour
 
     private IEnumerator SwitchRoomCoroutine()
     {
-        var cg = transitionPanel.GetComponent<CanvasGroup>();
-        transitionPanel.SetActive(true);
+        // ✅ 只有第一次需要显示 transitionPanel
+        if (!hasStarted && transitionPanel != null)
+        {
+            var cg = transitionPanel.GetComponent<CanvasGroup>();
+            transitionPanel.SetActive(true);
 
-        // ✅ 确保加载遮罩不透明
-        cg.alpha = 1f;
-        yield return null;
+            if (cg != null)
+            {
+                cg.alpha = 1f;
+                yield return new WaitForSeconds(0.3f); // 轻微展示加载页
+                cg.alpha = 0f;
+            }
 
-        // 清除旧房间
+            transitionPanel.SetActive(false);
+            hasStarted = true;
+        }
+
+        // 记录上一个房间分数
         totalCHIScore += currentRoomCHIScore;
         Debug.Log($"[GLOBAL CHI] Added {currentRoomCHIScore} points. Total now = {totalCHIScore}");
 
+        // 清除旧房间
         if (currentRoom)
             Destroy(currentRoom);
 
-        // ✅ 特殊逻辑：room01 时根据是否放置 basketball 决定跳转
+        // ✅ 动态检测房间中物品是否触发 cutscene
+        GameObject selectedCutscene = null;
+
         if (currentIndex == 0)
         {
-            bool hasBasketball = false;
             Transform spawnRoot = GameObject.Find("ItemSpawnRoot")?.transform;
             if (spawnRoot != null)
             {
                 foreach (Transform child in spawnRoot)
                 {
-                    if (child.name.Contains("Basketball") &&
-                        child.GetComponent<ItemAutoDestroy>()?.isValidPlacement == true)
+                    var item = child.GetComponent<ItemAutoDestroy>();
+                    if (item != null && item.isValidPlacement)
                     {
-                        hasBasketball = true;
-                        break;
+                        string itemName = child.name.Replace("(Clone)", "");
+                        foreach (var entry in cutsceneMapping)
+                        {
+                            if (entry.itemName == itemName && entry.cutscenePrefab != null)
+                            {
+                                selectedCutscene = entry.cutscenePrefab;
+                                Debug.Log($"[RoomManager] Found cutscene for item: {itemName}");
+                                break;
+                            }
+                        }
+
+                        if (selectedCutscene != null)
+                            break;
                     }
                 }
             }
-            currentIndex = hasBasketball ? 2 : 1;
+
+            if (selectedCutscene != null)
+            {
+                yield return PlayCutscene(selectedCutscene);
+                currentIndex = 2;
+            }
+            else
+            {
+                currentIndex = 1;
+            }
         }
         else
         {
-            currentIndex = 0; // ✅ 不管从 room1 还是 room2，统统跳回 room0
+            currentIndex = 0;
         }
 
-
+        // ✅ 实例化新房间
         var room = rooms[currentIndex];
         currentRoom = Instantiate(room.roomPrefab, roomParent);
 
-        // ✅ 初始化墙体显示为主视角（墙0/1显示，墙2/3压缩）
         var wallCtrl = currentRoom.GetComponent<WallVisibilityController>();
         if (wallCtrl != null)
             wallCtrl.ShowMainView();
-        CameraMapper.Instance.SwitchTo(0); // 强制切换回主视角
+
+        CameraMapper.Instance.SwitchTo(0);
 
         var spawnRootNew = currentRoom.transform.Find("ItemSpawnRoot");
         if (spawnRootNew != null)
@@ -121,19 +169,9 @@ public class RoomManager : MonoBehaviour
         else
             Debug.LogWarning("ItemSpawnRoot not found in current room!");
 
-        // ✅ 改为使用按钮 prefab 列表生成
         itemBoxController.ShowButtons(room.buttonPrefabs);
 
-        // 等待一帧，确保生成完成再开始淡出
-        yield return new WaitForSeconds(0.2f);
-
-        while (cg.alpha > 0f)
-        {
-            cg.alpha -= Time.deltaTime * 2;
-            yield return null;
-        }
-
-        transitionPanel.SetActive(false);
+        yield return new WaitForSeconds(0.1f); // 轻微延迟更平滑
 
         currentRoomCHIScore = 0;
         ResetCHIScore();
@@ -372,6 +410,30 @@ public class RoomManager : MonoBehaviour
 
         return false;
     }
+
+    private IEnumerator PlayCutscene(GameObject cutscenePrefab)
+    {
+        if (cutscenePrefab == null)
+            yield break;
+
+        var instance = Instantiate(cutscenePrefab, GameObject.Find("CanvasRoot")?.transform, false); // 挂到 UI Canvas 下
+        var director = instance.GetComponent<CutsceneDirector>();
+
+        instance.SetActive(true);
+        if (director != null)
+        {
+            director.TransitionToRoom(1f);
+            yield return new WaitForSeconds(director.transitionDuration);
+        }
+        else
+        {
+            yield return new WaitForSeconds(1f);
+        }
+
+        Destroy(instance);  // 播完即销毁
+    }
+
+
 
 
 }
