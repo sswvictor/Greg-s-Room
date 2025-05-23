@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections;
 
 public class ItemBoxController : MonoBehaviour
 {
@@ -77,7 +79,22 @@ public class ItemBoxController : MonoBehaviour
 
             float yPos = startYPosition - i * (buttonHeight + spacing);
             rect.anchoredPosition = new Vector2(0f, yPos);
+            // var es = UnityEngine.EventSystems.EventSystem.current;
+            // if (es != null && buttonInstances.Count > 0)
+            // {
+            //     var first = buttonInstances[0];
+            //     UnityEngine.EventSystems.ExecuteEvents.Execute<IPointerEnterHandler>(
+            //         first, new PointerEventData(es), ExecuteEvents.pointerEnterHandler);
+            //     Debug.Log("[FIX] Manually triggered pointer enter on first button");
+            // }
+
+
+
         }
+        // StartCoroutine(ForceRefreshUI());
+        gameObject.SetActive(false);
+        gameObject.SetActive(true);
+
     }
 
     public void ClearItems()
@@ -88,4 +105,13 @@ public class ItemBoxController : MonoBehaviour
         }
         buttonInstances.Clear();
     }
+
+    // private IEnumerator ForceRefreshUI()
+    // {
+    //     gameObject.SetActive(false);
+    //     yield return null;
+    //     gameObject.SetActive(true);
+    // }
+
+
 }

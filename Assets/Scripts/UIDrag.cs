@@ -13,6 +13,11 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        // Debug.LogError($"[🎯 CONFIRMED] OnBeginDrag called on {gameObject.name}, prefab = {slotController?.modelPrefab?.name}");
+
+        Debug.Log($"[Drag ✅✅✅✅✅✅] no tracker!");
+
+
         if (slotController == null || slotController.HasSpawned())
             return;
 
@@ -46,6 +51,9 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         draggingInstance.name = prefab.name;
 
         var tracker = draggingInstance.GetComponent<ItemAutoDestroy>();
+
+
+
         if (tracker != null)
         {
             tracker.Init(slotController, roomCollider);
@@ -55,16 +63,28 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                 var grid = Object.FindFirstObjectByType<FloorGrid>();
                 if (grid != null)
                     grid.roomCollider = roomCollider;
+                Debug.Log($"[Drag ✅] grid: {grid}");
+                tracker.floorGrid = grid;               
             }
-           else if (type == PlacementType.Wall)
+            else if (type == PlacementType.Wall)
             {
                 var grid = roomCollider.GetComponentInChildren<WallGrid>();
                 if (grid != null)
                     grid.roomCollider = roomCollider;
-                    tracker.wallGrid = grid;
+                Debug.Log($"[Drag ✅] grid: {grid}");
+                tracker.wallGrid = grid;
             }
 
         }
+        else
+        { 
+            Debug.Log($"[Drag ✅] no tracker!");
+        }
+        Debug.Log($"[Drag ✅] roomCollider: {roomCollider}");
+
+        Debug.Log($"[Drag ✅] tracker.floorGrid: {tracker.floorGrid}");
+        Debug.Log($"[Drag ✅] tracker.roomCollider (after Init): {roomCollider}");
+
 
         slotController.RegisterInstance(draggingInstance);
         slotController.SetSpawned(true);

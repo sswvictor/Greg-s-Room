@@ -1,6 +1,7 @@
 // ✅ ItemAutoDestroy.cs（保持 HashSet 封装，但嵌入类内部）
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class ItemAutoDestroy : MonoBehaviour
 {
@@ -45,7 +46,11 @@ public class ItemAutoDestroy : MonoBehaviour
 
     void Start()
     {
-        floorGrid = Object.FindFirstObjectByType<FloorGrid>();
+
+        Debug.Log($"[TRACK] {gameObject.name} was instantiated.");
+        Debug.Log(Environment.StackTrace);
+
+        floorGrid = UnityEngine.Object.FindFirstObjectByType<FloorGrid>();
         selfCollider = GetComponent<Collider>();
 
         if (selfCollider == null)
@@ -75,6 +80,8 @@ public class ItemAutoDestroy : MonoBehaviour
 
     void Update()
     {
+        if (isDragging)
+            Debug.Log($"[🧭 DragUpdate] {name} is following mouse at {transform.position:F3}");
         if (!isDragging) return;
         if (GamePauseState.IsPaused) return;
 
@@ -110,6 +117,8 @@ public class ItemAutoDestroy : MonoBehaviour
 
     void OnMouseDown()
     {
+        Debug.Log($"[🔥 ItemAutoDestroy.OnMouseDown CALLED] {gameObject.name}");
+
         if (GamePauseState.IsPaused)
         {
             Debug.Log("[MouseDown] Ignored due to pause");
@@ -133,7 +142,7 @@ public class ItemAutoDestroy : MonoBehaviour
     void OnMouseUp()
     {
         isDragging = false;
-
+        // Debug.LogError($"[🖱️ OnMouseUp] {name} triggered mouse up");
         Vector3 center = transform.position;
         Vector3 snapped = Vector3.zero;
 
@@ -174,6 +183,7 @@ public class ItemAutoDestroy : MonoBehaviour
     public void StopDragging()
     {
         isDragging = false;
+        // Debug.LogError($"[💀 StopDragging] {name} stopped dragging manually");
 
         if (selfCollider == null)
             selfCollider = GetComponent<Collider>();
@@ -268,6 +278,9 @@ public class ItemAutoDestroy : MonoBehaviour
         Vector3 pos = transform.position;
         Bounds bounds = GetActiveColliderBounds();
 
+        Debug.LogWarning($"[🧠 Position] pos = {pos:F3}");
+        Debug.LogWarning($"[🧠 Room bounds] min = {bounds.min:F3}, max = {bounds.max:F3}, center = {bounds.center:F3}");
+
         bool inside;
 
         if (GetPlacementType() == PlacementType.Wall)
@@ -327,4 +340,12 @@ public class ItemAutoDestroy : MonoBehaviour
             }
         }
     }
+
+
+    void OnDestroy()
+    {
+        HideHighlight();
+    }
+
+
 }
