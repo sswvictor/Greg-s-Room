@@ -229,45 +229,38 @@ public class FengShuiLogic : MonoBehaviour
         Vector3 right = headTransform.right;
         Vector3 left = -headTransform.right;
 
-        // 1. Check if there's a bed to the left or right (X axis)
-        if (Physics.Raycast(origin, left, out RaycastHit hitLeft, 2f))
-        {
+        // Check if there's a bed to the left or right (X axis)
+        if (Physics.Raycast(origin, left, out RaycastHit hitLeft, 2f)){
             Debug.Log($"[Raycast LEFT] Hit: {hitLeft.collider.name}");
-            if (hitLeft.collider.name.Contains("Bed"))
-            {
+            if (hitLeft.collider.name.Contains("Bed")){
                 Debug.Log("[FengShui] ✅ Nightstand next to bed (left) → +10 points");
                 score += 10;
             }
         }
 
-        if (Physics.Raycast(origin, right, out RaycastHit hitRight, 2f))
-        {
+        if (Physics.Raycast(origin, right, out RaycastHit hitRight, 2f)){
             Debug.Log($"[Raycast RIGHT] Hit: {hitRight.collider.name}");
-            if (hitRight.collider.name.Contains("Bed"))
-            {
+            if (hitRight.collider.name.Contains("Bed")){
                 Debug.Log("[FengShui] ✅ Nightstand next to bed (right) → +10 points");
                 score += 10;
             }
         }
 
-        // 2. Check BACK (-Z)
-        if (Physics.Raycast(origin, back, out RaycastHit hitBack, 2f))
-        {
+        // Check BACK (-Z)
+        if (Physics.Raycast(origin, back, out RaycastHit hitBack, 2f)){
             Debug.Log($"[Raycast BACK] Hit: {hitBack.collider.name}, Tag: {hitBack.collider.tag}");
 
-            if (hitBack.collider.CompareTag("Wall"))
-            {
+            if (hitBack.collider.CompareTag("Wall")){
                 Debug.Log("[FengShui] ✅ Nightstand is backed by a wall → +5 points");
                 score += 5;
             }
-            else if (hitBack.collider.CompareTag("Door"))
-            {
+            else if (hitBack.collider.CompareTag("Door")){
                 Debug.Log("[FengShui] ❌ Nightstand is backed by a door → -5 points");
                 score -= 5;
             }
         }
-
-        // 3. Check FRONT (+Z)
+        
+        // Check FRONT (+Z)
         if (Physics.Raycast(origin, forward, out RaycastHit hitFront, 2f))
         {
             Debug.Log($"[Raycast FRONT] Hit: {hitFront.collider.name}, Tag: {hitFront.collider.tag}");
@@ -278,12 +271,6 @@ public class FengShuiLogic : MonoBehaviour
                 score -= 5;
             }
         }
-
-        // Visual Debug
-        Debug.DrawRay(origin, forward * 2f, Color.yellow, 3f);
-        Debug.DrawRay(origin, back * 2f, Color.magenta, 3f);
-        Debug.DrawRay(origin, right * 2f, Color.green, 3f);
-        Debug.DrawRay(origin, left * 2f, Color.cyan, 3f);
 
         return score;
     }
