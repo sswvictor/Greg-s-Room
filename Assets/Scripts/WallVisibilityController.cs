@@ -43,8 +43,18 @@ public class WallVisibilityController : MonoBehaviour
         if (activeCoroutines.TryGetValue(wall, out Coroutine existing))
             StopCoroutine(existing);
 
-        Coroutine routine = StartCoroutine(AnimateScaleCoroutine(wall.transform, targetY));
-        activeCoroutines[wall] = routine;
+        Transform visual = wall.transform.Find("default");
+        if (visual != null)
+        {
+            Coroutine routine = StartCoroutine(AnimateScaleCoroutine(visual, targetY));
+            activeCoroutines[wall] = routine;
+        }
+        else
+        {
+            Debug.LogWarning($"[WallVisibilityController] 'default' visual not found on {wall.name}");
+            activeCoroutines.Remove(wall);
+        }
+        
     }
 
     // private IEnumerator AnimateScaleCoroutine(Transform wallTransform, float targetY)

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class FengShuiLogic : MonoBehaviour
 {
@@ -29,6 +30,14 @@ public class FengShuiLogic : MonoBehaviour
 
             case "Nightstand":
                 score += EvaluateNightstandRules();
+                break;
+            
+            case "Table":
+                score += EvaluateTableRules();
+                break;
+
+            case "Chair":
+                score += EvaluateChairRules();
                 break;
 
             default:
@@ -213,8 +222,9 @@ public class FengShuiLogic : MonoBehaviour
         }
         return score;
     }
-    
-    private int EvaluateNightstandRules(){
+
+    private int EvaluateNightstandRules()
+    {
         int score = 0;
 
         if (headTransform == null)
@@ -224,42 +234,49 @@ public class FengShuiLogic : MonoBehaviour
         }
 
         Vector3 origin = headTransform.position;
-        Vector3 forward = - headTransform.forward;
-        Vector3 back = - forward;
+        Vector3 forward = -headTransform.forward;
+        Vector3 back = -forward;
         Vector3 right = headTransform.right;
         Vector3 left = -headTransform.right;
 
         // Check if there's a bed to the left or right (X axis)
-        if (Physics.Raycast(origin, left, out RaycastHit hitLeft, 2f)){
+        if (Physics.Raycast(origin, left, out RaycastHit hitLeft, 2f))
+        {
             Debug.Log($"[Raycast LEFT] Hit: {hitLeft.collider.name}");
-            if (hitLeft.collider.name.Contains("Bed")){
+            if (hitLeft.collider.name.Contains("Bed"))
+            {
                 Debug.Log("[FengShui] ✅ Nightstand next to bed (left) → +10 points");
                 score += 10;
             }
         }
 
-        if (Physics.Raycast(origin, right, out RaycastHit hitRight, 2f)){
+        if (Physics.Raycast(origin, right, out RaycastHit hitRight, 2f))
+        {
             Debug.Log($"[Raycast RIGHT] Hit: {hitRight.collider.name}");
-            if (hitRight.collider.name.Contains("Bed")){
+            if (hitRight.collider.name.Contains("Bed"))
+            {
                 Debug.Log("[FengShui] ✅ Nightstand next to bed (right) → +10 points");
                 score += 10;
             }
         }
 
         // Check BACK (-Z)
-        if (Physics.Raycast(origin, back, out RaycastHit hitBack, 2f)){
+        if (Physics.Raycast(origin, back, out RaycastHit hitBack, 2f))
+        {
             Debug.Log($"[Raycast BACK] Hit: {hitBack.collider.name}, Tag: {hitBack.collider.tag}");
 
-            if (hitBack.collider.CompareTag("Wall")){
+            if (hitBack.collider.CompareTag("Wall"))
+            {
                 Debug.Log("[FengShui] ✅ Nightstand is backed by a wall → +5 points");
                 score += 5;
             }
-            else if (hitBack.collider.CompareTag("Door")){
+            else if (hitBack.collider.CompareTag("Door"))
+            {
                 Debug.Log("[FengShui] ❌ Nightstand is backed by a door → -5 points");
                 score -= 5;
             }
         }
-        
+
         // Check FRONT (+Z)
         if (Physics.Raycast(origin, forward, out RaycastHit hitFront, 2f))
         {
@@ -275,5 +292,136 @@ public class FengShuiLogic : MonoBehaviour
         return score;
     }
 
+    private int EvaluateTableRules()
+    {
+        int score = 0;
+
+        Vector3 origin = headTransform.position;
+        Vector3 forward = headTransform.forward;
+        Vector3 back = -headTransform.forward;
+        Vector3 right = headTransform.right;
+        Vector3 left = -headTransform.right;
+
+        Debug.DrawRay(origin, forward * 2f, Color.green, 5f);     // FRONT
+        Debug.DrawRay(origin, -forward * 2f, Color.red, 5f);       // BACK
+        Debug.DrawRay(origin, right * 2f, Color.blue, 5f);         // RIGHT
+        Debug.DrawRay(origin, -right * 2f, Color.cyan, 5f);      // LEFT
+
+        if (Physics.Raycast(origin, forward, out RaycastHit hitFront, 4f)){
+            Debug.Log($"[Table] Forward hit: {hitFront.collider.name}");
+
+            if (hitFront.collider.CompareTag("Wall"))
+            {
+                Debug.Log("[FengShui] Table faces wall → OK");
+                score += 2;
+            }
+            else if (hitFront.collider.CompareTag("Door"))
+            {
+                Debug.Log("[FengShui]  Table faces door → -5");
+                score -= 5;
+            }
+            else if (hitFront.collider.CompareTag("Window"))
+            {
+                Debug.Log("[FengShui]  Table faces window → +3 (positive energy)");
+                score += 3;
+            }
+        }
+
+        // BACKWARD check
+        if (Physics.Raycast(origin, back, out RaycastHit hitBack, 6f))
+        {
+            Debug.Log($"[Table] Back hit: {hitBack.collider.name}");
+
+            if (hitBack.collider.CompareTag("Wall"))
+            {
+                Debug.Log("[FengShui]  Table has wall behind → OK");
+                score += 2;
+            }
+            else if (hitBack.collider.CompareTag("Door"))
+            {
+                Debug.Log("[FengShui]  Table has door behind → -5");
+                score -= 5;
+            }
+            else if (hitBack.collider.CompareTag("Window"))
+            {
+                Debug.Log("[FengShui]  Window behind table → -3");
+                score -= 3;
+            }
+        }
+
+        // SIDE (LEFT)
+        if (Physics.Raycast(origin, left, out RaycastHit hitLeft, 6f))
+        {
+            if (hitLeft.collider.name.Contains("Bed"))
+            {
+                Debug.Log("[FengShui]  Bed too close on the left side → -4");
+                score -= 4;
+            }
+        }
+
+        // SIDE (RIGHT)
+        if (Physics.Raycast(origin, right, out RaycastHit hitRight, 6f))
+        {
+            if (hitRight.collider.name.Contains("Bed"))
+            {
+                Debug.Log("[FengShui]  Bed too close on the right side → -4");
+                score -= 4;
+            }
+        }
+
+        return score;
+    
+    }
+
+
+    private int EvaluateChairRules()
+    {
+        int score = 0;
+
+        if (headTransform == null){
+            Debug.LogWarning("[FengShui] Chair is missing headTransform");
+            return score;
+        }
+
+        Vector3 origin = headTransform.position;
+
+        // Forward (Z+)
+        if (Physics.Raycast(origin, headTransform.forward, out RaycastHit hitFwd, 2f)){
+            Debug.Log($"[ChairRaycast] → Forward hit {hitFwd.collider.name}");
+            if (hitFwd.collider.CompareTag("Door")){
+                Debug.Log("[FengShui] ❌ Chair faces door → -5");
+                score -= 5;
+            }
+        }
+
+        // Backward (Z-)
+        if (Physics.Raycast(origin, -headTransform.forward, out RaycastHit hitBack, 2f)){
+            Debug.Log($"[ChairRaycast] ← Backward hit {hitBack.collider.name}");
+            if (hitBack.collider.CompareTag("Door")){
+                Debug.Log("[FengShui] ❌ Chair back faces door → -5");
+                score -= 5;
+            }
+        }
+
+        // Right (X+)
+        if (Physics.Raycast(origin, headTransform.right, out RaycastHit hitRight, 2f)){
+            Debug.Log($"[ChairRaycast] → Right hit {hitRight.collider.name}");
+            if (hitRight.collider.CompareTag("Door")){
+                Debug.Log("[FengShui] ❌ Chair right faces door → -5");
+                score -= 5;
+            }
+        }
+
+        // Left (X-)
+        if (Physics.Raycast(origin, -headTransform.right, out RaycastHit hitLeft, 2f)){
+            Debug.Log($"[ChairRaycast] ← Left hit {hitLeft.collider.name}");
+            if (hitLeft.collider.CompareTag("Door")){
+                Debug.Log("[FengShui] ❌ Chair left faces door → -5");
+                score -= 5;
+            }
+        }
+
+    return score;
+    }
 
 }
