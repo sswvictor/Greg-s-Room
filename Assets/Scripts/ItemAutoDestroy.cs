@@ -97,8 +97,8 @@ public class ItemAutoDestroy : MonoBehaviour
             else
                 HideHighlight();
         }
-
-        if (Input.GetMouseButtonDown(1))
+        // added the C button to rotate the object because i don't have a moouse atm (sorry guys -riccardo)
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.C))
         {
             transform.Rotate(0f, 90f, 0f, Space.Self);
 
@@ -337,6 +337,20 @@ public class ItemAutoDestroy : MonoBehaviour
                         );
                     }
                 }
+            }
+
+            // TO DO: re-define the score system
+            var fengLogic = GetComponent<FengShuiLogic>();
+            if (fengLogic != null)
+            {
+                int score = fengLogic.EvaluateFengShuiScore();
+
+                string msg = score >= 10 ? "🌿 Perfect placement!" :
+                            score >= 5  ? "🧘 Good energy!" :
+                            score >= 0  ? "😐 Could be better." :
+                                        "🚫 Feng-shui disaster!";
+
+                FeedbackTextManager.Instance?.ShowMessage(msg, score >= 0 ? Color.green : Color.red);
             }
         }
     }

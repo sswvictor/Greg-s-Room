@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5f8459844fd734f498b7d3a7f0bf639d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ec9c0debd7ca84f7b841c02d88f251a6, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 2932000330302086223}
   - component: {fileID: -8204711168394778820}
   m_Layer: 5
-  m_Name: NightstandButton
+  m_Name: TableButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -203,5 +203,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83a0b37d7ac16d346a69d1dd730a7422, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelPrefab: {fileID: 162132674255879510, guid: 3e91351fbe4dc4bc9b9fd60baf7eb321, type: 3}
+  modelPrefab: {fileID: 4817581682771153133, guid: 89d74d6a9d5914044a35b3adb49a32ea, type: 3}
   iconObject: {fileID: 1976680172451706908}

@@ -45,6 +45,7 @@ public class WallVisibilityController : MonoBehaviour
 
         Coroutine routine = StartCoroutine(AnimateScaleCoroutine(wall.transform, targetY));
         activeCoroutines[wall] = routine;
+      
     }
 
     // private IEnumerator AnimateScaleCoroutine(Transform wallTransform, float targetY)
