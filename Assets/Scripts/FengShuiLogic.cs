@@ -72,20 +72,26 @@ public class FengShuiLogic : MonoBehaviour
             if (doorHit.collider.CompareTag("Door") && doorHit.distance <= 0.5f)
             {
                 Debug.Log($"[FengShui] ❌ Letto davanti alla porta (colpita {doorHit.collider.name})");
-                score -= 10;
+                score -= 20;
             }
         }
 
         if (Physics.Raycast(origin, direction, out RaycastHit hit, 2f))
         {
-            //Debug.Log($"[FengShui] ✅ HIT: {hit.collider.name}, distance: {hit.distance:F2}, point: {hit.point}");
-            score += (hit.collider.CompareTag("Wall") && hit.distance <= 0.5f) ? 10 : -5;
+            if (hit.collider.CompareTag("Wall") && hit.distance <= 0.5f){
+                score += 35;
+                Debug.Log("[FengShui] ✅ Testiera contro il muro → +35");
+            }
+            else{
+                score += 10;
+                Debug.Log("[FengShui] ❌ Qualcosa dietro al letto ma non è un muro → -10");
+            }
         }
         else
         {
             //Debug.Log($"[FengShui] ❌ No wall hitted behind the bed.");
             //Debug.Log($"          ↳ Testiera: {origin}, Direzione: {direction}");
-            score -= 5;
+            score -= 10;
         }
 
         return score;
@@ -113,7 +119,7 @@ public class FengShuiLogic : MonoBehaviour
         if (alignment > 0.5f)
         {
             FeedbackTextManager.Instance?.ShowMessage("Nice placement facing the room!", Color.green);
-            score += 5;
+            score += 8;
         }
         else if (alignment < -0.6f)
         {
@@ -153,17 +159,17 @@ public class FengShuiLogic : MonoBehaviour
             {
                 Debug.Log("[FengShui] ❌ There is a window behind the Couch→ -5");
                 FeedbackTextManager.Instance?.ShowMessage("A Window behind your back? Never.", Color.red);
-                score -= 5;
+                score -= 6;
             }
             else if (hitBack.collider.CompareTag("Door"))
             {
                 Debug.Log("[FengShui] Door behind the couch → -5");
-                score -= 5;
+                score -= 6;
             }
             else
             {
                 Debug.Log("[FengShui] ✅ There is a support behind the couch → +5");
-                score += 5;
+                score += 8;
             }
         }
         else
@@ -190,23 +196,23 @@ public class FengShuiLogic : MonoBehaviour
             Debug.Log($"[Bookshelf BACK] Hit {hitBack.collider.name}, Tag: {hitBack.collider.tag}");
             if (hitBack.collider.CompareTag("Wall"))
             {
-                score += 5;
+                score += 10;
                 Debug.Log("[FengShui] ✅ Bookshelf have a wall behind → +5");
             }
             else if (hitBack.collider.CompareTag("Window") || hitBack.collider.CompareTag("Door"))
             {
-                score -= 5;
+                score -= 6;
                 Debug.Log("[FengShui] ❌ Bookshelf is against a windor or a Door → -5");
             }
             else
             {
-                score -= 3;
+                score -= 4;
                 Debug.Log("[FengShui] ❌ Bookshelf is against something else → -3");
             }
         }
         else
         {
-            score -= 3;
+            score -= 4;
             Debug.Log("[FengShui] ❌ Nothing behind the bookshelf → -3");
         }
 
@@ -216,7 +222,7 @@ public class FengShuiLogic : MonoBehaviour
 
             if (hitFront.collider.CompareTag("Window") || hitFront.collider.CompareTag("Door") || hitFront.collider.CompareTag("Wall"))
             {
-                score -= 5;
+                score -= 6;
                 Debug.Log("[FengShui] ❌ Bookshelf is in front of a window or a door → -5");
             }
         }
@@ -313,7 +319,7 @@ public class FengShuiLogic : MonoBehaviour
             if (hitFront.collider.CompareTag("Wall"))
             {
                 Debug.Log("[FengShui] Table faces wall → OK");
-                score += 2;
+                score += 3;
             }
             else if (hitFront.collider.CompareTag("Door"))
             {
@@ -323,7 +329,7 @@ public class FengShuiLogic : MonoBehaviour
             else if (hitFront.collider.CompareTag("Window"))
             {
                 Debug.Log("[FengShui]  Table faces window → +3 (positive energy)");
-                score += 3;
+                score += 4;
             }
         }
 
@@ -335,7 +341,7 @@ public class FengShuiLogic : MonoBehaviour
             if (hitBack.collider.CompareTag("Wall"))
             {
                 Debug.Log("[FengShui]  Table has wall behind → OK");
-                score += 2;
+                score += 3;
             }
             else if (hitBack.collider.CompareTag("Door"))
             {
@@ -345,27 +351,27 @@ public class FengShuiLogic : MonoBehaviour
             else if (hitBack.collider.CompareTag("Window"))
             {
                 Debug.Log("[FengShui]  Window behind table → -3");
-                score -= 3;
+                score -= 5;
             }
         }
 
         // SIDE (LEFT)
-        if (Physics.Raycast(origin, left, out RaycastHit hitLeft, 6f))
+        if (Physics.Raycast(origin, left, out RaycastHit hitLeft, 7f))
         {
             if (hitLeft.collider.name.Contains("Bed"))
             {
                 Debug.Log("[FengShui]  Bed too close on the left side → -4");
-                score -= 4;
+                score -= 5;
             }
         }
 
         // SIDE (RIGHT)
-        if (Physics.Raycast(origin, right, out RaycastHit hitRight, 6f))
+        if (Physics.Raycast(origin, right, out RaycastHit hitRight, 7f))
         {
             if (hitRight.collider.name.Contains("Bed"))
             {
                 Debug.Log("[FengShui]  Bed too close on the right side → -4");
-                score -= 4;
+                score -= 5;
             }
         }
 

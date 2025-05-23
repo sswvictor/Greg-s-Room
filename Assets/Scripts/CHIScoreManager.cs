@@ -64,6 +64,7 @@ public class CHIScoreManager : MonoBehaviour
     }
 
 
+    // we are not going to use this function since we are playing with the fengshui score
     private int GetBaseScore(GameObject go)
     {
         if (baseScores.TryGetValue(go.name.Replace("(Clone)", ""), out int score))

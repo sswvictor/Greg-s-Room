@@ -7670,8 +7670,8 @@ MonoBehaviour:
     buttonPrefabs:
     - {fileID: 5786259820379870626, guid: be94a0343362747f9b73fb3a4f883793, type: 3}
     - {fileID: 5786259820379870626, guid: 13fc454311c33fd43b5a7f8cc99d026a, type: 3}
-    - {fileID: 5786259820379870626, guid: 01deace474eefbe45bf4d4317b886bbc, type: 3}
-    - {fileID: 5786259820379870626, guid: 93cc0964d4c4da44bb132c91dac9f78a, type: 3}
+    - {fileID: 5786259820379870626, guid: 7dddf6eadf86245b2adc7b83e5bb4b81, type: 3}
+    - {fileID: 5786259820379870626, guid: 5394df32c5a9d4948ad3b17f9a259d6d, type: 3}
   - roomPrefab: {fileID: 6462529950501038574, guid: 4a874b0f6f5e99f4abb53c46e5aa1079, type: 3}
     buttonPrefabs:
     - {fileID: 5786259820379870626, guid: d1cce1fcb2b0dfd40a59624fb0cc8d2f, type: 3}
