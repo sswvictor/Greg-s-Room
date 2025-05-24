@@ -51,6 +51,8 @@ public class RoomManager : MonoBehaviour
     public Transform doorMarker;
     public Transform windowMarker;
 
+    
+
     public Dictionary<int, RoomHistory> roomHistories = new();
 
     // public KeyObjectSelectionPanel keyObjectPanel;
