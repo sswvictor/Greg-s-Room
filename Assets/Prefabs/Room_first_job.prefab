@@ -138,7 +138,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c603fc355263845dca712c13e28743c3, type: 3}
       propertyPath: m_Name
-      value: wall40
+      value: wall0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -252,7 +252,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 94cd70d68a9494fcca012b49c2dac7cd, type: 3}
       propertyPath: m_Name
-      value: wall43
+      value: wall3
       objectReference: {fileID: 0}
     - target: {fileID: 1151388028547126963, guid: 94cd70d68a9494fcca012b49c2dac7cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -374,7 +374,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b165118bbaecc4d4e83a16d07d6a539c, type: 3}
       propertyPath: m_Name
-      value: wall41
+      value: wall1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -488,7 +488,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 44edbd56dd9d94bc2bae768fc573ff0b, type: 3}
       propertyPath: m_Name
-      value: wall42
+      value: wall2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
