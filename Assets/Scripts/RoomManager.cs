@@ -627,28 +627,41 @@ public class RoomManager : MonoBehaviour
 
     private IEnumerator PlayCutscene(VideoClip videoClip)  // Changed parameter type only
     {
-        if (videoClip == null || videoPlayer == null)
+        if (videoClip == null || videoPlayer == null || videoCanvas == null)
         {
             // Fallback: maintain same timing as before
-            Debug.LogWarning("[RoomManager] Video or player missing, using fallback timing");
+            Debug.LogWarning("[RoomManager] Video, player, or canvas prefab missing, using fallback timing");
             yield return new WaitForSeconds(3f);
             yield break;
         }
 
-        // Show video (same timing as old system)
-        if (videoCanvas != null)
-            videoCanvas.SetActive(true);
+        // Instantiate VideoCanvas prefab
+        GameObject videoCanvasInstance = Instantiate(videoCanvas);
         
+        // Find the RawImage component for video display
+        RawImage displayImage = videoCanvasInstance.GetComponentInChildren<RawImage>();
+        if (displayImage != null && videoPlayer.targetTexture != null)
+        {
+            displayImage.texture = videoPlayer.targetTexture;
+        }
+        
+        // Set up and play video
         videoPlayer.clip = videoClip;
         videoPlayer.Play();
+        
+        Debug.Log($"[RoomManager] Playing video: {videoClip.name}, duration: {videoPlayer.clip.length}s");
         
         // Wait for video duration (preserves exact same user experience)
         yield return new WaitForSeconds((float)videoPlayer.clip.length);
         
-        // Hide video (same cleanup as old system)
+        // Cleanup: stop video and destroy canvas instance
         videoPlayer.Stop();
-        if (videoCanvas != null)
-            videoCanvas.SetActive(false);
+        if (videoCanvasInstance != null)
+        {
+            Destroy(videoCanvasInstance);
+        }
+        
+        Debug.Log("[RoomManager] Video cutscene completed");
     }
 
     //Ricky's new code

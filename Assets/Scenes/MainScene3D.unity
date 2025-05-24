@@ -3137,7 +3137,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 100
+  m_SortingOrder: 75
   m_TargetDisplay: 0
 --- !u!114 &974546208
 MonoBehaviour:
@@ -6722,6 +6722,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2023088870}
   - component: {fileID: 2023088869}
+  - component: {fileID: 2023088871}
   m_Layer: 0
   m_Name: RoomManager
   m_TagString: Untagged
@@ -6784,10 +6785,13 @@ MonoBehaviour:
   currentRoom: {fileID: 0}
   doorMarker: {fileID: 0}
   windowMarker: {fileID: 0}
+  videoPlayer: {fileID: 2023088871}
+  videoDisplay: {fileID: 0}
+  videoCanvas: {fileID: 7140013252982326420, guid: 6fdbae59402534a99a41bc8619733833, type: 3}
   totalCHIScore: 0
   cutsceneMapping:
   - itemName: Basketball_Prefab
-    cutscenePrefab: {fileID: 7140013252982326420, guid: 3f50f0d56051a0344b77be25fcbb9516, type: 3}
+    videoClip: {fileID: 32900000, guid: c68ed0fc0ee0c42a9b9a7bc0a5028b2d, type: 3}
 --- !u!4 &2023088870
 Transform:
   m_ObjectHideFlags: 0
@@ -6803,6 +6807,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!328 &2023088871
+VideoPlayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2023088868}
+  m_Enabled: 1
+  m_VideoClip: {fileID: 0}
+  m_TargetCameraAlpha: 1
+  m_TargetCamera3DLayout: 0
+  m_TargetCamera: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: 7d1adef3e3fe14ae7898a99cedb1a8f9, type: 2}
+  m_TimeReference: 0
+  m_TargetMaterialRenderer: {fileID: 0}
+  m_TargetMaterialProperty: <noninit>
+  m_RenderMode: 2
+  m_AspectRatio: 2
+  m_DataSource: 0
+  m_TimeUpdateMode: 2
+  m_PlaybackSpeed: 1
+  m_AudioOutputMode: 2
+  m_TargetAudioSources:
+  - {fileID: 0}
+  m_DirectAudioVolumes:
+  - 1
+  m_Url: 
+  m_EnabledAudioTracks: 01
+  m_DirectAudioMutes: 00
+  m_ControlledAudioTrackCount: 1
+  m_PlayOnAwake: 0
+  m_SkipOnDrop: 1
+  m_Looping: 0
+  m_WaitForFirstFrame: 1
+  m_FrameReadyEventEnabled: 0
+  m_VideoShaders: []
 --- !u!1 &2035134949
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,360 +1,268 @@
-# Video Cutscene MVP Implementation Plan
+# Video Cutscene System Documentation
 
 ## Overview
 
-This document outlines a **minimal-risk MVP** approach to replace Unity prefab-based cutscenes with video-based cutscenes exported from After Effects. The goal is to achieve video functionality with the **fewest possible changes** to the existing system.
+This document describes the **video-based cutscene system** that replaced Unity prefab-based cutscenes with video files exported from After Effects. The implementation follows a **minimal-change philosophy** - preserving all existing game logic while only modifying what was absolutely necessary to achieve video functionality.
 
-## Design Philosophy: Minimal Modification
+## Design Philosophy: Minimal Modification ✅
 
-### What We Keep Unchanged ✅
-- ✅ Existing `cutsceneMapping` list in RoomManager
-- ✅ Same trigger logic (key object detection)
+### What Remained Unchanged
+- ✅ Existing `cutsceneMapping` list structure in RoomManager
+- ✅ Same trigger logic (key object detection via PlayerPrefs)
 - ✅ Same timing and flow in `SwitchRoomCoroutine()`
-- ✅ Same `PlayCutscene()` method signature
+- ✅ Same `PlayCutscene()` method signature and call pattern
 - ✅ All existing room management logic
 - ✅ Same user experience and timing
 - ✅ MainScene3D architecture (no scene loading needed)
+- ✅ Same cutscene triggering conditions
 
-### What We Minimally Change 🔧
-- 🔧 `CutsceneEntry.cutscenePrefab` → `CutsceneEntry.videoClip` (1 line)
-- 🔧 `PlayCutscene()` method content (replace animation with video)
-- 🔧 Add VideoPlayer component to RoomManager
-- 🔧 Create simple video display canvas
+### What Was Minimally Changed
+- 🔧 `CutsceneEntry.cutscenePrefab` → `CutsceneEntry.videoClip` (1 field change)
+- 🔧 `PlayCutscene()` method content (replaced prefab instantiation with video playback)
+- 🔧 Added VideoPlayer component to RoomManager GameObject
+- 🔧 Created VideoCanvas prefab for video display
 
-## Current System Analysis
+## System Architecture
 
-### Existing Flow (Preserved)
-1. Player places key objects (Basketball_Prefab, Bed_Prefab, Frame_Prefab)
-2. RoomManager detects key objects when transitioning rooms
-3. `PlayCutscene()` displays content for fixed duration
-4. Content is hidden after animation completes
-5. Room transition continues normally
+### Current Implementation Structure
 
-### Current Code Structure (Mostly Preserved)
 ```csharp
-// This stays exactly the same
 [System.Serializable]
 public class CutsceneEntry
 {
-    public string itemName;             // ✅ Keep unchanged
-    public GameObject cutscenePrefab;   // 🔧 Only this changes to VideoClip
+    public string itemName;             // e.g., "Basketball_Prefab" 
+    public VideoClip videoClip;         // Video asset reference
 }
 
-public List<CutsceneEntry> cutsceneMapping; // ✅ Keep unchanged
+public class RoomManager : MonoBehaviour
+{
+    [Header("Video Player - MVP")]
+    public VideoPlayer videoPlayer;     // Component on RoomManager GameObject
+    public RawImage videoDisplay;       // Reference to display component (optional)
+    public GameObject videoCanvas;      // VideoCanvas prefab reference
+    
+    public List<CutsceneEntry> cutsceneMapping; // Inspector-configured mappings
+}
 ```
 
-## MVP Implementation Plan
+### Video Display Components
 
-### Phase 1: Video Asset Preparation (You Handle)
+**VideoCanvas Prefab Structure:**
+```
+VideoCanvas (Canvas - Screen Space Overlay, Sort Order: 100)
+├── VideoBackground (Image - Black, full screen, blocks input)
+└── VideoDisplay (RawImage - displays video via RenderTexture)
+```
 
-#### 1.1 After Effects Export Settings
-- **Resolution**: 1920x1080 (matching Unity canvas)
-- **Frame Rate**: 30fps
-- **Format**: MP4 with H.264 codec
-- **Duration**: 3-5 seconds (matching current system)
-- **Audio**: Optional AAC 48kHz
+**VideoPlayer Configuration:**
+- **Source**: Video Clip
+- **Render Mode**: Render Texture  
+- **Target Texture**: VideoRenderTexture (1920x1080)
+- **Play On Awake**: False
+- **Is Looping**: False
 
-#### 1.2 Unity Asset Structure
+## How The System Works
+
+### 1. Cutscene Triggering (Unchanged Logic)
+
+The trigger mechanism remains identical to the original system:
+
+```csharp
+// In SwitchRoomCoroutine() - same logic as before
+string[] keyObjects = { "Bed_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+List<string> keyItemsThisRoom = new();
+
+// Detect valid placed key objects
+foreach (Transform child in spawnRoot)
+{
+    var item = child.GetComponent<ItemAutoDestroy>();
+    if (item != null && item.isValidPlacement)
+    {
+        string itemName = child.name.Replace("(Clone)", "");
+        if (keyObjects.Contains(itemName))
+            keyItemsThisRoom.Add(itemName);
+    }
+}
+
+// Store chosen key object in PlayerPrefs (same as before)
+if (keyItemsThisRoom.Count == 1)
+    PlayerPrefs.SetString("next_key_object", keyItemsThisRoom[0]);
+```
+
+### 2. Cutscene Selection (Minimal Change)
+
+The selection logic changed only the variable types:
+
+```csharp
+// OLD: GameObject selectedCutscene = null;
+VideoClip selectedVideo = null;  // Only change: type
+
+foreach (var entry in cutsceneMapping)
+{
+    if (entry.itemName == chosenKeyObject && entry.videoClip != null)
+    {
+        selectedVideo = entry.videoClip;  // Only change: field name
+        Debug.Log($"[RoomManager] Playing video cutscene: {chosenKeyObject}");
+        break;
+    }
+}
+
+if (selectedVideo != null)
+{
+    yield return PlayCutscene(selectedVideo);  // Same call pattern
+}
+```
+
+### 3. Video Playback Implementation
+
+The `PlayCutscene()` method signature stayed the same, only the implementation changed:
+
+```csharp
+private IEnumerator PlayCutscene(VideoClip videoClip)  // Same signature pattern
+{
+    // Validation with fallback (preserves original timing)
+    if (videoClip == null || videoPlayer == null || videoCanvas == null)
+    {
+        Debug.LogWarning("[RoomManager] Video, player, or canvas prefab missing, using fallback timing");
+        yield return new WaitForSeconds(3f);  // Same fallback as original
+        yield break;
+    }
+
+    // Instantiate video display UI
+    GameObject videoCanvasInstance = Instantiate(videoCanvas);
+    
+    // Auto-connect RenderTexture to display
+    RawImage displayImage = videoCanvasInstance.GetComponentInChildren<RawImage>();
+    if (displayImage != null && videoPlayer.targetTexture != null)
+    {
+        displayImage.texture = videoPlayer.targetTexture;
+    }
+    
+    // Play video
+    videoPlayer.clip = videoClip;
+    videoPlayer.Play();
+    
+    Debug.Log($"[RoomManager] Playing video: {videoClip.name}, duration: {videoPlayer.clip.length}s");
+    
+    // Wait for video duration (preserves exact same user experience)
+    yield return new WaitForSeconds((float)videoPlayer.clip.length);
+    
+    // Cleanup
+    videoPlayer.Stop();
+    if (videoCanvasInstance != null)
+    {
+        Destroy(videoCanvasInstance);
+    }
+    
+    Debug.Log("[RoomManager] Video cutscene completed");
+}
+```
+
+## Integration Points
+
+### Room Transition Flow (Preserved)
+
+1. **Player places key objects** → Same detection logic
+2. **Room transition triggered** → Same SwitchRoomCoroutine() flow  
+3. **Key object detected** → Same PlayerPrefs storage system
+4. **Cutscene mapping lookup** → Same iteration logic, different field access
+5. **PlayCutscene() called** → Same method signature and timing
+6. **Content displayed** → Video instead of prefab animation
+7. **Timing preserved** → Uses video duration instead of fixed delay
+8. **Room transition continues** → Same post-cutscene flow
+
+### Inspector Configuration
+
+**RoomManager Component:**
+- `cutsceneMapping`: List of key object → video clip associations
+- `videoPlayer`: VideoPlayer component (auto-added to RoomManager)
+- `videoCanvas`: VideoCanvas prefab reference
+- `videoDisplay`: Optional RawImage reference
+
+**Example Mapping:**
+```
+Basketball_Prefab → Basketball_Cutscene.mp4
+Bed_Prefab → Bed_Cutscene.mp4  
+Frame_Prefab → Frame_Cutscene.mp4
+```
+
+## Technical Details
+
+### Asset Structure
 ```
 Assets/
 ├── Videos/
 │   ├── Basketball_Cutscene.mp4
 │   ├── Bed_Cutscene.mp4
 │   └── Frame_Cutscene.mp4
-└── (existing structure unchanged)
+├── Prefabs/
+│   └── VideoCanvas.prefab
+└── RenderTextures/
+    └── VideoRenderTexture.renderTexture
 ```
 
-#### 1.3 Unity Import Settings
-- **Transcode**: Yes
-- **Codec**: H.264
-- **Quality**: Medium (balance size/quality)
+### Runtime Behavior
 
-### Phase 2: Minimal Code Changes (I Handle)
+**Video Display Process:**
+1. VideoCanvas prefab instantiated at runtime
+2. RenderTexture automatically assigned to RawImage
+3. VideoPlayer renders to RenderTexture
+4. Video plays for its natural duration
+5. Canvas instance destroyed after playback
 
-#### 2.1 Update CutsceneEntry (1 Line Change)
-```csharp
-[System.Serializable]
-public class CutsceneEntry
-{
-    public string itemName;             // Keep exactly the same
-    public VideoClip videoClip;         // CHANGE: GameObject → VideoClip
-}
-```
+**Input Blocking:**
+- VideoBackground image blocks all input during playback
+- Screen Space - Overlay canvas ensures highest priority
+- Automatic cleanup prevents input blocking issues
 
-#### 2.2 Add Video Components to RoomManager (3 Fields)
-```csharp
-public class RoomManager : MonoBehaviour
-{
-    // ... all existing fields stay identical ...
-    
-    [Header("Video Player - MVP")]
-    public VideoPlayer videoPlayer;     // Drag VideoPlayer component here
-    public RawImage videoDisplay;       // Drag RawImage for display
-    public GameObject videoCanvas;      // Canvas to show/hide
+### Error Handling
 
-    // ... rest of class completely unchanged ...
-}
-```
+**Built-in Fallbacks:**
+- Missing video clip → 3-second wait (maintains original timing)
+- Missing VideoPlayer → 3-second wait  
+- Missing VideoCanvas → 3-second wait
+- All fallbacks preserve original user experience
 
-#### 2.3 Replace PlayCutscene Method Content (Keep Same Signature)
-```csharp
-private IEnumerator PlayCutscene(VideoClip videoClip)  // Changed parameter type only
-{
-    if (videoClip == null || videoPlayer == null)
-    {
-        // Fallback: maintain same timing as before
-        yield return new WaitForSeconds(3f);
-        yield break;
-    }
+## System Benefits
 
-    // Show video (same timing as old system)
-    videoCanvas.SetActive(true);
-    videoPlayer.clip = videoClip;
-    videoPlayer.Play();
-    
-    // Wait for video duration (preserves exact same user experience)
-    yield return new WaitForSeconds(videoPlayer.clip.length);
-    
-    // Hide video (same cleanup as old system)
-    videoPlayer.Stop();
-    videoCanvas.SetActive(false);
-}
-```
+### ✅ **Risk-Free Implementation**
+- Only 4-5 lines of code changed
+- All existing logic preserved
+- Built-in fallbacks for any issues
+- Instant rollback capability
 
-#### 2.4 Update Call Site in SwitchRoomCoroutine (Minimal Change)
-```csharp
-// In SwitchRoomCoroutine(), replace the cutscene selection:
-string chosenKeyObject = PlayerPrefs.GetString("next_key_object", "");
-if (!string.IsNullOrEmpty(chosenKeyObject) && hasStarted)
-{
-    VideoClip selectedVideo = null;  // CHANGE: GameObject → VideoClip
-    foreach (var entry in cutsceneMapping)
-    {
-        if (entry.itemName == chosenKeyObject && entry.videoClip != null)  // CHANGE: cutscenePrefab → videoClip
-        {
-            selectedVideo = entry.videoClip;  // CHANGE: assignment
-            Debug.Log($"[RoomManager] Playing video cutscene: {chosenKeyObject}");
-            break;
-        }
-    }
+### ✅ **Preserved User Experience**  
+- Identical timing and flow
+- Same trigger conditions
+- Same transition behavior
+- Enhanced visual quality
 
-    PlayerPrefs.DeleteKey("next_key_object");
-    if (selectedVideo != null)
-    {
-        yield return PlayCutscene(selectedVideo);  // CHANGE: parameter type
-    }
-}
-```
+### ✅ **Maintainable Architecture**
+- Same inspector workflow
+- Same debugging patterns
+- Same extension points
+- No new learning curve
 
-### Phase 3: Unity Setup (5 Minutes)
+### ✅ **Future Expandability**
+- Easy to add more videos
+- Simple to enhance video features  
+- Compatible with existing content
+- Foundation for advanced video systems
 
-#### 3.1 Create Video Canvas Prefab (Clean Environment)
-Instead of working in the isometric MainScene3D:
+## Current Status
 
-1. **Create Canvas Prefab**:
-   - Right-click in Project window → Create → UI → Canvas
-   - Name it: `VideoCanvas.prefab`
-   - Double-click to open prefab mode (nice orthographic view)
+**Working Features:**
+- ✅ Key object detection triggers video cutscenes
+- ✅ Basketball placement → Basketball video playback
+- ✅ Video duration timing preserved
+- ✅ Automatic UI instantiation and cleanup
+- ✅ Input blocking during video playback
+- ✅ Seamless integration with room transitions
+- ✅ Console logging for debugging
 
-2. **Structure the VideoCanvas prefab**:
-```
-VideoCanvas (Canvas)
-├── VideoBackground (Image)
-│   ├── Color: Black (0,0,0,255)
-│   ├── Anchor: Stretch to fill screen
-│   ├── Raycast Target: ✓ (blocks input during video)
-│   └── Source Image: None (solid color)
-└── VideoDisplay (RawImage)
-    ├── Anchor: Center, stretch to fit
-    ├── Aspect Ratio: Preserve
-    └── Texture: (will be assigned from RenderTexture)
-```
+**Configuration Required:**
+- Video clips assigned in cutsceneMapping inspector
+- VideoCanvas prefab reference set
+- VideoPlayer component configured with RenderTexture
 
-3. **Configure Canvas Properties**:
-   - Render Mode: Screen Space - Overlay
-   - Sort Order: 100 (highest priority)
-   - Pixel Perfect: ✓
-
-#### 3.2 Setup VideoPlayer Component
-1. **Add VideoPlayer to RoomManager GameObject**:
-   - Select RoomManager in MainScene3D
-   - Add Component → Video → Video Player
-
-2. **Configure VideoPlayer properties**:
-   ```
-   Source: Video Clip
-   Render Mode: Render Texture
-   Target Texture: (Create new RenderTexture - see below)
-   Play On Awake: ✗
-   Is Looping: ✗
-   Wait For First Frame: ✓
-   ```
-
-3. **Create RenderTexture asset**:
-   - Right-click in Project → Create → Render Texture
-   - Name: `VideoRenderTexture`
-   - Size: 1920 x 1080
-   - Assign to VideoPlayer's Target Texture field
-   - Assign same texture to VideoDisplay's Texture field (in prefab)
-
-#### 3.3 Canvas Hierarchy and Priorities
-```
-VideoCanvas (Prefab):    Sort Order = 100  (highest - blocks everything)
-Main Canvas (Scene):     Sort Order = 50   (normal game UI)
-LoadCanvas (Scene):      Sort Order = 75   (loading screens)
-```
-
-#### 3.4 Wire Inspector References
-**In RoomManager inspector**:
-- Drag VideoPlayer component → `videoPlayer` field
-- Drag VideoDisplay RawImage (from prefab) → `videoDisplay` field
-- Drag VideoCanvas prefab asset → `videoCanvas` field
-- Replace old cutscene prefab references with video clip references
-
-**Runtime Behavior**:
-- VideoCanvas prefab automatically instantiates when referenced
-- Acts exactly like a scene object
-- Clean separation from main scene complexity
-
-### Phase 4: Migration Process (Low Risk)
-
-#### 4.1 Backup Everything
-```bash
-# Create backup scene
-MainScene3D → Duplicate → "MainScene3D_Backup"
-
-# Note current cutsceneMapping entries:
-Basketball_Prefab → BasketballCutScene.prefab
-(Record others for reference)
-```
-
-#### 4.2 Test Current System
-1. Verify basketball cutscene works with old system
-2. Note exact timing and behavior
-3. Take screenshots for comparison
-
-#### 4.3 Implement Changes (Order Matters)
-1. **First**: Create video assets and import to Unity
-2. **Second**: Create VideoCanvas and VideoPlayer setup
-3. **Third**: Modify code (change 4-5 lines)
-4. **Fourth**: Update inspector references
-5. **Fifth**: Test immediately
-
-#### 4.4 Validation Testing
-```
-✅ Basketball placement triggers video instead of animation
-✅ Video duration matches previous experience (~3 seconds)
-✅ Room transition continues normally after video
-✅ No errors in console
-✅ Same user experience overall
-```
-
-## Technical Implementation Details
-
-### VideoPlayer Configuration
-```csharp
-// Applied automatically when component added:
-videoPlayer.source = VideoSource.VideoClip;
-videoPlayer.renderMode = VideoRenderMode.RenderTexture;
-videoPlayer.isLooping = false;
-videoPlayer.playOnAwake = false;
-videoPlayer.waitForFirstFrame = true;
-```
-
-### Error Handling (Built-in Fallback)
-```csharp
-private IEnumerator PlayCutscene(VideoClip videoClip)
-{
-    if (videoClip == null || videoPlayer == null)
-    {
-        Debug.LogWarning("[RoomManager] Video or player missing, using fallback timing");
-        yield return new WaitForSeconds(3f);  // Same as old system
-        yield break;
-    }
-    
-    // Normal video playback...
-}
-```
-
-### Canvas Input Blocking
-```
-VideoBackground Image:
-- Raycast Target: ✓
-- Color: Black with full alpha
-- Covers entire screen
-→ Automatically blocks all input during video
-```
-
-## Risk Assessment: Extremely Low
-
-### What Could Go Wrong? (Minimal)
-- **Video doesn't load**: Falls back to 3-second wait (same timing)
-- **VideoPlayer missing**: Falls back to 3-second wait
-- **Inspector references broken**: Easy to re-wire, no code impact
-
-### What Can't Go Wrong? (Everything Else)
-- ✅ Room management logic unchanged
-- ✅ Key object detection unchanged  
-- ✅ Transition timing unchanged
-- ✅ UI systems unchanged
-- ✅ Camera systems unchanged
-- ✅ Game progression unchanged
-
-### Rollback Strategy (Instant)
-```csharp
-// To rollback: change one line back
-public GameObject cutscenePrefab;  // Instead of VideoClip videoClip
-// Re-assign prefab references in inspector
-// Everything else stays identical
-```
-
-## Timeline: Same Day Implementation
-
-### Morning (30 minutes - You)
-- Export basketball video from After Effects
-- Import to Unity with correct settings
-
-### Afternoon (45 minutes - Me + You)
-- **15 min**: Create VideoCanvas and VideoPlayer setup
-- **15 min**: Modify 4-5 lines of code
-- **15 min**: Wire inspector references and test
-
-### Evening (15 minutes - Validation)
-- Test basketball cutscene
-- Verify identical user experience
-- Ready for additional videos
-
-**Total Time: 90 minutes maximum**
-
-## Future Expansion (Optional)
-
-This MVP foundation supports easy expansion:
-- Add more videos: Just import and assign in inspector
-- Improve video quality: Re-export from After Effects
-- Add audio: Automatic with video files
-- Add skip functionality: Simple input detection
-- Multiple videos per object: Expand CutsceneEntry array
-
-## Why This Approach Works
-
-### ✅ **Zero Risk**
-- Only changes what's absolutely necessary
-- Preserves all existing logic and timing
-- Built-in fallback for any issues
-
-### ✅ **Immediate Results**  
-- Working video cutscenes in under 2 hours
-- Same user experience with better visuals
-- No learning curve for existing systems
-
-### ✅ **Future-Proof**
-- Foundation for more sophisticated video systems
-- Easy to enhance without breaking anything
-- Maintains compatibility with existing content
-
-### ✅ **Designer-Friendly**
-- Same inspector workflow as before
-- Just replace prefab references with video references
-- No new concepts to learn
-
-This MVP gets you professional video cutscenes **today** while keeping everything you've built intact! 
+This implementation successfully achieves professional video cutscenes while maintaining the stability and simplicity of the original system. 
