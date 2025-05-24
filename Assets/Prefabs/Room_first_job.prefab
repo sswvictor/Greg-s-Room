@@ -58,7 +58,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 389144777745286327}
@@ -84,7 +84,7 @@ MonoBehaviour:
   wall0: {fileID: 690731503869602652}
   wall1: {fileID: 6612089104564826644}
   wall2: {fileID: 6188965975461773972}
-  wall3: {fileID: 690731503869602652}
+  wall3: {fileID: 4380623268885420612}
   visibleScaleY: 1
   hiddenScaleY: 0.1
   transitionDuration: 0.25
@@ -196,12 +196,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 14
   gridHeight: 12
-  cellSize: 1
-  wallX: 0
-  wallY: 6.5
-  wallZ: 10
-  highlightTilePrefab: {fileID: 0}
-  roomCollider: {fileID: 0}
+  cellSize: 0.9
+  wallX: 0.25
+  wallY: 6
+  wallZ: 9
+  highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
+  roomCollider: {fileID: 6585237031168339241}
 --- !u!1001 &3461702918526527253
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -317,13 +317,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridWidth: 20
-  gridHeight: 13
-  cellSize: 1
-  wallX: -7.1
+  gridHeight: 12
+  cellSize: 0.9
+  wallX: -6.4
   wallY: 6
-  wallZ: 10
-  highlightTilePrefab: {fileID: 0}
-  roomCollider: {fileID: 0}
+  wallZ: 9.3
+  highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
+  roomCollider: {fileID: 177244390696431719}
 --- !u!1001 &6270055028247760709
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -431,13 +431,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridWidth: 20
-  gridHeight: 13
-  cellSize: 1
-  wallX: 7.3
+  gridHeight: 12
+  cellSize: 0.9
+  wallX: 6.6
   wallY: 6
-  wallZ: -10
-  highlightTilePrefab: {fileID: 0}
-  roomCollider: {fileID: 0}
+  wallZ: -9
+  highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
+  roomCollider: {fileID: 5911147688512931288}
 --- !u!1001 &6422966577807622085
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -541,12 +541,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 14
   gridHeight: 12
-  cellSize: 1
+  cellSize: 0.9
   wallX: 0
-  wallY: 6.5
-  wallZ: -9.9
-  highlightTilePrefab: {fileID: 0}
-  roomCollider: {fileID: 0}
+  wallY: 6
+  wallZ: -8.9
+  highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
+  roomCollider: {fileID: 6422945794826363538}
 --- !u!4 &6820788973893359662 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 44edbd56dd9d94bc2bae768fc573ff0b, type: 3}
@@ -602,7 +602,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 961daadeffd6f4e1ea728f571104732e, type: 3}
       propertyPath: m_Name
-      value: floor40
+      value: floor
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -640,7 +640,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 15, y: 0.5, z: 21}
-  m_Center: {x: 0, y: 0.3, z: 0.3}
+  m_Center: {x: 0, y: 0, z: 0.3}
 --- !u!114 &1536972790720412296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -653,14 +653,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31cc2054ba4b9934a896f1443ed4a043, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridWidth: 15
-  gridHeight: 21
-  cellSize: 1
-  floorX: 0.4
+  gridWidth: 14
+  gridHeight: 20
+  cellSize: 0.9
+  floorX: 0
   floorZ: 0.4
   floorY: 0.7
-  highlightTilePrefab: {fileID: 0}
-  roomCollider: {fileID: 0}
+  highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
+  roomCollider: {fileID: 145337229466864078}
 --- !u!4 &6639385214047750093 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 961daadeffd6f4e1ea728f571104732e, type: 3}

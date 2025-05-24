@@ -277,13 +277,13 @@ public class FengShuiLogic : MonoBehaviour
         if (frontIsWindow)
         {
             score -= 6;
-            Debug.Log("[FengShui] ❌ Bookshelf is in front of a window → -6");
+            Debug.Log("[FengShui] ❌ Bookshelf the back is a window → -6");
         }
         bool backIsDoor = IsFacingMarker(origin, forward, "DoorMarker");
         if (frontIsDoor)
         {
             score -= 6;
-            Debug.Log("[FengShui] ❌ Bookshelf is in front of a door → -6");
+            Debug.Log("[FengShui] ❌ Bookshelf back is a door → -6");
         }
         
 
