@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 using TMPro;
 
 [System.Serializable]
@@ -21,7 +22,7 @@ public class RoomData
 public class CutsceneEntry
 {
     public string itemName;             // 例如 "Basketball_Prefab"
-    public GameObject cutscenePrefab;   // 对应的动画 prefab
+    public VideoClip videoClip;         // CHANGE: GameObject cutscenePrefab → VideoClip videoClip
 }
 
 public class RoomHistory {
@@ -52,6 +53,11 @@ public class RoomManager : MonoBehaviour
     public Transform windowMarker;
 
     public Dictionary<int, RoomHistory> roomHistories = new();
+
+    [Header("Video Player - MVP")]
+    public VideoPlayer videoPlayer;     // Drag VideoPlayer component here
+    public RawImage videoDisplay;       // Drag RawImage for display
+    public GameObject videoCanvas;      // Canvas to show/hide
 
     // public KeyObjectSelectionPanel keyObjectPanel;
 
@@ -188,21 +194,21 @@ public class RoomManager : MonoBehaviour
         string chosenKeyObject = PlayerPrefs.GetString("next_key_object", "");
         if (!string.IsNullOrEmpty(chosenKeyObject) && hasStarted)
         {
-            GameObject selectedCutscene = null;
+            VideoClip selectedVideo = null;  // CHANGE: GameObject → VideoClip
             foreach (var entry in cutsceneMapping)
             {
-                if (entry.itemName == chosenKeyObject && entry.cutscenePrefab != null)
+                if (entry.itemName == chosenKeyObject && entry.videoClip != null)  // CHANGE: cutscenePrefab → videoClip
                 {
-                    selectedCutscene = entry.cutscenePrefab;
-                    Debug.Log($"[RoomManager] 播放关键物体 Cutscene：{chosenKeyObject}");
+                    selectedVideo = entry.videoClip;  // CHANGE: assignment
+                    Debug.Log($"[RoomManager] Playing video cutscene: {chosenKeyObject}");
                     break;
                 }
             }
 
             PlayerPrefs.DeleteKey("next_key_object"); // ✅ 播放后清除
-            if (selectedCutscene != null)
+            if (selectedVideo != null)
             {
-                yield return PlayCutscene(selectedCutscene);
+                yield return PlayCutscene(selectedVideo);  // CHANGE: parameter type
             }
         }
 
@@ -619,26 +625,30 @@ public class RoomManager : MonoBehaviour
         return false;
     }
 
-    private IEnumerator PlayCutscene(GameObject cutscenePrefab)
+    private IEnumerator PlayCutscene(VideoClip videoClip)  // Changed parameter type only
     {
-        if (cutscenePrefab == null)
+        if (videoClip == null || videoPlayer == null)
+        {
+            // Fallback: maintain same timing as before
+            Debug.LogWarning("[RoomManager] Video or player missing, using fallback timing");
+            yield return new WaitForSeconds(3f);
             yield break;
-
-        var instance = Instantiate(cutscenePrefab, GameObject.Find("CanvasRoot")?.transform, false); // 挂到 UI Canvas 下
-        var director = instance.GetComponent<CutsceneDirector>();
-
-        instance.SetActive(true);
-        if (director != null)
-        {
-            director.TransitionToRoom(1f);
-            yield return new WaitForSeconds(director.transitionDuration);
-        }
-        else
-        {
-            yield return new WaitForSeconds(1f);
         }
 
-        Destroy(instance);  // 播完即销毁
+        // Show video (same timing as old system)
+        if (videoCanvas != null)
+            videoCanvas.SetActive(true);
+        
+        videoPlayer.clip = videoClip;
+        videoPlayer.Play();
+        
+        // Wait for video duration (preserves exact same user experience)
+        yield return new WaitForSeconds((float)videoPlayer.clip.length);
+        
+        // Hide video (same cleanup as old system)
+        videoPlayer.Stop();
+        if (videoCanvas != null)
+            videoCanvas.SetActive(false);
     }
 
     //Ricky's new code
