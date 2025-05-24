@@ -153,7 +153,8 @@ public class ItemAutoDestroy : MonoBehaviour
             if (type == PlacementType.Floor && floorGrid != null)
             {
                 float modelHalfHeight = cachedSize.y * 0.5f;
-                snapped.y = floorGrid.GetFloorY() + modelHalfHeight;
+                float deltaY = floorGrid.GetHighlightYOffset();
+                snapped.y = floorGrid.GetFloorY() + modelHalfHeight + deltaY;
             }
             else if (type == PlacementType.Wall && wallGrid != null)
             {

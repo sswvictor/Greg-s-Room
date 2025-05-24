@@ -125,7 +125,8 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                     if (floorGrid != null && floorGrid.TrySnapByEdge(center, size, out snapped))
                     {
                         float halfY = size.y * 0.5f;
-                        snapped.y = floorGrid.GetFloorY() + halfY;
+                        float deltaY = floorGrid.GetHighlightYOffset();
+                        snapped.y = floorGrid.GetFloorY() + halfY + deltaY;
                         draggingInstance.transform.position = snapped;
                     }
                     else

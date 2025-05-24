@@ -8,14 +8,19 @@ public class ItemBoxController : MonoBehaviour
 {
     public GameObject buttonPrefab;     // 挂按钮Prefab（上面有ItemSlotController）
     public Transform contentParent;     // 放按钮的容器
-    public int slotCount = 5;           // 固定空位
-    public float buttonHeight = 100f;   // 每个按钮的高度（用于 ShowItems）
-    public float spacing = 10f;         // 每个按钮的间距
-    public float startYPosition = 0f;   // 第一个按钮起始Y位置
+    public int slotCount = 12;          // 总共空位数（2列x6行）
+    
+    public int columns = 2;             // 列数（默认2列）
+    public float buttonWidth = 120f;    // 每个按钮的宽度（用于X方向）
+    public float buttonHeight = 100f;  // 每个按钮的高度（用于Y方向）
+    public float spacing = 20f;         // 按钮间距
+
+    public float columnSpacing = 20f; // 控制两列之间的距离
+
+    public float startYPosition = 0f;   // 第一行Y起点
 
     private List<GameObject> buttonInstances = new List<GameObject>();
 
-    // ✅ 用于旧结构，动态设置图标和模型
     public void ShowItems(List<Sprite> icons, List<GameObject> prefabs)
     {
         ClearItems();
@@ -26,16 +31,27 @@ public class ItemBoxController : MonoBehaviour
             buttonInstances.Add(buttonGO);
 
             var rect = buttonGO.GetComponent<RectTransform>();
-
             rect.localRotation = Quaternion.identity;
             rect.localScale = Vector3.one;
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(300f, 300f);
+            rect.anchorMin = new Vector2(0.5f, 1f);  // ⬅️ 水平居中，垂直顶部
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);      // ⬅️ 按钮自身 top-center 对齐
 
-            float yPos = startYPosition - i * (buttonHeight + spacing);
-            rect.anchoredPosition = new Vector2(0f, yPos);
+            rect.sizeDelta = new Vector2(buttonWidth, buttonHeight);
+
+            int row = i / columns;
+            int col = i % columns;
+
+            float totalWidth = buttonWidth * columns + columnSpacing * (columns - 1);
+            float xStart = -totalWidth / 2f + buttonWidth / 2f;
+            float xPos = xStart + col * (buttonWidth + columnSpacing);
+
+            // float yPos = -row * (buttonHeight + spacing);                  // ⬇️ 从上往下排
+
+            float yPos = -row * 160;
+
+            rect.anchoredPosition = new Vector2(xPos, yPos);
+
 
             var button = buttonGO.GetComponent<ItemSlotController>();
             var image = buttonGO.GetComponent<Image>();
@@ -55,7 +71,6 @@ public class ItemBoxController : MonoBehaviour
         }
     }
 
-    // ✅ 用于新结构：直接传入按钮 prefab 列表，每个按钮内部配置完整
     public void ShowButtons(List<GameObject> buttonPrefabs)
     {
         ClearItems();
@@ -69,32 +84,29 @@ public class ItemBoxController : MonoBehaviour
             buttonInstances.Add(buttonGO);
 
             var rect = buttonGO.GetComponent<RectTransform>();
-
             rect.localRotation = Quaternion.identity;
             rect.localScale = Vector3.one;
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            // rect.sizeDelta = new Vector2(300f, 300f);  // ✅ 修复按钮压扁：设定固定尺寸
+            rect.anchorMin = new Vector2(0.5f, 1f);  // ⬅️ 水平居中，垂直顶部
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);      // ⬅️ 按钮自身 top-center 对齐
 
-            float yPos = startYPosition - i * (buttonHeight + spacing);
-            rect.anchoredPosition = new Vector2(0f, yPos);
-            // var es = UnityEngine.EventSystems.EventSystem.current;
-            // if (es != null && buttonInstances.Count > 0)
-            // {
-            //     var first = buttonInstances[0];
-            //     UnityEngine.EventSystems.ExecuteEvents.Execute<IPointerEnterHandler>(
-            //         first, new PointerEventData(es), ExecuteEvents.pointerEnterHandler);
-            //     Debug.Log("[FIX] Manually triggered pointer enter on first button");
-            // }
+            rect.sizeDelta = new Vector2(buttonWidth, buttonHeight);
 
+            int row = i / columns;
+            int col = i % columns;
 
+            float totalWidth = buttonWidth * columns + columnSpacing * (columns - 1);
+            float xStart = -totalWidth / 2f + buttonWidth / 2f;
+            float xPos = xStart + col * (buttonWidth + columnSpacing);
+            // float yPos = -row * (buttonHeight + spacing);
 
+            float yPos = -row * 160;
+
+            rect.anchoredPosition = new Vector2(xPos, yPos);
         }
-        // StartCoroutine(ForceRefreshUI());
+
         gameObject.SetActive(false);
         gameObject.SetActive(true);
-
     }
 
     public void ClearItems()
@@ -105,13 +117,4 @@ public class ItemBoxController : MonoBehaviour
         }
         buttonInstances.Clear();
     }
-
-    // private IEnumerator ForceRefreshUI()
-    // {
-    //     gameObject.SetActive(false);
-    //     yield return null;
-    //     gameObject.SetActive(true);
-    // }
-
-
 }

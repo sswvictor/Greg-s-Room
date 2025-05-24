@@ -119,14 +119,21 @@ public class FloorGrid : MonoBehaviour
                 if (col == null || col.isTrigger) continue;
                 if (col.gameObject == highlightInstance) continue;
                 if (col == roomCollider) continue;
+                Debug.LogWarning($"[OverlapHit ✅] {col.name} | Type: {col.GetType().Name} | Trigger: {col.isTrigger} | Enabled: {col.enabled} | Static: {col.gameObject.isStatic}");
+                // ✅ 获取该物体的顶部位置
+                Bounds ob = col.bounds;
+                float topY = ob.max.y;
 
-                // // ✅ 可拓展：支持堆叠的物体加特殊标签/脚本后跳过
-                // if (col.GetComponent<SupportsStacking>() != null) continue;
+                // ✅ 更新投影 y
+                Vector3 p = highlightInstance.transform.position;
+                p.y = topY + 0.01f;
+                highlightInstance.transform.position = p;
 
-                isValid = false;
+                // currentSurfaceY = p.y;  // 同步更新
                 break;
             }
         }
+
 
         IsCurrentHighlightValid = isValid;
 
@@ -145,6 +152,15 @@ public class FloorGrid : MonoBehaviour
         if (highlightInstance != null)
             highlightInstance.SetActive(false);
     }
+
+    public float GetHighlightYOffset()
+    {
+        if (highlightInstance == null || !highlightInstance.activeSelf)
+            return 0f;
+
+        return highlightInstance.transform.position.y - floorY;
+    }
+
 
 #if UNITY_EDITOR
     void OnDrawGizmos()
