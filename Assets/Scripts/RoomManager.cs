@@ -7,12 +7,8 @@ using TMPro;
 public class RoomData
 {
     public GameObject roomPrefab;
-    public List<GameObject> buttonPrefabs; // ✅ 改为每个房间的按钮 prefab 列表
-    // public List<Sprite> itemIcons;       // ❌ 已弃用
-    // public List<GameObject> itemPrefabs; // ❌ 已弃用
+    public List<GameObject> buttonPrefabs;
 }
-
-
 
 public class RoomManager : MonoBehaviour
 {
@@ -34,17 +30,6 @@ public class RoomManager : MonoBehaviour
     public Transform doorMarker;
     public Transform windowMarker;
 
-
-    public Vector3 GetDoorPosition()
-    {
-        return doorMarker != null ? doorMarker.position : Vector3.zero;
-    }
-
-    public Vector3 GetWindowPosition()
-    {
-        return windowMarker != null ? windowMarker.position : Vector3.zero;
-    }
-
     private int currentRoomCHIScore = 0;
     public int totalCHIScore = 0;
 
@@ -61,7 +46,6 @@ public class RoomManager : MonoBehaviour
                 Debug.LogWarning("[RoomManager] ChiScoreText not found in scene.");
         }
 
-        // ✅ 启动前先隐藏场景内容，确保只显示加载页
         if (transitionPanel != null)
         {
             transitionPanel.SetActive(true);
@@ -73,83 +57,94 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
-        // ✅ 避免中间显示空白，直接协程生成房间
-        StartCoroutine(SwitchRoomCoroutine());
+        bool fromSummary = false;
+
+        if (SummaryData.Instance != null)
+        {
+            fromSummary = true;
+            currentIndex = SummaryData.Instance.nextRoomIndex;
+            Debug.Log("[RoomManager] nextRoomIndex letto da SummaryData: " + currentIndex);
+            Destroy(SummaryData.Instance.gameObject);
+        }
+
+        StartCoroutine(SwitchRoomCoroutine(fromSummary, false));
     }
 
-    public void LoadNextRoom()
+    public void NextRoom()
     {
-        StartCoroutine(SwitchRoomCoroutine());
+        StartCoroutine(SwitchRoomCoroutine(false, true));
     }
 
-    private IEnumerator SwitchRoomCoroutine()
+    private IEnumerator SwitchRoomCoroutine(bool fromSummary = false, bool goToSummary = false)
     {
         var cg = transitionPanel.GetComponent<CanvasGroup>();
         transitionPanel.SetActive(true);
-
-        // ✅ 确保加载遮罩不透明
         cg.alpha = 1f;
         yield return null;
 
-        // 清除旧房间
         totalCHIScore += currentRoomCHIScore;
-        Debug.Log($"[GLOBAL CHI] Added {currentRoomCHIScore} points. Total now = {totalCHIScore}");
+        if (currentRoom) Destroy(currentRoom);
 
-        if (currentRoom)
-            Destroy(currentRoom);
-
-        // ✅ 特殊逻辑：room01 时根据是否放置 basketball 决定跳转
-        if (currentIndex == 0)
+        if (!fromSummary)
         {
-            bool hasBasketball = false;
-            Transform spawnRoot = GameObject.Find("ItemSpawnRoot")?.transform;
-            if (spawnRoot != null)
+            if (currentIndex == 0)
             {
-                foreach (Transform child in spawnRoot)
+                bool hasBasketball = false;
+                Transform spawnRoot = GameObject.Find("ItemSpawnRoot")?.transform;
+                if (spawnRoot != null)
                 {
-                    if (child.name.Contains("Basketball") &&
-                        child.GetComponent<ItemAutoDestroy>()?.isValidPlacement == true)
+                    foreach (Transform child in spawnRoot)
                     {
-                        hasBasketball = true;
-                        break;
+                        if (child.name.Contains("Basketball") &&
+                            child.GetComponent<ItemAutoDestroy>()?.isValidPlacement == true)
+                        {
+                            hasBasketball = true;
+                            break;
+                        }
                     }
                 }
+                currentIndex = hasBasketball ? 2 : 1;
             }
-            currentIndex = hasBasketball ? 2 : 1;
-        }
-        else
-        {
-            currentIndex = 0; // ✅ 不管从 room1 还是 room2，统统跳回 room0
+            else
+            {
+                currentIndex = 0;
+            }
         }
 
+        if (goToSummary)
+        {
+            if (SummaryData.Instance == null)
+            {
+                GameObject go = new GameObject("SummaryData");
+                go.AddComponent<SummaryData>();
+            }
+
+            SummaryData.Instance.totalCHI = CHIScoreManager.Instance.CalculateTotalCHI();
+            SummaryData.Instance.characterName = "Hippie Greg";
+            SummaryData.Instance.characterSprite = null;
+            SummaryData.Instance.nextRoomIndex = (currentIndex + 1) % rooms.Count;
+
+            yield return new WaitForSeconds(0.2f);
+            UnityEngine.SceneManagement.SceneManager.LoadScene("SummaryScene");
+            yield break;
+        }
 
         var room = rooms[currentIndex];
+        Debug.Log($"[RoomManager] currentIndex = {currentIndex}");
+        Debug.Log($"[RoomManager] rooms.Count = {rooms.Count}");
         currentRoom = Instantiate(room.roomPrefab, roomParent);
         doorMarker = currentRoom.transform.Find("DoorMarker");
         windowMarker = currentRoom.transform.Find("WindowMarker");
 
-        if (doorMarker == null)
-            Debug.LogWarning("[RoomManager] ❌ DoorMarker not found!");
-
-        if (windowMarker == null)
-            Debug.LogWarning("[RoomManager] ❌ WindowMarker not found!");
-
-        // ✅ 初始化墙体显示为主视角（墙0/1显示，墙2/3压缩）
         var wallCtrl = currentRoom.GetComponent<WallVisibilityController>();
-        if (wallCtrl != null)
-            wallCtrl.ShowMainView();
-        CameraMapper.Instance.SwitchTo(0); // 强制切换回主视角
+        if (wallCtrl != null) wallCtrl.ShowMainView();
+        CameraMapper.Instance.SwitchTo(0);
 
         var spawnRootNew = currentRoom.transform.Find("ItemSpawnRoot");
         if (spawnRootNew != null)
             RoomSpawner.Instance.SetSpawnParent(spawnRootNew);
-        else
-            Debug.LogWarning("ItemSpawnRoot not found in current room!");
 
-        // ✅ 改为使用按钮 prefab 列表生成
         itemBoxController.ShowButtons(room.buttonPrefabs);
-
-        // 等待一帧，确保生成完成再开始淡出
         yield return new WaitForSeconds(0.2f);
 
         while (cg.alpha > 0f)
@@ -159,21 +154,12 @@ public class RoomManager : MonoBehaviour
         }
 
         transitionPanel.SetActive(false);
-
         currentRoomCHIScore = 0;
         ResetCHIScore();
     }
 
-    public int GetCurrentRoomCHI()
-    {
-        return currentRoomCHIScore;
-    }
-
-    public int GetTotalCHI()
-    {
-        return totalCHIScore;
-    }
-
+    public int GetCurrentRoomCHI() => currentRoomCHIScore;
+    public int GetTotalCHI() => totalCHIScore;
 
     public void ResetCHIScore()
     {
@@ -198,12 +184,8 @@ public class RoomManager : MonoBehaviour
             Debug.LogWarning("[CHI] CHIScoreManager.Instance is NULL! Skip refresh.");
             return;
         }
-
-        Debug.Log("[CHI] Passed null checks. Start calculating...");
-
         currentRoomCHIScore = CHIScoreManager.Instance.CalculateTotalCHI();
         chiScoreText.text = $"CHI Score: {currentRoomCHIScore}";
-
         chiFillBar?.UpdateBar(currentRoomCHIScore, maxScore);
     }
 
@@ -217,16 +199,13 @@ public class RoomManager : MonoBehaviour
     private IEnumerator LoadRoomFromSaveCoroutine(QuickSaveData data)
     {
         currentIndex = data.roomIndex;
-
-        if (currentRoom)
-            Destroy(currentRoom);
+        if (currentRoom) Destroy(currentRoom);
 
         var room = rooms[currentIndex];
         currentRoom = Instantiate(room.roomPrefab, roomParent);
 
         var wallCtrl = currentRoom.GetComponent<WallVisibilityController>();
-        if (wallCtrl != null)
-            wallCtrl.ShowMainView();
+        if (wallCtrl != null) wallCtrl.ShowMainView();
 
         CameraMapper.Instance.SwitchTo(0);
 
@@ -243,44 +222,21 @@ public class RoomManager : MonoBehaviour
         itemBoxController.ShowButtons(room.buttonPrefabs);
         yield return new WaitForSeconds(0.1f);
 
-        // ✅ 生成房间内的所有物体（问题来源区域）
         foreach (var item in data.placedItems)
         {
             GameObject prefab = FindPrefabByName(item.prefabName);
             if (prefab != null)
             {
-                if (AlreadyHasBed(spawnRoot))
-                {
-                    Debug.LogWarning("[DEBUG] ItemSpawnRoot 中已经有一张床！");
-                }
-                if (spawnRoot == null)
-                {
-                    continue;
-                }
-
                 var go = Instantiate(prefab, item.position, item.rotation, spawnRoot);
                 var tracker = go.GetComponent<ItemAutoDestroy>();
                 var collider = go.GetComponent<Collider>();
-                if (collider != null)
-                {
-                    collider.enabled = true;
-                    Debug.Log($"[QuickLoad] Enabled collider for {go.name}");
-                }
-                else
-                {
-                    Debug.LogWarning($"[QuickLoad ❌] {go.name} has no collider!");
-                }
+                if (collider != null) collider.enabled = true;
 
-                var slot = FindSlotForPrefab(item.prefabName);   // ✅ 补上这句
+                var slot = FindSlotForPrefab(item.prefabName);
                 var roomCollider = currentRoom.GetComponentInChildren<Collider>();
-
-                Debug.Log($"[QuickLoad] Instantiated {prefab.name} at {item.position:F3}");
-
                 if (tracker != null)
                 {
                     tracker.Init(slot, roomCollider);
-                    Debug.Log($"[QuickLoad] Init tracker for {prefab.name}");
-
                     PlacementType type = prefab.GetComponent<ItemType>()?.type ?? PlacementType.Floor;
 
                     if (type == PlacementType.Floor)
@@ -290,11 +246,6 @@ public class RoomManager : MonoBehaviour
                         {
                             grid.roomCollider = roomCollider;
                             tracker.floorGrid = grid;
-                            Debug.Log($"[QuickLoad] Assigned FloorGrid to {prefab.name}");
-                        }
-                        else
-                        {
-                            Debug.LogWarning("[QuickLoad ❌] FloorGrid not found");
                         }
                     }
                     else if (type == PlacementType.Wall)
@@ -304,36 +255,15 @@ public class RoomManager : MonoBehaviour
                         {
                             grid.roomCollider = roomCollider;
                             tracker.wallGrid = grid;
-                            Debug.Log($"[QuickLoad] Assigned WallGrid to {prefab.name}");
-                        }
-                        else
-                        {
-                            Debug.LogWarning("[QuickLoad ❌] WallGrid not found");
                         }
                     }
 
-                    // tracker.CheckPositionImmediately();
                     tracker.StopDragging();
                     tracker.EnableDraggingOnClick();
-                    // ✅ 再次保险设置一次，确保 collider 真的启用了（双保险）
-                    collider = go.GetComponent<Collider>();
-                    if (collider != null && !collider.enabled)
-                    {
-                        collider.enabled = true;
-                        Debug.Log($"[QuickLoad] Forced enable of collider on {go.name}");
-                    }
-                    Debug.Log($"[QuickLoad ✅] Tracker ready for click-drag: {prefab.name}");
                 }
-                else
-                {
-                    Debug.LogWarning($"[QuickLoad ❌] Tracker is null on {prefab.name}");
-                }
-
             }
         }
 
-
-        // ✅ 恢复 ItemBox 中按钮状态
         var itemSlots = Object.FindObjectsOfType<ItemSlotController>();
         foreach (var slot in itemSlots)
         {
@@ -344,15 +274,12 @@ public class RoomManager : MonoBehaviour
                 slot.SetSpawned(saved.hasSpawned);
             }
         }
+
         currentRoomCHIScore = data.currentRoomCHI;
         totalCHIScore = data.totalCHI;
         chiScoreText.text = $"CHI Score: {currentRoomCHIScore}";
         chiFillBar?.UpdateBar(currentRoomCHIScore, maxScore);
-
-        // RefreshCHIScore();
     }
-
-
 
     private ItemSlotController FindSlotForPrefab(string prefabName)
     {
@@ -385,26 +312,19 @@ public class RoomManager : MonoBehaviour
     bool AlreadyHasBed(Transform spawnRoot)
     {
         if (spawnRoot == null) return false;
-
-        foreach (var t in spawnRoot.GetComponentsInChildren<Transform>(includeInactive: true))
+        foreach (var t in spawnRoot.GetComponentsInChildren<Transform>(true))
         {
-            if (t.gameObject.name.Contains("Bed"))  // or == "Bed"
-            {
-                Debug.Log("[DEBUG] 已经发现存在床对象: " + t.name);
-                return true;
-            }
+            if (t.gameObject.name.Contains("Bed")) return true;
         }
-
         return false;
     }
-    
+
     private void OnDrawGizmos()
     {
         if (Application.isPlaying && currentRoom != null)
         {
-            Vector3 center = GetRoomCenter();
             Gizmos.color = Color.magenta;
-            Gizmos.DrawSphere(center, 0.2f);
+            Gizmos.DrawSphere(GetRoomCenter(), 0.2f);
         }
     }
 
@@ -412,14 +332,8 @@ public class RoomManager : MonoBehaviour
     {
         var floor = currentRoom?.GetComponentInChildren<FloorGrid>();
         if (floor != null && floor.roomCollider != null)
-        {
             return floor.roomCollider.bounds.center;
-        }
 
         return currentRoom != null ? currentRoom.transform.position : Vector3.zero;
     }
-    
-    
-
-
 }
