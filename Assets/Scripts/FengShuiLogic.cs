@@ -9,9 +9,10 @@ public class FengShuiLogic : MonoBehaviour
 
     // we use this only for the bed in order to check the direction of the head.
     public Transform headTransform;
-    
 
-    private Transform FindRoomMarker(string markerName){
+
+    private Transform FindRoomMarker(string markerName)
+    {
         Transform roomRoot = transform;
 
         // Risali di uno o due livelli se necessario per raggiungere il Room_College
@@ -66,6 +67,18 @@ public class FengShuiLogic : MonoBehaviour
                 score += EvaluateChairRules();
                 break;
 
+            case "TVStand":
+                score += EvaluateTVStandRules();
+                break;
+
+            case "TV":
+                score += EvaluateTVRules();
+                break;
+
+            case "Kallax":
+                score += EvaluateKallaxRules();
+                break;
+
             default:
                 Debug.LogWarning($"[FengShui] No rules for type: {objectType}");
                 break;
@@ -73,7 +86,7 @@ public class FengShuiLogic : MonoBehaviour
 
         return score;
     }
-    
+
     private bool IsFacingMarker(Vector3 origin, Vector3 direction, string markerName, float segmentHalfWidth = 0.75f, float maxDistance = 1.5f, float maxAngle = 35f)
     {
         Transform marker = FindRoomMarker(markerName);
@@ -111,21 +124,23 @@ public class FengShuiLogic : MonoBehaviour
         Vector3 direction = headTransform.right;
 
         // debug ray for checking the direction of the bed
-        Debug.DrawRay(origin, direction * 2f, Color.red, 5f);
+        Debug.DrawRay(origin, direction * 2f, Color.cyan, 5f);
 
         // check if the bed to the door
         // Trova la root della stanza salendo nei parent
-        if (IsFacingMarker(origin, direction, "DoorMarker")){
+        if (IsFacingMarker(origin, direction, "DoorMarker"))
+        {
             Debug.Log("[FengShui] ❌ Bed faces the door marker → -20");
             score -= 20;
         }
-        else{
+        else
+        {
             Debug.Log("[FengShui] ✅ No door detected in front (marker).");
         }
 
         if (Physics.Raycast(origin, direction, out RaycastHit hit, 2f))
         {
-            if (hit.collider.CompareTag("Wall") && hit.distance <= 0.5f)
+            if (hit.collider.CompareTag("Wall"))
             {
                 score += 35;
                 Debug.Log("[FengShui] ✅ Testiera contro il muro → +35");
@@ -138,15 +153,16 @@ public class FengShuiLogic : MonoBehaviour
         }
         else
         {
-            //Debug.Log($"[FengShui] ❌ No wall hitted behind the bed.");
-            //Debug.Log($"          ↳ Testiera: {origin}, Direzione: {direction}");
-            score -= 10;
+            Debug.Log($"[FengShui] ❌ No wall hitted behind the bed.");
+            Debug.Log($"          ↳ Testiera: {origin}, Direzione: {direction}");
+            score -= 20;
         }
 
         return score;
     }
 
-    private int EvaluateCouchRules(){
+    private int EvaluateCouchRules()
+    {
         int score = 0;
 
         if (headTransform == null)
@@ -202,7 +218,7 @@ public class FengShuiLogic : MonoBehaviour
         Vector3 behind = headTransform.position - facing;
         Debug.DrawRay(behind, -facing * 4f, Color.cyan, 4f);
 
-        if (Physics.Raycast(behind, -facing, out RaycastHit hitBack, 4f))
+        if ((Physics.Raycast(behind, -facing, out RaycastHit hitBack, 4f)) && ((IsFacingMarker(headTransform.position, facing, "DoorMarker")) == false))
         {
             if (hitBack.collider.CompareTag("Wall"))
             {
@@ -227,7 +243,8 @@ public class FengShuiLogic : MonoBehaviour
 
 
 
-    private int EvaluateBookshelfRules(){
+    private int EvaluateBookshelfRules()
+    {
         int score = 0;
 
         Vector3 origin = headTransform.position;
@@ -285,14 +302,15 @@ public class FengShuiLogic : MonoBehaviour
             score -= 6;
             Debug.Log("[FengShui] ❌ Bookshelf back is a door → -6");
         }
-        
 
-        
+
+
 
         return score;
     }
 
-    private int EvaluateNightstandRules(){
+    private int EvaluateNightstandRules()
+    {
         int score = 0;
 
         if (headTransform == null)
@@ -354,7 +372,8 @@ public class FengShuiLogic : MonoBehaviour
     }
 
 
-    private int EvaluateTableRules(){
+    private int EvaluateTableRules()
+    {
         int score = 0;
 
         Vector3 origin = headTransform.position;
@@ -404,16 +423,6 @@ public class FengShuiLogic : MonoBehaviour
             }
         }
 
-        // ✅ Muro davanti (opzionale)
-        if (Physics.Raycast(origin, forward, out RaycastHit hitFront, 4f))
-        {
-            if (hitFront.collider.CompareTag("Wall"))
-            {
-                Debug.Log("[FengShui] ✅ Table faces wall → +3");
-                score += 3;
-            }
-        }
-
         // ✅ Letto vicino (collider)
         if (Physics.Raycast(origin, left, out RaycastHit hitLeft, 7f))
         {
@@ -438,7 +447,8 @@ public class FengShuiLogic : MonoBehaviour
 
 
 
-   private int EvaluateChairRules(){
+    private int EvaluateChairRules()
+    {
         int score = 0;
 
         if (headTransform == null)
@@ -479,6 +489,168 @@ public class FengShuiLogic : MonoBehaviour
 
         return score;
     }
+
+    private int EvaluateTVStandRules()
+    {
+        int score = 0;
+
+        if (headTransform == null) return score;
+
+        Vector3 origin = headTransform.position;
+        Vector3 forward = headTransform.forward;
+        Vector3 back = -forward;
+
+        // There is a wall behind the TV Stand
+        if (Physics.Raycast(origin, back, out RaycastHit hitBack, 2f))
+        {
+            if (hitBack.collider.CompareTag("Wall"))
+            {
+                Debug.Log("[FengShui] ✅ TV Stand back against wall → +5");
+                score += 5;
+            }
+        }
+
+        // in front of the object, there is something
+        if (Physics.Raycast(origin, forward, out RaycastHit hitFront, 2f))
+        {
+            Debug.Log("[FengShui] ❌ TV Stand has obstruction in front → -5");
+            score -= 5;
+        }
+
+        // ✅ The object is somewhere near the door 
+        Vector3[] directions = { forward, back, headTransform.right, -headTransform.right };
+        foreach (var dir in directions)
+        {
+            if (IsFacingMarker(origin, dir, "DoorMarker"))
+            {
+                Debug.Log("[FengShui] ❌ TV Stand faces or blocks a door → -10");
+                score -= 10;
+                break;
+            }
+        }
+
+        return score;
+    }
+
+    private int EvaluateTVRules()
+    {
+        int score = 0;
+
+        if (headTransform == null) return score;
+
+        Vector3 origin = headTransform.position;
+        Vector3 forward = headTransform.forward;
+        Vector3 back = -forward;
+
+        // No window in front of the TV
+        if (IsFacingMarker(origin, forward, "WindowMarker"))
+        {
+            Debug.Log("[FengShui] ❌ TV is in front of a window → -6");
+            score -= 6;
+        }
+
+        // No window behind the TV
+        if (IsFacingMarker(origin, back, "WindowMarker"))
+        {
+            Debug.Log("[FengShui] ❌ TV is backed by a window → -6");
+            score -= 6;
+        }
+
+        // Too close to the door 
+        Vector3[] directions = { forward, back, headTransform.right, -headTransform.right };
+        foreach (var dir in directions)
+        {
+            if (IsFacingMarker(origin, dir, "DoorMarker"))
+            {
+                Debug.Log("[FengShui] ❌ TV too close to door → -6");
+                score -= 6;
+                break;
+            }
+        }
+
+        Debug.DrawRay(origin, forward * 10f, Color.green, 15f);
+        // The couch in front of the TV
+        if (Physics.Raycast(origin, forward, out RaycastHit hit, 10f))
+        {
+            if (hit.collider.name.Contains("Couch"))
+            {
+                Debug.Log("[FengShui] ✅ TV has couch in front → +6");
+                score += 6;
+            }
+        }
+        else
+        {
+            Debug.Log("[FengShui] ❌ No couch in front of TV → -3");
+            score -= 3;
+        }
+        if (hit.collider != null)
+        {
+            Debug.Log($"Hit object: {hit.collider.name}, full path: {hit.collider.transform.root.name}");
+        }
+
+
+        return score;
+    }
+    
+    private int EvaluateKallaxRules()
+    {
+        int score = 0;
+
+        if (headTransform == null) return score;
+
+        Vector3 origin = headTransform.position;
+        Vector3 forward = headTransform.forward;
+        Vector3 back = -forward;
+
+        Debug.DrawRay(origin, forward * 2f, Color.cyan, 2f);
+        Debug.DrawRay(origin, back * 2f, Color.red, 2f);
+
+        // There is a wall behind the Kallax
+        if (Physics.Raycast(origin, back, out RaycastHit hitBack, 2f))
+        {
+            if (hitBack.collider.CompareTag("Wall"))
+            {
+                Debug.Log("[FengShui] ❌ Kallax is against the wall → -6");
+                score -= 6;
+            }
+        }
+
+        // If there are objects in front or behind the Kallax, give points
+        if (Physics.Raycast(origin, forward, out RaycastHit hitF, 3f))
+        {
+            if (hitF.collider.name.Contains("Bed") || hitF.collider.name.Contains("Couch") || hitF.collider.name.Contains("Table"))
+            {
+                Debug.Log("[FengShui] ✅ Kallax separates space with object in front → +5");
+                score += 5;
+            }
+        }
+
+        if (Physics.Raycast(origin, back, out RaycastHit hitB, 3f))
+        {
+            if (hitB.collider.name.Contains("Bed") || hitB.collider.name.Contains("Couch") || hitB.collider.name.Contains("Table"))
+            {
+                Debug.Log("[FengShui] ✅ Kallax separates space with object behind → +5");
+                score += 5;
+            }
+        }
+
+        // Cannot face the door
+        Vector3[] directions = { forward, back, headTransform.right, -headTransform.right };
+        foreach (var dir in directions)
+        {
+            if (IsFacingMarker(origin, dir, "DoorMarker"))
+            {
+                Debug.Log("[FengShui] ❌ Kallax blocks door → -8");
+                score -= 8;
+                break;
+            }
+        }
+
+        return score;
+    }
+
+
+
 
 
 }

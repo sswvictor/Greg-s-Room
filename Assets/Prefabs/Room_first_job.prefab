@@ -67,6 +67,8 @@ Transform:
   - {fileID: 5803183538561968302}
   - {fileID: 6820788973893359662}
   - {fileID: 3999417521777770750}
+  - {fileID: 1742779491153597783}
+  - {fileID: 3840834549274319205}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3147978416142513623
@@ -88,6 +90,68 @@ MonoBehaviour:
   visibleScaleY: 1
   hiddenScaleY: 0.1
   transitionDuration: 0.25
+--- !u!1 &7350617576960512159
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3840834549274319205}
+  m_Layer: 0
+  m_Name: WindowMarker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3840834549274319205
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7350617576960512159}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.17, y: 4.15, z: 10.38}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3906492523187557805}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7818707697965536029
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1742779491153597783}
+  m_Layer: 0
+  m_Name: DoorMarker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1742779491153597783
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7818707697965536029}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.14, y: 3.47, z: -10.46}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3906492523187557805}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &384091801127785997
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -106,7 +170,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c603fc355263845dca712c13e28743c3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 10.57
+      value: 10.62
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c603fc355263845dca712c13e28743c3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -139,6 +203,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: c603fc355263845dca712c13e28743c3, type: 3}
       propertyPath: m_Name
       value: wall0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c603fc355263845dca712c13e28743c3, type: 3}
+      propertyPath: m_TagString
+      value: Wall
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -199,7 +267,7 @@ MonoBehaviour:
   cellSize: 0.9
   wallX: 0.25
   wallY: 6
-  wallZ: 9
+  wallZ: 9.3
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
   roomCollider: {fileID: 6585237031168339241}
 --- !u!1001 &3461702918526527253
@@ -212,7 +280,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 94cd70d68a9494fcca012b49c2dac7cd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.65
+      value: -7.98
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 94cd70d68a9494fcca012b49c2dac7cd, type: 3}
       propertyPath: m_LocalPosition.y
@@ -220,7 +288,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 94cd70d68a9494fcca012b49c2dac7cd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.22
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 94cd70d68a9494fcca012b49c2dac7cd, type: 3}
       propertyPath: m_LocalRotation.w
@@ -253,6 +321,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 94cd70d68a9494fcca012b49c2dac7cd, type: 3}
       propertyPath: m_Name
       value: wall3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 94cd70d68a9494fcca012b49c2dac7cd, type: 3}
+      propertyPath: m_TagString
+      value: Wall
       objectReference: {fileID: 0}
     - target: {fileID: 1151388028547126963, guid: 94cd70d68a9494fcca012b49c2dac7cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -303,7 +375,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 21, y: 12, z: 1}
-  m_Center: {x: 0, y: 6.5, z: 0.3}
+  m_Center: {x: 0, y: 6.5, z: 0}
 --- !u!114 &6195412887230798615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,7 +391,7 @@ MonoBehaviour:
   gridWidth: 20
   gridHeight: 12
   cellSize: 0.9
-  wallX: -6.4
+  wallX: -6.6
   wallY: 6
   wallZ: 9.3
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
@@ -376,6 +448,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wall1
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b165118bbaecc4d4e83a16d07d6a539c, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -416,8 +492,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 21, y: 12, z: 1}
-  m_Center: {x: 0, y: 6.5, z: 1.2}
+  m_Size: {x: 21, y: 12, z: 3}
+  m_Center: {x: 0, y: 6.5, z: -0.04}
 --- !u!114 &3971128470123641858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -448,7 +524,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 44edbd56dd9d94bc2bae768fc573ff0b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.18
+      value: -0.11
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 44edbd56dd9d94bc2bae768fc573ff0b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -456,7 +532,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 44edbd56dd9d94bc2bae768fc573ff0b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10.18
+      value: -10.11
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 44edbd56dd9d94bc2bae768fc573ff0b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -489,6 +565,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 44edbd56dd9d94bc2bae768fc573ff0b, type: 3}
       propertyPath: m_Name
       value: wall2
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 44edbd56dd9d94bc2bae768fc573ff0b, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
+    - target: {fileID: 1151388028547126963, guid: 44edbd56dd9d94bc2bae768fc573ff0b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.31
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -526,7 +610,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 15, y: 13, z: 1}
-  m_Center: {x: 0, y: 6, z: -0.3}
+  m_Center: {x: 0, y: 6, z: -0.55}
 --- !u!114 &3976524054234554290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -544,7 +628,7 @@ MonoBehaviour:
   cellSize: 0.9
   wallX: 0
   wallY: 6
-  wallZ: -8.9
+  wallZ: -8.7
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
   roomCollider: {fileID: 6422945794826363538}
 --- !u!4 &6820788973893359662 stripped
@@ -653,12 +737,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31cc2054ba4b9934a896f1443ed4a043, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridWidth: 14
-  gridHeight: 20
-  cellSize: 0.9
+  gridWidth: 13
+  gridHeight: 19
+  cellSize: 1
   floorX: 0
   floorZ: 0.4
-  floorY: 0.7
+  floorY: 0.5
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
   roomCollider: {fileID: 145337229466864078}
 --- !u!4 &6639385214047750093 stripped

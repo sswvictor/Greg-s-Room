@@ -6512,8 +6512,8 @@ MonoBehaviour:
     - {fileID: 5786259820379870626, guid: 5394df32c5a9d4948ad3b17f9a259d6d, type: 3}
   - roomPrefab: {fileID: 7273669159020939964, guid: 77ca362f8a32249a5a96b20cc2e158c7, type: 3}
     buttonPrefabs:
-    - {fileID: 5786259820379870626, guid: be94a0343362747f9b73fb3a4f883793, type: 3}
-    - {fileID: 2398170074112325896, guid: 3193a0ee695f75a409e64ec5dc91d19f, type: 3}
+    - {fileID: 5786259820379870626, guid: 972a0bfd582f249bca0dae659c98f30e, type: 3}
+    - {fileID: 5786259820379870626, guid: c80fc9546e1184377a34f173842a39b7, type: 3}
     - {fileID: 5786259820379870626, guid: 81f5d4b184ff0f5418775ba13bc54e2c, type: 3}
   - roomPrefab: {fileID: 6462529950501038574, guid: 571cda221f4db174691c9c3411a783f8, type: 3}
     buttonPrefabs:
