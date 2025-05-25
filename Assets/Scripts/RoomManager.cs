@@ -22,7 +22,10 @@ public class RoomData
 public class CutsceneEntry
 {
     public string itemName;             // 例如 "Basketball_Prefab"
-    public VideoClip videoClip;         // CHANGE: GameObject cutscenePrefab → VideoClip videoClip
+    
+    [Header("CHI Score Conditional Cutscenes")]
+    public VideoClip highCHIVideo;      // Video for CHI score >= 50%
+    public VideoClip lowCHIVideo;       // Video for CHI score < 50%
 }
 
 public class RoomHistory {
@@ -195,12 +198,32 @@ public class RoomManager : MonoBehaviour
         if (!string.IsNullOrEmpty(chosenKeyObject) && hasStarted)
         {
             VideoClip selectedVideo = null;  // CHANGE: GameObject → VideoClip
+            
+            // ✅ CHI Score Conditional Logic - MVP
+            float chiPercentage = (currentRoomCHIScore / maxScore) * 100f;
+            bool isHighCHI = chiPercentage >= 50f;
+            
+            Debug.Log($"[RoomManager] CHI Score: {currentRoomCHIScore}/{maxScore} ({chiPercentage:F1}%) - {(isHighCHI ? "HIGH" : "LOW")} CHI");
+            
             foreach (var entry in cutsceneMapping)
             {
-                if (entry.itemName == chosenKeyObject && entry.videoClip != null)  // CHANGE: cutscenePrefab → videoClip
+                if (entry.itemName == chosenKeyObject)
                 {
-                    selectedVideo = entry.videoClip;  // CHANGE: assignment
-                    Debug.Log($"[RoomManager] Playing video cutscene: {chosenKeyObject}");
+                    // ✅ Select video based on CHI score
+                    if (isHighCHI && entry.highCHIVideo != null)
+                    {
+                        selectedVideo = entry.highCHIVideo;
+                        Debug.Log($"[RoomManager] Playing HIGH CHI video cutscene: {chosenKeyObject}");
+                    }
+                    else if (!isHighCHI && entry.lowCHIVideo != null)
+                    {
+                        selectedVideo = entry.lowCHIVideo;
+                        Debug.Log($"[RoomManager] Playing LOW CHI video cutscene: {chosenKeyObject}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[RoomManager] No video assigned for {chosenKeyObject} with {(isHighCHI ? "HIGH" : "LOW")} CHI score");
+                    }
                     break;
                 }
             }

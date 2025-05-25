@@ -6791,7 +6791,8 @@ MonoBehaviour:
   totalCHIScore: 0
   cutsceneMapping:
   - itemName: Basketball_Prefab
-    videoClip: {fileID: 32900000, guid: 0c0484c23c2a742f2ba2289043697aba, type: 3}
+    highCHIVideo: {fileID: 32900000, guid: 0c0484c23c2a742f2ba2289043697aba, type: 3}
+    lowCHIVideo: {fileID: 32900000, guid: 44a0208204d1f4e948fde1bb5a14c062, type: 3}
 --- !u!4 &2023088870
 Transform:
   m_ObjectHideFlags: 0
