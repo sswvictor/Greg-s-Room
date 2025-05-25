@@ -6512,10 +6512,12 @@ MonoBehaviour:
     - {fileID: 5786259820379870626, guid: 5394df32c5a9d4948ad3b17f9a259d6d, type: 3}
   - roomPrefab: {fileID: 7273669159020939964, guid: 77ca362f8a32249a5a96b20cc2e158c7, type: 3}
     buttonPrefabs:
-    - {fileID: 5786259820379870626, guid: 972a0bfd582f249bca0dae659c98f30e, type: 3}
     - {fileID: 5786259820379870626, guid: c80fc9546e1184377a34f173842a39b7, type: 3}
-    - {fileID: 5786259820379870626, guid: 81f5d4b184ff0f5418775ba13bc54e2c, type: 3}
-  - roomPrefab: {fileID: 6462529950501038574, guid: 571cda221f4db174691c9c3411a783f8, type: 3}
+    - {fileID: 5786259820379870626, guid: 11d2102a064de4d15844f29b434307d3, type: 3}
+    - {fileID: 5786259820379870626, guid: 65f351fad8d08488792dc56b262af16a, type: 3}
+    - {fileID: 5786259820379870626, guid: 2ed3287ed8e264b1c98fa20488a945b2, type: 3}
+    - {fileID: 5786259820379870626, guid: 972a0bfd582f249bca0dae659c98f30e, type: 3}
+  - roomPrefab: {fileID: 608127376769533808, guid: b1fbd4c5ef3b54d5687cf4b004d334be, type: 3}
     buttonPrefabs:
     - {fileID: 5786259820379870626, guid: d1cce1fcb2b0dfd40a59624fb0cc8d2f, type: 3}
     - {fileID: 5786259820379870626, guid: 13fc454311c33fd43b5a7f8cc99d026a, type: 3}
