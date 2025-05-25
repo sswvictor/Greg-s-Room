@@ -13,7 +13,8 @@ public class StartMenuManager : MonoBehaviour
         // Check if save file exists and set continue button state
         // TODO: Implement proper save check
         ContinueBtn.interactable = false;
-        
+        BGMManager.Instance?.PlayRoomBGM(0);  // 约定 0 代表 StartMenu
+
         SetupButtonListeners();
     }
     
@@ -38,6 +39,12 @@ public class StartMenuManager : MonoBehaviour
     private void OnNewGameClick()
     {
         // Load first game scene
+        var oldBGM = GameObject.Find("BGMManager");
+        if (oldBGM != null)
+        {
+            Destroy(oldBGM);
+            Debug.Log("[StartMenu] 🎵 Destroyed StartMenuBGM before scene switch");
+        }
         SceneManager.LoadScene("MainScene3D");
     }
     

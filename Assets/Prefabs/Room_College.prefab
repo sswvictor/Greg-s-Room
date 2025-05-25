@@ -427,8 +427,8 @@ MonoBehaviour:
   wallX: 0
   wallY: 6.33
   wallZ: 5.45
-  highlightTilePrefab: {fileID: 0}
-  roomCollider: {fileID: 0}
+  highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
+  roomCollider: {fileID: 5885667017120554671}
 --- !u!4 &846698468078257883 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3305847fa97b33b4d9ac1ee9f4d6ed22, type: 3}
@@ -765,8 +765,8 @@ MonoBehaviour:
   wallX: -4.5
   wallY: 6
   wallZ: -5.4
-  highlightTilePrefab: {fileID: 0}
-  roomCollider: {fileID: 0}
+  highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
+  roomCollider: {fileID: 8442155807775925421}
 --- !u!4 &4092481332574109076 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3d792adc22766554d9188c1d8ebb91da, type: 3}
@@ -978,8 +978,8 @@ MonoBehaviour:
   wallX: 4.4
   wallY: 6.35
   wallZ: -5.5
-  highlightTilePrefab: {fileID: 0}
-  roomCollider: {fileID: 0}
+  highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
+  roomCollider: {fileID: 4723846577900133836}
 --- !u!4 &6399854407369723414 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 340ce6ee7f6e5454db5c2339538df414, type: 3}

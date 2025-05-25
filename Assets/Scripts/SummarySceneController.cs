@@ -25,6 +25,12 @@ public class EndSceneController : MonoBehaviour
     // 👉 重启游戏，跳转回 StartMenu
     public void RestartGame()
     {
+        var oldBGM = GameObject.Find("BGMManager");
+        if (oldBGM != null)
+        {
+            Destroy(oldBGM);
+            Debug.Log("[StartMenu] 🎵 Destroyed StartMenuBGM before scene switch");
+        }
         Debug.Log("Restarting game...");
         SceneManager.LoadScene(startMenuSceneName);
     }

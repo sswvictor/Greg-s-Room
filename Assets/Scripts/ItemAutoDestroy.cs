@@ -119,6 +119,7 @@ public class ItemAutoDestroy : MonoBehaviour
     {
         Debug.Log($"[🔥 ItemAutoDestroy.OnMouseDown CALLED] {gameObject.name}");
 
+        UIAudioManager.Instance?.PlayItemClick();
         if (GamePauseState.IsPaused)
         {
             Debug.Log("[MouseDown] Ignored due to pause");
@@ -163,6 +164,7 @@ public class ItemAutoDestroy : MonoBehaviour
             }
 
             transform.position = snapped;
+            UIAudioManager.Instance?.PlayPlaceSound();
         }
         else
         {

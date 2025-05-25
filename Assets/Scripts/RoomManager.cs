@@ -117,6 +117,8 @@ public class RoomManager : MonoBehaviour
     {
         // ✅ 避免中间显示空白，直接协程生成房间
         StartCoroutine(SwitchRoomCoroutine());
+        BGMManager.Instance?.PlayRoomBGM(0);
+
     }
 
     public void LoadNextRoom()
@@ -154,7 +156,7 @@ public class RoomManager : MonoBehaviour
         { 
             // ✅ 关键物体选择逻辑
             Transform spawnRoot = GameObject.Find("ItemSpawnRoot")?.transform;
-            string[] keyObjects = { "Bed_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+            string[] keyObjects = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab" };
             List<string> keyItemsThisRoom = new();
 
             if (spawnRoot != null)
@@ -185,6 +187,7 @@ public class RoomManager : MonoBehaviour
                     if (panel != null)
                     {
                         panel.Show(keyItemsThisRoom);
+                        // RefreshKeyObjectChoice(RoomManager.Instance.CurrentRoomIndex, selected);
                         yield break;
                     }
                     else
@@ -213,7 +216,7 @@ public class RoomManager : MonoBehaviour
             GameSummary.roomIcons.Clear();
             GameSummary.roomTexts.Clear();
 
-            string[] keyObjectsList = { "Bed_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+            string[] keyObjectsList = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab" };
 
             foreach (var kv in roomHistories)
             {
@@ -250,22 +253,26 @@ public class RoomManager : MonoBehaviour
             }
 
             UnityEngine.SceneManagement.SceneManager.LoadScene("SummaryScene");
+            BGMManager.Instance?.PlayRoomBGM(3);
             yield break;
         }
 
 
         // ✅ 播放关键物体关联的 cutscene（若存在）
         string chosenKeyObject = PlayerPrefs.GetString("next_key_object", "");
+        if (chosenKeyObject != null)
+            RefreshKeyObjectChoice(currentIndex-1, chosenKeyObject);
+
         if (!string.IsNullOrEmpty(chosenKeyObject) && hasStarted)
         {
             VideoClip selectedVideo = null;  // CHANGE: GameObject → VideoClip
-            
+
             // ✅ CHI Score Conditional Logic - MVP
             float chiPercentage = (currentRoomCHIScore / maxScore) * 100f;
             bool isHighCHI = chiPercentage >= 50f;
-            
+
             Debug.Log($"[RoomManager] CHI Score: {currentRoomCHIScore}/{maxScore} ({chiPercentage:F1}%) - {(isHighCHI ? "HIGH" : "LOW")} CHI");
-            
+
             foreach (var entry in cutsceneMapping)
             {
                 if (entry.itemName == chosenKeyObject)
@@ -296,6 +303,7 @@ public class RoomManager : MonoBehaviour
             }
         }
 
+        BGMManager.Instance?.PlayRoomBGM(currentIndex);
 
         // ✅ 接着进入下一个房间
         // currentIndex = (currentIndex + 1) % rooms.Count;
@@ -395,6 +403,8 @@ public class RoomManager : MonoBehaviour
             Debug.Log($"[RoomManager ✅] Found roomCollider = {roomCollider.name}");
         }
 
+        BGMManager.Instance?.PlayRoomBGM(currentIndex);
+
 
         var spawnRootNew = currentRoom.transform.Find("ItemSpawnRoot");
         if (spawnRootNew != null)
@@ -452,6 +462,28 @@ public class RoomManager : MonoBehaviour
 
             history.finished = CheckCompletionCriteria();
         }
+    }
+
+
+    public static void RefreshKeyObjectChoice(int roomIndex, string selectedKeyObject)
+    {
+        if (!RoomManager.Instance.roomHistories.TryGetValue(roomIndex, out var history))
+            return;
+
+        string[] keyObjects = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+        List<string> newList = new();
+
+        // 只保留选中的 key object 和非 key 的内容
+        foreach (var item in history.placedItemNames)
+        {
+            if (item == selectedKeyObject || !keyObjects.Contains(item))
+            {
+                newList.Add(item);
+            }
+        }
+
+        history.placedItemNames = newList;
+        Debug.Log($"[LIFE CHOICE ✅] Room {roomIndex} now only keeps: {string.Join(", ", newList)}");
     }
 
     private List<string> GetPlacedItemNamesFromCurrentRoom()
@@ -569,6 +601,9 @@ public class RoomManager : MonoBehaviour
 
         itemBoxController.ShowButtons(room.buttonPrefabs);
         yield return new WaitForSeconds(0.1f);
+
+
+        BGMManager.Instance?.PlayRoomBGM(currentIndex);
 
         // ✅ 生成房间内的所有物体（问题来源区域）
         foreach (var item in data.placedItems)

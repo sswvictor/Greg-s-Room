@@ -16,6 +16,7 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         // Debug.LogError($"[🎯 CONFIRMED] OnBeginDrag called on {gameObject.name}, prefab = {slotController?.modelPrefab?.name}");
 
         Debug.Log($"[Drag ✅✅✅✅✅✅] no tracker!");
+        UIAudioManager.Instance?.PlayItemClick();
 
 
         if (slotController == null || slotController.HasSpawned())
@@ -97,6 +98,9 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        // if (tracker.isValidPlacement)
+
+
         if (draggingInstance != null)
         {
             var tracker = draggingInstance.GetComponent<ItemAutoDestroy>();
@@ -111,6 +115,7 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                     Destroy(draggingInstance);
                     return;
                 }
+                UIAudioManager.Instance?.PlayPlaceSound();
                 tracker.StopDragging();
 
                 Vector3 center = draggingInstance.transform.position;
