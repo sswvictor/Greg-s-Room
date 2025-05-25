@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 using TMPro;
+using UnityEngine.SceneManagement;
+
 
 [System.Serializable]
 public class RoomData
@@ -21,7 +24,10 @@ public class RoomData
 public class CutsceneEntry
 {
     public string itemName;             // 例如 "Basketball_Prefab"
-    public GameObject cutscenePrefab;   // 对应的动画 prefab
+    
+    [Header("CHI Score Conditional Cutscenes")]
+    public VideoClip highCHIVideo;      // Video for CHI score >= 50%
+    public VideoClip lowCHIVideo;       // Video for CHI score < 50%
 }
 
 public class RoomHistory {
@@ -52,6 +58,12 @@ public class RoomManager : MonoBehaviour
     public Transform windowMarker;
 
     public Dictionary<int, RoomHistory> roomHistories = new();
+
+    public string endSceneName = "SummaryScene";  // 或者用 SceneManager.GetSceneByBuildIndex()
+    [Header("Video Player - MVP")]
+    public VideoPlayer videoPlayer;     // Drag VideoPlayer component here
+    public RawImage videoDisplay;       // Drag RawImage for display
+    public GameObject videoCanvas;      // Canvas to show/hide
 
     // public KeyObjectSelectionPanel keyObjectPanel;
 
@@ -138,77 +150,156 @@ public class RoomManager : MonoBehaviour
         if (currentRoom)
             Destroy(currentRoom);
 
-        // ✅ 关键物体选择逻辑
-        Transform spawnRoot = GameObject.Find("ItemSpawnRoot")?.transform;
-        string[] keyObjects = { "Bed_Prefab", "Basketball_Prefab", "Frame_Prefab" };
-        List<string> keyItemsThisRoom = new();
+        if (currentIndex != 2)
+        { 
+            // ✅ 关键物体选择逻辑
+            Transform spawnRoot = GameObject.Find("ItemSpawnRoot")?.transform;
+            string[] keyObjects = { "Bed_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+            List<string> keyItemsThisRoom = new();
 
-        if (spawnRoot != null)
-        {
-            foreach (Transform child in spawnRoot)
+            if (spawnRoot != null)
             {
-                var item = child.GetComponent<ItemAutoDestroy>();
-                if (item != null && item.isValidPlacement)
+                foreach (Transform child in spawnRoot)
                 {
-                    string itemName = child.name.Replace("(Clone)", "");
-                    if (keyObjects.Contains(itemName))
-                        keyItemsThisRoom.Add(itemName);
+                    var item = child.GetComponent<ItemAutoDestroy>();
+                    if (item != null && item.isValidPlacement)
+                    {
+                        string itemName = child.name.Replace("(Clone)", "");
+                        if (keyObjects.Contains(itemName))
+                            keyItemsThisRoom.Add(itemName);
+                    }
                 }
             }
-        }
 
-        if (keyItemsThisRoom.Count == 1)
-        {
-            PlayerPrefs.SetString("next_key_object", keyItemsThisRoom[0]);
-        }
-        else if (keyItemsThisRoom.Count > 1)
-        {
-            GameObject panelGO = GameObject.Find("KeyObjectSelectionPanel");
-            if (panelGO != null)
+            if (keyItemsThisRoom.Count == 1)
             {
-                var panel = GameObject.Find("KeyObjectSelectionPanel")?.GetComponent<KeyObjectSelectionPanel>();
-
-                if (panel != null)
+                PlayerPrefs.SetString("next_key_object", keyItemsThisRoom[0]);
+            }
+            else if (keyItemsThisRoom.Count > 1)
+            {
+                GameObject panelGO = GameObject.Find("KeyObjectSelectionPanel");
+                if (panelGO != null)
                 {
-                    panel.Show(keyItemsThisRoom);
-                    yield break;
+                    var panel = GameObject.Find("KeyObjectSelectionPanel")?.GetComponent<KeyObjectSelectionPanel>();
+
+                    if (panel != null)
+                    {
+                        panel.Show(keyItemsThisRoom);
+                        yield break;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[RoomManager] ❌ 找到 GameObject 但没有 KeyObjectSelectionPanel 脚本！");
+                    }
                 }
                 else
                 {
-                    Debug.LogWarning("[RoomManager] ❌ 找到 GameObject 但没有 KeyObjectSelectionPanel 脚本！");
+                    Debug.LogWarning("[RoomManager] ❌ 找不到 KeyObjectSelectionPanel 物体！");
                 }
             }
-            else
-            {
-                Debug.LogWarning("[RoomManager] ❌ 找不到 KeyObjectSelectionPanel 物体！");
-            }
+
         }
+
+
+
+
+        currentIndex++;
+
+        if (currentIndex >= rooms.Count)
+        {
+            GameSummary.totalCHI = totalCHIScore;
+            GameSummary.roomIndices.Clear();
+            GameSummary.roomKeys.Clear();
+            GameSummary.roomIcons.Clear();
+            GameSummary.roomTexts.Clear();
+
+            string[] keyObjectsList = { "Bed_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+
+            foreach (var kv in roomHistories)
+            {
+                int index = kv.Key;
+                var history = kv.Value;
+
+                string chosen = history.placedItemNames.Find(p => keyObjectsList.Contains(p));
+                if (chosen == null) continue;
+
+                GameSummary.roomIndices.Add(index);
+                GameSummary.roomKeys.Add(chosen);
+
+                // 🧠 提取图标：通过 buttonPrefab → iconObject
+                GameObject buttonPrefab = FindButtonPrefabByKeyObject(chosen);  // 👈 改用按钮 prefab，而不是 model prefab
+
+                Sprite icon = null;
+                if (buttonPrefab != null)
+                {
+                    var image = buttonPrefab.GetComponentInChildren<UnityEngine.UI.Image>();
+                    if (image != null)
+                        icon = image.sprite;
+                }
+                GameSummary.roomIcons.Add(icon);
+
+                // 🧠 生成总结文字
+                string summary = chosen switch
+                {
+                    "Basketball_Prefab" => "You followed your passion for sports.",
+                    "Bed_Prefab" => "You chose peace and comfort.",
+                    "Frame_Prefab" => "Memories guided your decisions.",
+                    _ => "You made a mysterious choice."
+                };
+                GameSummary.roomTexts.Add(summary);
+            }
+
+            UnityEngine.SceneManagement.SceneManager.LoadScene("SummaryScene");
+            yield break;
+        }
+
 
         // ✅ 播放关键物体关联的 cutscene（若存在）
         string chosenKeyObject = PlayerPrefs.GetString("next_key_object", "");
         if (!string.IsNullOrEmpty(chosenKeyObject) && hasStarted)
         {
-            GameObject selectedCutscene = null;
+            VideoClip selectedVideo = null;  // CHANGE: GameObject → VideoClip
+            
+            // ✅ CHI Score Conditional Logic - MVP
+            float chiPercentage = (currentRoomCHIScore / maxScore) * 100f;
+            bool isHighCHI = chiPercentage >= 50f;
+            
+            Debug.Log($"[RoomManager] CHI Score: {currentRoomCHIScore}/{maxScore} ({chiPercentage:F1}%) - {(isHighCHI ? "HIGH" : "LOW")} CHI");
+            
             foreach (var entry in cutsceneMapping)
             {
-                if (entry.itemName == chosenKeyObject && entry.cutscenePrefab != null)
+                if (entry.itemName == chosenKeyObject)
                 {
-                    selectedCutscene = entry.cutscenePrefab;
-                    Debug.Log($"[RoomManager] 播放关键物体 Cutscene：{chosenKeyObject}");
+                    // ✅ Select video based on CHI score
+                    if (isHighCHI && entry.highCHIVideo != null)
+                    {
+                        selectedVideo = entry.highCHIVideo;
+                        Debug.Log($"[RoomManager] Playing HIGH CHI video cutscene: {chosenKeyObject}");
+                    }
+                    else if (!isHighCHI && entry.lowCHIVideo != null)
+                    {
+                        selectedVideo = entry.lowCHIVideo;
+                        Debug.Log($"[RoomManager] Playing LOW CHI video cutscene: {chosenKeyObject}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[RoomManager] No video assigned for {chosenKeyObject} with {(isHighCHI ? "HIGH" : "LOW")} CHI score");
+                    }
                     break;
                 }
             }
 
             PlayerPrefs.DeleteKey("next_key_object"); // ✅ 播放后清除
-            if (selectedCutscene != null)
+            if (selectedVideo != null)
             {
-                yield return PlayCutscene(selectedCutscene);
+                yield return PlayCutscene(selectedVideo);  // CHANGE: parameter type
             }
         }
 
 
         // ✅ 接着进入下一个房间
-        currentIndex = (currentIndex + 1) % rooms.Count;
+        // currentIndex = (currentIndex + 1) % rooms.Count;
+
         var room = rooms[currentIndex];
         currentRoom = Instantiate(room.roomPrefab, roomParent);
         doorMarker = currentRoom.transform.Find("DoorMarker");
@@ -235,6 +326,21 @@ public class RoomManager : MonoBehaviour
         ResetCHIScore();
     }
 
+    private GameObject FindButtonPrefabByKeyObject(string prefabName)
+    {
+        foreach (var room in rooms)
+        {
+            foreach (var buttonPrefab in room.buttonPrefabs)
+            {
+                var slot = buttonPrefab.GetComponent<ItemSlotController>();
+                if (slot != null && slot.modelPrefab != null && slot.modelPrefab.name == prefabName)
+                {
+                    return buttonPrefab;
+                }
+            }
+        }
+        return null;
+    }
 
     public void LoadRoomByIndex(int index, bool reset = true)
     {
@@ -619,26 +725,43 @@ public class RoomManager : MonoBehaviour
         return false;
     }
 
-    private IEnumerator PlayCutscene(GameObject cutscenePrefab)
+    private IEnumerator PlayCutscene(VideoClip videoClip)  // Changed parameter type only
     {
-        if (cutscenePrefab == null)
+        if (videoClip == null || videoPlayer == null || videoCanvas == null)
+        {
+            // Fallback: maintain same timing as before
+            Debug.LogWarning("[RoomManager] Video, player, or canvas prefab missing, using fallback timing");
+            yield return new WaitForSeconds(3f);
             yield break;
-
-        var instance = Instantiate(cutscenePrefab, GameObject.Find("CanvasRoot")?.transform, false); // 挂到 UI Canvas 下
-        var director = instance.GetComponent<CutsceneDirector>();
-
-        instance.SetActive(true);
-        if (director != null)
-        {
-            director.TransitionToRoom(1f);
-            yield return new WaitForSeconds(director.transitionDuration);
-        }
-        else
-        {
-            yield return new WaitForSeconds(1f);
         }
 
-        Destroy(instance);  // 播完即销毁
+        // Instantiate VideoCanvas prefab
+        GameObject videoCanvasInstance = Instantiate(videoCanvas);
+        
+        // Find the RawImage component for video display
+        RawImage displayImage = videoCanvasInstance.GetComponentInChildren<RawImage>();
+        if (displayImage != null && videoPlayer.targetTexture != null)
+        {
+            displayImage.texture = videoPlayer.targetTexture;
+        }
+        
+        // Set up and play video
+        videoPlayer.clip = videoClip;
+        videoPlayer.Play();
+        
+        Debug.Log($"[RoomManager] Playing video: {videoClip.name}, duration: {videoPlayer.clip.length}s");
+        
+        // Wait for video duration (preserves exact same user experience)
+        yield return new WaitForSeconds((float)videoPlayer.clip.length);
+        
+        // Cleanup: stop video and destroy canvas instance
+        videoPlayer.Stop();
+        if (videoCanvasInstance != null)
+        {
+            Destroy(videoCanvasInstance);
+        }
+        
+        Debug.Log("[RoomManager] Video cutscene completed");
     }
 
     //Ricky's new code
