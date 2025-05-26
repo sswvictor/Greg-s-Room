@@ -93,7 +93,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 5c97a9f01f3184b1594a8bfa75690789, type: 3}
       propertyPath: m_Name
-      value: desk_computer
+      value: DeskComputer_Prefab
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -144,8 +144,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 5.7, y: 5, z: 2.6}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 5.7, y: 5.623451, z: 2.6000006}
+  m_Center: {x: 0, y: -1.6976557, z: 0}
 --- !u!114 &3202600603424344485
 MonoBehaviour:
   m_ObjectHideFlags: 0

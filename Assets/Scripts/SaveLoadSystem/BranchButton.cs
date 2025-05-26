@@ -85,7 +85,17 @@ public class BranchButtonController : MonoBehaviour
         Debug.Log($"→ placedItemNames: {string.Join(", ", history.placedItemNames)}");
 
         // ✅ 定义关键物体（key object）
-        string[] keyObjects = { "Bed_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+        string[] keyObjects = null;
+
+        if (roomIndex == 0)
+            keyObjects = new[] { "DeskComputer_Prefab", "Basketball_Prefab", "Poster_Prefab" };
+        else if (roomIndex == 1)
+            keyObjects = new[] { "Weeds_Prefab", "Weights_Prefab", "Couch_Prefab" };
+        else if (roomIndex == 2)
+            keyObjects = new[] { "DeskComputer_Prefab", "Kallax_Prefab", "TV_Prefab" };
+        else
+            keyObjects = new string[0]; // 防御性处理
+ 
 
         // ✅ 判断哪些已放置（来自 history）
         HashSet<string> placed = new(history.placedItemNames);

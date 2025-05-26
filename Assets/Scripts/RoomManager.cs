@@ -156,7 +156,16 @@ public class RoomManager : MonoBehaviour
         { 
             // ✅ 关键物体选择逻辑
             Transform spawnRoot = GameObject.Find("ItemSpawnRoot")?.transform;
-            string[] keyObjects = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+            string[] keyObjects = null;
+
+            if (currentIndex == 0)
+                keyObjects = new[] { "DeskComputer_Prefab", "Basketball_Prefab", "Poster_Prefab" };
+            else if (currentIndex == 1)
+                keyObjects = new[] { "Weeds_Prefab", "Weights_Prefab", "Couch_Prefab" };
+            else if (currentIndex == 2)
+                keyObjects = new[] { "DeskComputer_Prefab", "Kallax_Prefab", "TV_Prefab" };
+            else
+                keyObjects = new string[0]; // 防御性处理              
             List<string> keyItemsThisRoom = new();
 
             if (spawnRoot != null)
@@ -216,7 +225,7 @@ public class RoomManager : MonoBehaviour
             GameSummary.roomIcons.Clear();
             GameSummary.roomTexts.Clear();
 
-            string[] keyObjectsList = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+            string[] keyObjectsList = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab", "Weeds_Prefab", "Weights_Prefab", "Couch_Prefab", "TV_Prefab", "Kallax_Prefab" };
 
             foreach (var kv in roomHistories)
             {
@@ -245,7 +254,7 @@ public class RoomManager : MonoBehaviour
                 string summary = chosen switch
                 {
                     "Basketball_Prefab" => "You followed your passion for sports.",
-                    "Bed_Prefab" => "You chose peace and comfort.",
+                    "DeskComputer_Prefab" => "You are born to be a coder.",
                     "Frame_Prefab" => "Memories guided your decisions.",
                     _ => "You made a mysterious choice."
                 };
@@ -470,7 +479,7 @@ public class RoomManager : MonoBehaviour
         if (!RoomManager.Instance.roomHistories.TryGetValue(roomIndex, out var history))
             return;
 
-        string[] keyObjects = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab" };
+        string[] keyObjects = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab", "Weeds_Prefab", "Weights_Prefab", "Couch_Prefab", "TV_Prefab", "Kallax_Prefab" };
         List<string> newList = new();
 
         // 只保留选中的 key object 和非 key 的内容

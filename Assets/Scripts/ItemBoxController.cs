@@ -8,14 +8,14 @@ public class ItemBoxController : MonoBehaviour
 {
     public GameObject buttonPrefab;     // 挂按钮Prefab（上面有ItemSlotController）
     public Transform contentParent;     // 放按钮的容器
-    public int slotCount = 12;          // 总共空位数（2列x6行）
+    public int slotCount = 8;          // 总共空位数（2列x5行）
     
     public int columns = 2;             // 列数（默认2列）
     public float buttonWidth = 120f;    // 每个按钮的宽度（用于X方向）
     public float buttonHeight = 100f;  // 每个按钮的高度（用于Y方向）
     public float spacing = 20f;         // 按钮间距
 
-    public float columnSpacing = 20f; // 控制两列之间的距离
+    public float columnSpacing = 40f; // 控制两列之间的距离
 
     public float startYPosition = 0f;   // 第一行Y起点
 
@@ -48,7 +48,7 @@ public class ItemBoxController : MonoBehaviour
 
             // float yPos = -row * (buttonHeight + spacing);                  // ⬇️ 从上往下排
 
-            float yPos = -row * 160;
+            float yPos = -row * 250;
 
             rect.anchoredPosition = new Vector2(xPos, yPos);
 
@@ -100,7 +100,7 @@ public class ItemBoxController : MonoBehaviour
             float xPos = xStart + col * (buttonWidth + columnSpacing);
             // float yPos = -row * (buttonHeight + spacing);
 
-            float yPos = -row * 160;
+            float yPos = -row * 250;
 
             rect.anchoredPosition = new Vector2(xPos, yPos);
         }

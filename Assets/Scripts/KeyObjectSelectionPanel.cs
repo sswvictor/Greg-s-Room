@@ -46,12 +46,12 @@ public class KeyObjectSelectionPanel : MonoBehaviour
 
             // 强制按钮尺寸
             var rect = btn.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(300f, 200f);
+            rect.sizeDelta = new Vector2(500f, 300f);
 
             // 强制设置 LayoutElement
             var layout = btn.GetComponent<LayoutElement>();
             if (layout == null) layout = btn.AddComponent<LayoutElement>();
-            layout.preferredWidth = 300f;
+            layout.preferredWidth = 500f;
             layout.preferredHeight = 300f;
             layout.flexibleWidth = 0;
             layout.flexibleHeight = 0;

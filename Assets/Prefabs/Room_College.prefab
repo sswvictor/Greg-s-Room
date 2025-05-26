@@ -111,8 +111,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.1, y: 1.1, z: 1.1}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8215666618971064407}
   - {fileID: 3674082012511908164}
@@ -310,10 +310,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 9
   gridHeight: 12
-  cellSize: 0.98
-  wallX: 0
-  wallY: 6
-  wallZ: -5.4
+  cellSize: 1.08
+  wallX: -0.02
+  wallY: 7
+  wallZ: -5.81
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
   roomCollider: {fileID: 3736796965290795497}
 --- !u!1001 &885707984839205168
@@ -422,11 +422,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridWidth: 9
-  gridHeight: 11
-  cellSize: 0.98
+  gridHeight: 12
+  cellSize: 1.08
   wallX: 0
-  wallY: 6.33
-  wallZ: 5.45
+  wallY: 7
+  wallZ: 5.81
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
   roomCollider: {fileID: 5885667017120554671}
 --- !u!4 &846698468078257883 stripped
@@ -545,7 +545,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 9
   gridHeight: 11
-  cellSize: 0.98
+  cellSize: 1.08
   floorX: 0
   floorZ: 0
   floorY: 0.38
@@ -652,8 +652,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.4799075, y: 2.8070045, z: 4.891303}
-  m_Center: {x: 0.42995286, y: 0.3003013, z: 1.6447573}
+  m_Size: {x: 4.4799075, y: 2.1604786, z: 1.5386422}
+  m_Center: {x: 0, y: -0.034929186, z: -0.033527125}
 --- !u!1001 &4558156757398084223
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -761,10 +761,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 11
   gridHeight: 12
-  cellSize: 0.98
-  wallX: -4.5
-  wallY: 6
-  wallZ: -5.4
+  cellSize: 1.08
+  wallX: -4.78
+  wallY: 7
+  wallZ: -6.01
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
   roomCollider: {fileID: 8442155807775925421}
 --- !u!4 &4092481332574109076 stripped
@@ -973,11 +973,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridWidth: 11
-  gridHeight: 11
-  cellSize: 0.98
-  wallX: 4.4
-  wallY: 6.35
-  wallZ: -5.5
+  gridHeight: 12
+  cellSize: 1.08
+  wallX: 4.76
+  wallY: 7
+  wallZ: -5.95
   highlightTilePrefab: {fileID: 4303241128875645705, guid: 2419c0f700c379f42a12b6f20f6d1ed2, type: 3}
   roomCollider: {fileID: 4723846577900133836}
 --- !u!4 &6399854407369723414 stripped
