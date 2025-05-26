@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 3
   tags:
   - ItemBox
+  - Window
+  - Door
+  - Wall
+  - OtherObj
   layers:
   - Default
   - TransparentFX

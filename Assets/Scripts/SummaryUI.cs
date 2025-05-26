@@ -6,7 +6,9 @@ public class SummaryUIController : MonoBehaviour
 {
     public GameObject entryPrefab;         // 每一行展示用的 prefab（应包含 Text + Image）
     public Transform contentParent;        // 滚动列表容器
-    public TextMeshProUGUI totalText;      // CHI 总分文本
+    public TextMeshProUGUI totalText;      // CHI 总分文
+    public Image gregFinalImage;
+
 
     void Start()
     {
@@ -26,6 +28,22 @@ public class SummaryUIController : MonoBehaviour
 
             if (img != null)
                 img.sprite = GameSummary.roomIcons[i];
+
+
+        }
+
+        if (gregFinalImage != null && !string.IsNullOrEmpty(GameSummary.finalGregSpritePath))
+        {
+            var sprite = Resources.Load<Sprite>(GameSummary.finalGregSpritePath);
+            if (sprite != null)
+            {
+                gregFinalImage.sprite = sprite;
+                Debug.Log($"[SummaryUI ✅] 显示最终状态图：{GameSummary.finalGregSpritePath}");
+            }
+            else
+            {
+                Debug.LogWarning($"[SummaryUI ❌] 找不到 GREG 图片：{GameSummary.finalGregSpritePath}");
+            }
         }
     }
 }

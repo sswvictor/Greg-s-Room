@@ -16,4 +16,8 @@ public static class GameSummary
     public static List<string> roomKeys = new();
     public static List<Sprite> roomIcons = new();
     public static List<string> roomTexts = new();
+
+    public static string finalGregSpritePath;
+
+
 }

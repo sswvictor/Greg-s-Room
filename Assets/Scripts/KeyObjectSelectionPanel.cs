@@ -39,16 +39,37 @@ public class KeyObjectSelectionPanel : MonoBehaviour
         {
             GameObject btn = Instantiate(buttonPrefab, contentParent);
 
-            // 设置文本
+            // 设置显示名（去掉 _Prefab）
+            string displayName = name.Replace("_Prefab", "");
+
+            // 设置文字（TextMeshProUGUI 在按钮上或子物体中）
             var label = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (label != null)
-                label.text = name.Replace("_Prefab", "");
+                label.text = displayName;
 
-            // 强制按钮尺寸
+            // ✅ 设置子物体 Image（名字叫 "Image" 或其他，只要是子物体 Image）
+            var image = btn.transform.Find("Image")?.GetComponent<Image>();
+            if (image != null)
+            {
+                string path = $"Life Choice Objects/{displayName}";
+                var sprite = Resources.Load<Sprite>(path);
+                if (sprite != null)
+                {
+                    image.sprite = sprite;
+                    image.enabled = true;
+                    Debug.Log($"[KEY IMAGE ✅] 加载图片：{path}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[KEY IMAGE ❌] 找不到图片：{path}");
+                    image.enabled = false;
+                }
+            }
+
+            // 设定按钮尺寸
             var rect = btn.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(500f, 300f);
 
-            // 强制设置 LayoutElement
             var layout = btn.GetComponent<LayoutElement>();
             if (layout == null) layout = btn.AddComponent<LayoutElement>();
             layout.preferredWidth = 500f;
@@ -56,7 +77,7 @@ public class KeyObjectSelectionPanel : MonoBehaviour
             layout.flexibleWidth = 0;
             layout.flexibleHeight = 0;
 
-            // 添加点击逻辑
+            // 点击事件
             btn.GetComponent<Button>().onClick.AddListener(() =>
             {
                 Debug.Log($"[KEY SELECT ✅] 玩家选择：{name}");
@@ -70,6 +91,7 @@ public class KeyObjectSelectionPanel : MonoBehaviour
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
     }
+
 
     public void HidePanel()
     {

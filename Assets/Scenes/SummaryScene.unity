@@ -385,6 +385,7 @@ MonoBehaviour:
   entryPrefab: {fileID: 6057063881667234332, guid: 47a10625f171c2f4abebe887b3f13c3d, type: 3}
   contentParent: {fileID: 1530807883}
   totalText: {fileID: 368719512}
+  gregFinalImage: {fileID: 1073741506}
 --- !u!1 &860238207
 GameObject:
   m_ObjectHideFlags: 0
@@ -557,7 +558,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -673, y: 339.5}
-  m_SizeDelta: {x: 255.255, y: 255}
+  m_SizeDelta: {x: 300, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1073741506
 MonoBehaviour:

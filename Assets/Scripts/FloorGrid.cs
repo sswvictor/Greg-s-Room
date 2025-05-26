@@ -121,6 +121,15 @@ public class FloorGrid : MonoBehaviour
                 if (col == roomCollider) continue;
                 Debug.LogWarning($"[OverlapHit ✅] {col.name} | Type: {col.GetType().Name} | Trigger: {col.isTrigger} | Enabled: {col.enabled} | Static: {col.gameObject.isStatic}");
                 // ✅ 获取该物体的顶部位置
+                if (col.CompareTag("Wall")|| col.CompareTag("OtherObj"))
+                {
+                    Debug.LogWarning($"[Overlap ❌ BLOCKED by WALL] {col.name}");
+                    isValid = false;
+                    break;
+                }
+
+                // ✅ Altrimenti lo ignori ma alzi l’highlight se serve
+
                 Bounds ob = col.bounds;
                 float topY = ob.max.y;
 
@@ -128,9 +137,6 @@ public class FloorGrid : MonoBehaviour
                 Vector3 p = highlightInstance.transform.position;
                 p.y = topY + 0.01f;
                 highlightInstance.transform.position = p;
-
-                // currentSurfaceY = p.y;  // 同步更新
-                break;
             }
         }
 

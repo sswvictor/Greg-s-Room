@@ -78,7 +78,7 @@ public class FengShuiLogic : MonoBehaviour
 
         if (Physics.Raycast(origin, direction, out RaycastHit hit, 2f))
         {
-            if (hit.collider.CompareTag("Wall") && hit.distance <= 0.5f){
+            if (hit.collider.CompareTag("Wall")){
                 score += 35;
                 Debug.Log("[FengShui] ✅ Testiera contro il muro → +35");
             }

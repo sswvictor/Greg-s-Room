@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 2945759248693706804}
   m_Layer: 0
   m_Name: WindowMarker
-  m_TagString: Window
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 5462269815838396153}
   m_Layer: 0
   m_Name: DoorMarker
-  m_TagString: Door
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -248,7 +248,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 6146d9fab6ce2f743bad842d4d46f60a, type: 3}
       propertyPath: m_Name
-      value: wall30
+      value: wall0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 6146d9fab6ce2f743bad842d4d46f60a, type: 3}
       propertyPath: m_TagString
@@ -327,6 +327,10 @@ PrefabInstance:
     - target: {fileID: 3743632205386261022, guid: ed748190536754e8a98e217f1bfb01c0, type: 3}
       propertyPath: m_Name
       value: counter
+      objectReference: {fileID: 0}
+    - target: {fileID: 3743632205386261022, guid: ed748190536754e8a98e217f1bfb01c0, type: 3}
+      propertyPath: m_TagString
+      value: OtherObj
       objectReference: {fileID: 0}
     - target: {fileID: 4089230027625003172, guid: ed748190536754e8a98e217f1bfb01c0, type: 3}
       propertyPath: m_LocalScale.x
@@ -440,7 +444,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 3305847fa97b33b4d9ac1ee9f4d6ed22, type: 3}
       propertyPath: m_Name
-      value: wall31
+      value: wall1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 3305847fa97b33b4d9ac1ee9f4d6ed22, type: 3}
       propertyPath: m_TagString
@@ -571,6 +575,10 @@ PrefabInstance:
     - target: {fileID: 4518298347765683963, guid: fda195cc27c0d4907b35199ec41a6de1, type: 3}
       propertyPath: m_Name
       value: fridge
+      objectReference: {fileID: 0}
+    - target: {fileID: 4518298347765683963, guid: fda195cc27c0d4907b35199ec41a6de1, type: 3}
+      propertyPath: m_TagString
+      value: OtherObj
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -761,7 +769,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 3d792adc22766554d9188c1d8ebb91da, type: 3}
       propertyPath: m_Name
-      value: wall33
+      value: wall3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 3d792adc22766554d9188c1d8ebb91da, type: 3}
       propertyPath: m_TagString
@@ -879,7 +887,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 340ce6ee7f6e5454db5c2339538df414, type: 3}
       propertyPath: m_Name
-      value: wall32
+      value: wall2
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 340ce6ee7f6e5454db5c2339538df414, type: 3}
       propertyPath: m_TagString

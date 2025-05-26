@@ -65,6 +65,9 @@ public class RoomManager : MonoBehaviour
     public RawImage videoDisplay;       // Drag RawImage for display
     public GameObject videoCanvas;      // Canvas to show/hide
 
+    public GameObject gregStatusPanelPrefab;  // 拖拽 UI 预制体进来
+
+
     // public KeyObjectSelectionPanel keyObjectPanel;
 
 
@@ -161,7 +164,7 @@ public class RoomManager : MonoBehaviour
             if (currentIndex == 0)
                 keyObjects = new[] { "DeskComputer_Prefab", "Basketball_Prefab", "Poster_Prefab" };
             else if (currentIndex == 1)
-                keyObjects = new[] { "Weeds_Prefab", "Weights_Prefab", "Couch_Prefab" };
+                keyObjects = new[] { "Weed_Prefab", "Weights_Prefab", "Couch_Prefab" };
             else if (currentIndex == 2)
                 keyObjects = new[] { "DeskComputer_Prefab", "Kallax_Prefab", "TV_Prefab" };
             else
@@ -225,7 +228,7 @@ public class RoomManager : MonoBehaviour
             GameSummary.roomIcons.Clear();
             GameSummary.roomTexts.Clear();
 
-            string[] keyObjectsList = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab", "Weeds_Prefab", "Weights_Prefab", "Couch_Prefab", "TV_Prefab", "Kallax_Prefab" };
+            string[] keyObjectsList = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab", "Weed_Prefab", "Weights_Prefab", "Couch_Prefab", "TV_Prefab", "Kallax_Prefab" };
 
             foreach (var kv in roomHistories)
             {
@@ -310,7 +313,13 @@ public class RoomManager : MonoBehaviour
             {
                 yield return PlayCutscene(selectedVideo);  // CHANGE: parameter type
             }
+
+            yield return ShowGregStatusPanel(chosenKeyObject);  // 👈 展示 GREG 状态和分数
         }
+
+
+
+
 
         BGMManager.Instance?.PlayRoomBGM(currentIndex);
 
@@ -342,6 +351,82 @@ public class RoomManager : MonoBehaviour
         currentRoomCHIScore = 0;
         ResetCHIScore();
     }
+
+    private Sprite GetGregSpriteFromPlayScene(string chosenKeyObject)
+    {
+        if (currentIndex == 0 || currentIndex >= 3 || string.IsNullOrEmpty(chosenKeyObject))
+            return null;
+
+        string middle;
+
+        if (currentIndex == 1)
+        {
+            middle = chosenKeyObject.Replace("_Prefab", "");
+
+        }
+        else // currentIndex == 2
+        {
+            if (roomHistories.TryGetValue(0, out var prevHistory) && prevHistory.placedItemNames.Count == 1)  // ✅ 现在这个逻辑是可靠的
+            {
+            string prevKey = prevHistory.placedItemNames[0];
+                middle = $"{chosenKeyObject.Replace("_Prefab", "")}_{prevKey.Replace("_Prefab", "")}";
+            }
+            else
+            {
+                middle = chosenKeyObject.Replace("_Prefab", "");
+            }
+        }
+
+        string level = (currentRoomCHIScore >= maxScore * 0.5f) ? "High" : "Low";
+        string path = $"Gregs_ResumeScreen/Greg_{middle}_{level}";
+        GameSummary.finalGregSpritePath = path;
+
+        Debug.Log($"[GregStatus ✅] 加载图片路径：{path}");
+        Sprite sprite = Resources.Load<Sprite>(path);
+        if (sprite == null)
+            Debug.LogWarning($"[GregStatus ❌] 未找到图片资源：{path}");
+
+        return sprite;
+    }
+
+
+
+
+    private IEnumerator ShowGregStatusPanel(string chosenKeyObject)
+    {
+        if (currentIndex != 1 && currentIndex != 2)
+            yield break;
+
+        if (gregStatusPanelPrefab == null)
+        {
+            Debug.LogWarning("[GregStatus] ❌ 未设置状态面板 prefab");
+            yield break;
+        }
+
+        GameObject panel = Instantiate(gregStatusPanelPrefab, GameObject.Find("CanvasRoot")?.transform, false);
+        panel.SetActive(true);
+
+        // 设置图像
+        var img = panel.transform.Find("GregImage")?.GetComponent<UnityEngine.UI.Image>();
+        if (img != null)
+            img.sprite = GetGregSpriteFromPlayScene(chosenKeyObject);
+
+        // 设置分数
+        var chiText = panel.transform.Find("CHIScoreText")?.GetComponent<TextMeshProUGUI>();
+        if (chiText != null)
+            chiText.text = $"CHI Score: {GetCurrentRoomCHI()}";
+
+        bool proceed = false;
+        var btn = panel.transform.Find("ContinueButton")?.GetComponent<UnityEngine.UI.Button>();
+        if (btn != null)
+            btn.onClick.AddListener(() => proceed = true);
+
+        yield return new WaitUntil(() => proceed);
+        Destroy(panel);
+    }
+
+
+
 
     private GameObject FindButtonPrefabByKeyObject(string prefabName)
     {
@@ -479,7 +564,7 @@ public class RoomManager : MonoBehaviour
         if (!RoomManager.Instance.roomHistories.TryGetValue(roomIndex, out var history))
             return;
 
-        string[] keyObjects = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab", "Weeds_Prefab", "Weights_Prefab", "Couch_Prefab", "TV_Prefab", "Kallax_Prefab" };
+        string[] keyObjects = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab", "Weed_Prefab", "Weights_Prefab", "Couch_Prefab", "TV_Prefab", "Kallax_Prefab" };
         List<string> newList = new();
 
         // 只保留选中的 key object 和非 key 的内容
