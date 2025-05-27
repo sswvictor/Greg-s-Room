@@ -7331,8 +7331,9 @@ MonoBehaviour:
     - {fileID: 5786259820379870626, guid: 5394df32c5a9d4948ad3b17f9a259d6d, type: 3}
     - {fileID: 5786259820379870626, guid: 7dddf6eadf86245b2adc7b83e5bb4b81, type: 3}
     - {fileID: 5786259820379870626, guid: 13fc454311c33fd43b5a7f8cc99d026a, type: 3}
-    - {fileID: 5786259820379870626, guid: 81f5d4b184ff0f5418775ba13bc54e2c, type: 3}
     - {fileID: 5786259820379870626, guid: 01deace474eefbe45bf4d4317b886bbc, type: 3}
+    - {fileID: 5786259820379870626, guid: d4cc200ac8018401cb09c1568e9676df, type: 3}
+    - {fileID: 5786259820379870626, guid: a5ced2275f3174ca1a4bdf99650c9176, type: 3}
   - roomPrefab: {fileID: 7273669159020939964, guid: 77ca362f8a32249a5a96b20cc2e158c7, type: 3}
     buttonPrefabs:
     - {fileID: 5786259820379870626, guid: 972a0bfd582f249bca0dae659c98f30e, type: 3}
@@ -7366,6 +7367,15 @@ MonoBehaviour:
   - itemName: DeskComputer_Prefab
     highCHIVideo: {fileID: 32900000, guid: 2c64260c7d9b04a2ab8fd94e27069398, type: 3}
     lowCHIVideo: {fileID: 32900000, guid: 7c529615449394a198d752a861993ce5, type: 3}
+  - itemName: Weed_Prefab
+    highCHIVideo: {fileID: 32900000, guid: 2235a95ef01c2054c9683d9d51010f0f, type: 3}
+    lowCHIVideo: {fileID: 32900000, guid: 24e3f59f02522464186a067fb45bc83f, type: 3}
+  - itemName: Weights_Prefab
+    highCHIVideo: {fileID: 32900000, guid: 4086dd9cefc554e348f8d1b00e4a46d0, type: 3}
+    lowCHIVideo: {fileID: 32900000, guid: 2e632f97627ab4e299c0911b524bb352, type: 3}
+  - itemName: Weed_DeskComputer_Prefab
+    highCHIVideo: {fileID: 32900000, guid: ae3db489b631c4040a8c1c3774b04f55, type: 3}
+    lowCHIVideo: {fileID: 32900000, guid: e7445532335ca2c4ea5cd2a79b2503fe, type: 3}
 --- !u!4 &2023088870
 Transform:
   m_ObjectHideFlags: 0

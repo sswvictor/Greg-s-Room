@@ -366,9 +366,9 @@ public class RoomManager : MonoBehaviour
         }
         else // currentIndex == 2
         {
-            if (roomHistories.TryGetValue(0, out var prevHistory) && prevHistory.placedItemNames.Count == 1)  // ✅ 现在这个逻辑是可靠的
+            if (roomHistories.TryGetValue(0, out var prevHistory) && prevHistory.placedItemNames.Count >= 1)  // ✅ 现在这个逻辑是可靠的
             {
-            string prevKey = prevHistory.placedItemNames[0];
+                string prevKey = prevHistory.placedItemNames[0];
                 middle = $"{chosenKeyObject.Replace("_Prefab", "")}_{prevKey.Replace("_Prefab", "")}";
             }
             else
@@ -570,7 +570,8 @@ public class RoomManager : MonoBehaviour
         // 只保留选中的 key object 和非 key 的内容
         foreach (var item in history.placedItemNames)
         {
-            if (item == selectedKeyObject || !keyObjects.Contains(item))
+            // if (item == selectedKeyObject || !keyObjects.Contains(item))
+            if (item == selectedKeyObject)
             {
                 newList.Add(item);
             }

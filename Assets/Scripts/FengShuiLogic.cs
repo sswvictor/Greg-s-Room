@@ -80,6 +80,7 @@ public class FengShuiLogic : MonoBehaviour
         {
             if (hit.collider.CompareTag("Wall")){
                 score += 35;
+                FeedbackTextManager.Instance?.ShowMessage("Perfect placing bro", Color.green);
                 Debug.Log("[FengShui] ✅ Testiera contro il muro → +35");
             }
             else{
