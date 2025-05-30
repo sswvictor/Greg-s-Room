@@ -1,4 +1,3 @@
-// ✅ QuickSaveSystem.cs
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -78,7 +77,6 @@ public static class QuickSaveSystem
         PlayerPrefs.SetInt("has_quick_save", 1);
         PlayerPrefs.Save();
 
-        Debug.Log("[QUICK SAVE ✅] Saved quick data.");
     }
 
     public static bool HasSave() => PlayerPrefs.GetInt("has_quick_save", 0) == 1;
@@ -87,7 +85,6 @@ public static class QuickSaveSystem
     {
         if (!HasSave())
         {
-            Debug.LogWarning("[QUICK LOAD ⚠️] No quick save found.");
             return;
         }
 

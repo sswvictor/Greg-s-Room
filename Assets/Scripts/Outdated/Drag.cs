@@ -6,8 +6,8 @@ public class SmartDraggable3D : MonoBehaviour
     private Plane dragPlane;
     private Vector3 initialPosition;
 
-    public Collider itemBoxCollider;     // 拖回物品栏时判定区域
-    public Collider validDropArea;       // 地板投放区域（可选）
+    public Collider itemBoxCollider;      
+    public Collider validDropArea;     
 
     private Camera mainCamera;
     private bool isDragging = false;
@@ -39,7 +39,6 @@ public class SmartDraggable3D : MonoBehaviour
             transform.position = ray.GetPoint(enter) + offset;
         }
 
-        // 🔁 拖拽过程中，检测右键点击进行旋转
         if (Input.GetMouseButtonDown(1))
         {
             transform.Rotate(0f, 90f, 0f, Space.Self);
@@ -51,15 +50,9 @@ public class SmartDraggable3D : MonoBehaviour
     {
         isDragging = false;
 
-        // 判断是否在 itemBox 区域内
         if (itemBoxCollider.bounds.Contains(transform.position))
         {
-            // 回归原位
             transform.position = initialPosition;
-        }
-        else
-        {
-            // 保持当前位置（有效拖放）
         }
     }
 

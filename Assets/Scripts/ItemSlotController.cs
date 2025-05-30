@@ -58,7 +58,6 @@ public class ItemSlotController : MonoBehaviour
         return spawnedInstance;
     }
 
-    // ✅ 提取辅助函数（用于单击与拖拽共用）
     private static Collider FindTargetCollider(PlacementType type)
     {
         if (type == PlacementType.Floor)

@@ -14,8 +14,8 @@ public class WallGrid : MonoBehaviour
         return wallZ;
     }
 
-    public GameObject highlightTilePrefab; // Assign a prefab with SpriteRenderer
-    public Collider roomCollider; // 外部设置的房间碰撞器
+    public GameObject highlightTilePrefab; 
+    public Collider roomCollider;  
 
     private Vector3 origin;
     private Vector3 rightDir;
@@ -34,14 +34,11 @@ public class WallGrid : MonoBehaviour
         origin = center
             + rightDir * (-gridWidth * 0.5f * cellSize)
             + upDir * (-gridHeight * 0.5f * cellSize);
-        Debug.Log($"[AWAKE ✅] name = {name}, wallZ = {wallZ}, origin = {origin}, right = {rightDir}, up = {upDir}");
-        // Debug.Log($"[WALL ORIGIN FIXED] origin = {origin}, center = {center}, rightDir = {rightDir}, upDir = {upDir}");
     }
 
 
     public bool TrySnapByEdge(Vector3 center, Vector3 size, out Vector3 snappedPos)
     {
-        // 用方向向量计算 corner（保证方向兼容）
         Vector3 halfRight = rightDir * (size.x * 0.5f);
         Vector3 halfUp = upDir * (size.y * 0.5f);
         Vector3 corner = center + halfRight + halfUp;
@@ -58,12 +55,6 @@ public class WallGrid : MonoBehaviour
         Vector3 offset = center - corner;
         snappedPos = snappedCorner + offset;
         snappedPos.z = center.z;
-        Debug.Log($"[SNAP SOURCE] name = {gameObject.name}");
-        Debug.Log($"[WALLGRID] transform = {transform.position:F3}, right = {rightDir:F2}, up = {upDir:F2}, origin = {origin:F3}");
-        Debug.Log($"[SNAP] Input center = {center:F3}, extents = {size * 0.5f:F3}");
-        Debug.Log($"[SNAP] corner = {corner:F3}, toCorner = {toCorner:F3}");
-        Debug.Log($"[SNAP] snappedCorner = {snappedCorner:F3}, offset = {offset:F3}");
-        Debug.Log($"[SNAP] snappedPos = {snappedPos:F3}");
 
         ShowHighlightArea(snappedCorner, di, dj);
         return true;
@@ -74,7 +65,6 @@ private void ShowHighlightArea(Vector3 corner, int w, int h)
 {
     if (highlightTilePrefab == null)
     {
-        Debug.LogWarning("[HIGHLIGHT SPRITE] Missing highlightTilePrefab reference.");
         return;
     }
 
@@ -84,7 +74,6 @@ private void ShowHighlightArea(Vector3 corner, int w, int h)
         highlightInstance.name = "WallHighlight";
     }
 
-    // 使用方向向量计算高光中心
     Vector3 center = corner
         + rightDir * (-w * 0.5f * cellSize)
         + upDir * (-h * 0.5f * cellSize)
@@ -97,7 +86,6 @@ private void ShowHighlightArea(Vector3 corner, int w, int h)
 
     bool isValid = true;
 
-    // ✅ 第一阶段：房间边界判断
     if (roomCollider != null)
     {
         Bounds highlightBounds = highlightInstance.GetComponent<Renderer>().bounds;
@@ -113,7 +101,6 @@ private void ShowHighlightArea(Vector3 corner, int w, int h)
         isValid = xValid && yValid;
     }
 
-    // ✅ 第二阶段：重叠检测
     if (isValid)
     {
         Collider[] overlapping = Physics.OverlapBox(
@@ -140,10 +127,6 @@ private void ShowHighlightArea(Vector3 corner, int w, int h)
         ? new Color(0f, 0.8f, 0.3f, 0.8f)
         : new Color(1f, 0f, 0f, 0.8f);
 
-    if (isValid)
-    {
-        Debug.Log($"[Highlight ✅] Highlight Pos = {highlightInstance.transform.position:F3}, Snapped Target = {corner:F3}");
-    }
 
     sr.sortingLayerName = "UI";
     sr.sortingOrder = 100;

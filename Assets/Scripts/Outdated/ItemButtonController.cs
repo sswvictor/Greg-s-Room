@@ -11,7 +11,6 @@ public class ItemButtonController : MonoBehaviour
 
     private bool hasSpawned = false;
 
-    // 点击按钮直接生成物体
     public void OnClick()
     {
         if (hasSpawned || modelPrefab == null) return;
@@ -20,7 +19,6 @@ public class ItemButtonController : MonoBehaviour
         SetSpawned(true);
     }
 
-    // 被拖拽脚本调用：设置生成状态
     public void SetSpawned(bool state)
     {
         hasSpawned = state;
@@ -28,7 +26,6 @@ public class ItemButtonController : MonoBehaviour
             iconObject.SetActive(!state);
     }
 
-    // 拖拽失败或手动重置调用
     public void ResetSlot()
     {
         hasSpawned = false;

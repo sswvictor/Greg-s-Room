@@ -1,4 +1,3 @@
-// ✅ ItemAutoDestroy.cs（保持 HashSet 封装，但嵌入类内部）
 using UnityEngine;
 using System.Collections.Generic;
 using System;
@@ -16,7 +15,6 @@ public class ItemAutoDestroy : MonoBehaviour
 
     public bool isValidPlacement = false;
 
-    // ✅ 内部封装销毁列表
     private static readonly HashSet<string> destroyIfInvalid = new()
     {
         "Bed_Prefab",
@@ -32,11 +30,6 @@ public class ItemAutoDestroy : MonoBehaviour
         return destroyIfInvalid.Contains(name);
     }
 
-    // public void AssignFloorGrid(FloorGrid grid)
-    // {
-    //     floorGrid = grid;
-    // }
-
 
     public void Init(ItemSlotController slot, Collider room)
     {
@@ -47,15 +40,11 @@ public class ItemAutoDestroy : MonoBehaviour
     void Start()
     {
 
-        Debug.Log($"[TRACK] {gameObject.name} was instantiated.");
-        Debug.Log(Environment.StackTrace);
-
         floorGrid = UnityEngine.Object.FindFirstObjectByType<FloorGrid>();
         selfCollider = GetComponent<Collider>();
 
         if (selfCollider == null)
         {
-            Debug.LogError($"[ItemAutoDestroy ❌] {name} has NO collider attached!");
             return;
         }
 
@@ -64,15 +53,9 @@ public class ItemAutoDestroy : MonoBehaviour
             selfCollider.enabled = true;
             cachedSize = selfCollider.bounds.size;
 
-            // ❗ 只有是拖拽生成的物体（isDragging 为 true）才临时关闭 collider
             if (isDragging)
             {
                 selfCollider.enabled = false;
-                Debug.Log($"[INIT SIZE] {name} -> size = {cachedSize:F3}, collider TEMP disabled for drag");
-            }
-            else
-            {
-                Debug.Log($"[INIT SIZE] {name} -> size = {cachedSize:F3}, collider REMAINS enabled for click");
             }
         }
     }
@@ -80,8 +63,6 @@ public class ItemAutoDestroy : MonoBehaviour
 
     void Update()
     {
-        if (isDragging)
-            Debug.Log($"[🧭 DragUpdate] {name} is following mouse at {transform.position:F3}");
         if (!isDragging) return;
         if (GamePauseState.IsPaused) return;
 
@@ -97,7 +78,7 @@ public class ItemAutoDestroy : MonoBehaviour
             else
                 HideHighlight();
         }
-        // added the C button to rotate the object because i don't have a moouse atm (sorry guys -riccardo)
+
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.C))
         {
             transform.Rotate(0f, 90f, 0f, Space.Self);
@@ -117,16 +98,12 @@ public class ItemAutoDestroy : MonoBehaviour
 
     void OnMouseDown()
     {
-        Debug.Log($"[🔥 ItemAutoDestroy.OnMouseDown CALLED] {gameObject.name}");
 
         UIAudioManager.Instance?.PlayItemClick();
         if (GamePauseState.IsPaused)
         {
-            Debug.Log("[MouseDown] Ignored due to pause");
             return;
         }
-
-        Debug.Log($"[MouseDown ✅] {gameObject.name} clicked!");
 
         isDragging = true;
 
@@ -143,7 +120,6 @@ public class ItemAutoDestroy : MonoBehaviour
     void OnMouseUp()
     {
         isDragging = false;
-        // Debug.LogError($"[🖱️ OnMouseUp] {name} triggered mouse up");
         Vector3 center = transform.position;
         Vector3 snapped = Vector3.zero;
 
@@ -186,7 +162,6 @@ public class ItemAutoDestroy : MonoBehaviour
     public void StopDragging()
     {
         isDragging = false;
-        // Debug.LogError($"[💀 StopDragging] {name} stopped dragging manually");
 
         if (selfCollider == null)
             selfCollider = GetComponent<Collider>();
@@ -237,24 +212,17 @@ public class ItemAutoDestroy : MonoBehaviour
 
         if (type == PlacementType.Floor && floorGrid?.roomCollider != null)
         {
-            Debug.Log("[CheckBounds] Using FloorGrid bounds.");
             return floorGrid.roomCollider.bounds;
         }
 
         if (type == PlacementType.Wall && wallGrid?.roomCollider != null)
         {
-            Debug.Log("[CheckBounds] Using WallGrid bounds.");
             return wallGrid.roomCollider.bounds;
         }
 
-        Debug.Log("[CheckBounds] Using fallback bounds.");
         return roomCollider?.bounds ?? new Bounds(transform.position, Vector3.one);
     }
 
-    // public void AssignWallGrid(WallGrid grid)
-    // {
-    //     wallGrid = grid;
-    // }
 
     public WallGrid GetWallGrid()
     {
@@ -268,11 +236,11 @@ public class ItemAutoDestroy : MonoBehaviour
 
     public void EnableDraggingOnClick()
     {
-        isDragging = false;  // ✅ 准备下一次点击重新拖
+        isDragging = false;  
         if (selfCollider == null)
             selfCollider = GetComponent<Collider>();
 
-        selfCollider.enabled = true;  // ✅ 确保后续点击能触发 OnMouseDown()
+        selfCollider.enabled = true;  
     }
 
 
@@ -280,9 +248,6 @@ public class ItemAutoDestroy : MonoBehaviour
     {
         Vector3 pos = transform.position;
         Bounds bounds = GetActiveColliderBounds();
-
-        Debug.LogWarning($"[🧠 Position] pos = {pos:F3}");
-        Debug.LogWarning($"[🧠 Room bounds] min = {bounds.min:F3}, max = {bounds.max:F3}, center = {bounds.center:F3}");
 
         bool inside;
 
@@ -293,7 +258,7 @@ public class ItemAutoDestroy : MonoBehaviour
                 pos.y >= bounds.min.y && pos.y <= bounds.max.y &&
                 Mathf.Abs(pos.z - bounds.center.z) <= 12f;
         }
-        else // Floor
+        else 
         {
             inside =
                 pos.x >= bounds.min.x && pos.x <= bounds.max.x &&
@@ -323,7 +288,6 @@ public class ItemAutoDestroy : MonoBehaviour
         }
         else
         {
-            Debug.Log($"[ItemAutoDestroy] Valid placement at position: {pos}.");
 
             if (floorGrid != null || wallGrid != null)
             {
@@ -342,7 +306,6 @@ public class ItemAutoDestroy : MonoBehaviour
                 }
             }
 
-            // TO DO: re-define the score system
             var fengLogic = GetComponent<FengShuiLogic>();
             if (fengLogic != null)
             {

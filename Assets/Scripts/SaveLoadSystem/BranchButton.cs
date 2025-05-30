@@ -26,13 +26,13 @@ public class BranchButtonController : MonoBehaviour
         {
             statusText.text = "Ongoing";
             statusText.color = Color.cyan;
-            button.interactable = true;  // ✅ 显式开启
+            button.interactable = true;  
         }
         else if (history.unlocked)
         {
             statusText.text = "Finished";
             statusText.color = new Color(0.2f, 0.8f, 0.2f);
-            button.interactable = true;  // ✅ 显式开启
+            button.interactable = true;  
         }
         else
         {
@@ -51,12 +51,10 @@ public class BranchButtonController : MonoBehaviour
         {
             EventSystem.current.SetSelectedGameObject(null);
 
-            // ✅ 清空对应房间的历史记录
             if (RoomManager.Instance.roomHistories.TryGetValue(roomIndex, out var history))
             {
                 history.placedItemNames.Clear();
                 history.finished = false;
-                Debug.Log($"[LIFE RESET] Room {roomIndex} history cleared.");
             }
 
             RoomManager.Instance.LoadRoomByIndex(roomIndex, true);
@@ -68,23 +66,11 @@ public class BranchButtonController : MonoBehaviour
     }
 
 
-    // private System.Collections.IEnumerator SwitchAfterDelay()
-    // {
-    //     yield return null;  // 等待一帧确保 pointer 释放
-    //     RoomManager.Instance.LoadRoomByIndex(roomIndex, true);
-    //     ExitLifeAndResume();
-    // }
-
 
     private string GenerateSummary(RoomHistory history)
     {
-        // ✅ 打印历史记录内容（关键调试点）
-        Debug.Log("[DEBUG] RoomHistory:");
-        Debug.Log($"→ unlocked: {history.unlocked}");
-        Debug.Log($"→ finished: {history.finished}");
-        Debug.Log($"→ placedItemNames: {string.Join(", ", history.placedItemNames)}");
 
-        // ✅ 定义关键物体（key object）
+
         string[] keyObjects = null;
 
         if (roomIndex == 0)
@@ -94,10 +80,9 @@ public class BranchButtonController : MonoBehaviour
         else if (roomIndex == 2)
             keyObjects = new[] { "DeskComputer_Prefab", "Kallax_Prefab", "TV_Prefab" };
         else
-            keyObjects = new string[0]; // 防御性处理
+            keyObjects = new string[0]; 
  
 
-        // ✅ 判断哪些已放置（来自 history）
         HashSet<string> placed = new(history.placedItemNames);
 
         List<string> lines = new();

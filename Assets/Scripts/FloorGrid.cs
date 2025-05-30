@@ -15,8 +15,8 @@ public class FloorGrid : MonoBehaviour
     }
 
 
-    public GameObject highlightTilePrefab; // Assign a prefab with SpriteRenderer
-    public Collider roomCollider; // 外部设置的房间碰撞器
+    public GameObject highlightTilePrefab; 
+    public Collider roomCollider; 
 
     private Vector3 origin;
     private Vector3 rightDir;
@@ -55,14 +55,13 @@ public class FloorGrid : MonoBehaviour
         snappedPos.y = center.y;
 
         ShowHighlightArea(snappedCorner, di, dj);
-        return true; // 拖拽允许始终显示 highlight，由颜色判断合法性
+        return true; 
     }
 
     private void ShowHighlightArea(Vector3 corner, int w, int h)
     {
         if (highlightTilePrefab == null)
         {
-            Debug.LogWarning("[HIGHLIGHT SPRITE] Missing highlightTilePrefab reference.");
             return;
         }
 
@@ -80,18 +79,11 @@ public class FloorGrid : MonoBehaviour
 
         bool isValid = true;
 
-        // ✅ 第一阶段：房间边界判断
         if (roomCollider != null)
         {
             Bounds highlightBounds = highlightInstance.GetComponent<Renderer>().bounds;
             Bounds roomBounds = roomCollider.bounds;
             const float epsilon = 0.1f;
-
-            // Debug.Log($"[CHECK BOUND] RoomX: ({roomBounds.min.x:F3}, {roomBounds.max.x:F3})");
-            // Debug.Log($"[CHECK BOUND] HighX: ({highlightBounds.min.x:F3}, {highlightBounds.max.x:F3})");
-
-            // Debug.Log($"[CHECK BOUND] RoomZ: ({roomBounds.min.z:F3}, {roomBounds.max.z:F3})");
-            // Debug.Log($"[CHECK BOUND] HighZ: ({highlightBounds.min.z:F3}, {highlightBounds.max.z:F3})");
 
             bool xValid = highlightBounds.min.x >= roomBounds.min.x - epsilon &&
                         highlightBounds.max.x <= roomBounds.max.x + epsilon;
@@ -100,12 +92,9 @@ public class FloorGrid : MonoBehaviour
                         highlightBounds.max.z <= roomBounds.max.z + epsilon;
 
             isValid = xValid && zValid;
-
-            // Debug.Log($"[VALIDITY] xValid = {xValid}, zValid = {zValid}, final = {isValid}");
         }
 
 
-        // ✅ 第二阶段：重叠检测（避免放到已有物体上）
         if (isValid)
         {
             Collider[] overlapping = Physics.OverlapBox(
@@ -119,21 +108,15 @@ public class FloorGrid : MonoBehaviour
                 if (col == null || col.isTrigger) continue;
                 if (col.gameObject == highlightInstance) continue;
                 if (col == roomCollider) continue;
-                Debug.LogWarning($"[OverlapHit ✅] {col.name} | Type: {col.GetType().Name} | Trigger: {col.isTrigger} | Enabled: {col.enabled} | Static: {col.gameObject.isStatic}");
-                // ✅ 获取该物体的顶部位置
                 if (col.CompareTag("Wall")|| col.CompareTag("OtherObj"))
                 {
-                    Debug.LogWarning($"[Overlap ❌ BLOCKED by WALL] {col.name}");
                     isValid = false;
                     break;
                 }
 
-                // ✅ Altrimenti lo ignori ma alzi l’highlight se serve
-
                 Bounds ob = col.bounds;
                 float topY = ob.max.y;
 
-                // ✅ 更新投影 y
                 Vector3 p = highlightInstance.transform.position;
                 p.y = topY + 0.01f;
                 highlightInstance.transform.position = p;
@@ -145,8 +128,8 @@ public class FloorGrid : MonoBehaviour
 
         var sr = highlightInstance.GetComponent<SpriteRenderer>();
         sr.color = isValid
-            ? new Color(0f, 0.8f, 0.3f, 0.8f)  // ✅ 合法绿色
-            : new Color(1f, 0f, 0f, 0.8f);     // ❌ 遮挡/非法：红色
+            ? new Color(0f, 0.8f, 0.3f, 0.8f)  
+            : new Color(1f, 0f, 0f, 0.8f);    
 
         sr.sortingLayerName = "UI";
         sr.sortingOrder = 100;

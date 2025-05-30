@@ -1,4 +1,3 @@
-// ✅ RoomSpawner.cs（保留结构 + 接入 CameraMapper 坐标 + 支持 grid 生成）
 using UnityEngine;
 
 public class RoomSpawner : MonoBehaviour
@@ -21,13 +20,11 @@ public class RoomSpawner : MonoBehaviour
     {
         if (spawnParent == null)
         {
-            Debug.LogError("SpawnParent is null! Item will be created in Scene root.");
             return;
         }
 
         Vector3 startPos = GetSpawnPositionFor(prefab);
         var instance = Instantiate(prefab, startPos, Quaternion.identity, spawnParent);
-        Debug.Log("[RoomSpawner] Spawned item under: " + spawnParent.name);
     }
 
     private Vector3 GetSpawnPositionFor(GameObject prefab)

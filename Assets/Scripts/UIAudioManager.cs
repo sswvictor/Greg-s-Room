@@ -28,7 +28,6 @@ public class UIAudioManager : MonoBehaviour
 
     void Start()
     {
-        // 自动绑定所有普通按钮（不含 ItemBox 拖拽按钮）
         Button[] allButtons = FindObjectsOfType<Button>(true);
         foreach (Button btn in allButtons)
         {

@@ -13,9 +13,7 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        // Debug.LogError($"[🎯 CONFIRMED] OnBeginDrag called on {gameObject.name}, prefab = {slotController?.modelPrefab?.name}");
 
-        Debug.Log($"[Drag ✅✅✅✅✅✅] no tracker!");
         UIAudioManager.Instance?.PlayItemClick();
 
 
@@ -25,14 +23,12 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         Transform spawnParent = GameObject.Find("ItemSpawnRoot")?.transform;
         if (spawnParent == null)
         {
-            Debug.LogWarning("[UIDrag] ItemSpawnRoot not found.");
             return;
         }
 
         GameObject prefab = slotController.modelPrefab;
         if (prefab == null)
         {
-            Debug.LogWarning("[UIDrag] Prefab is null.");
             return;
         }
 
@@ -64,7 +60,6 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                 var grid = Object.FindFirstObjectByType<FloorGrid>();
                 if (grid != null)
                     grid.roomCollider = roomCollider;
-                Debug.Log($"[Drag ✅] grid: {grid}");
                 tracker.floorGrid = grid;               
             }
             else if (type == PlacementType.Wall)
@@ -72,19 +67,14 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                 var grid = roomCollider.GetComponentInChildren<WallGrid>();
                 if (grid != null)
                     grid.roomCollider = roomCollider;
-                Debug.Log($"[Drag ✅] grid: {grid}");
                 tracker.wallGrid = grid;
             }
 
         }
         else
         { 
-            Debug.Log($"[Drag ✅] no tracker!");
+            Debug.Log($"[UIDrag] no tracker!");
         }
-        Debug.Log($"[Drag ✅] roomCollider: {roomCollider}");
-
-        Debug.Log($"[Drag ✅] tracker.floorGrid: {tracker.floorGrid}");
-        Debug.Log($"[Drag ✅] tracker.roomCollider (after Init): {roomCollider}");
 
 
         slotController.RegisterInstance(draggingInstance);
@@ -93,12 +83,10 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnDrag(PointerEventData eventData)
     {
-        // 拖拽行为在 ItemAutoDestroy 中处理
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // if (tracker.isValidPlacement)
 
 
         if (draggingInstance != null)
@@ -109,7 +97,7 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                 tracker.CheckPositionImmediately();
                 if (!tracker.isValidPlacement)
                 {
-                    Debug.Log("[UIDrag] 拖拽结果非法，销毁物体");
+                    Debug.Log("[UIDrag] Illegal! Destroying...");
                     slotController.ClearInstance();
                     slotController.ShowIcon();
                     Destroy(draggingInstance);
@@ -153,7 +141,7 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                     if (wallGrid != null && wallGrid.TrySnapByEdge(center, size, out snapped))
                     {
                         float halfZ = size.z * 0.5f;
-                        snapped.z = wallGrid.GetWallZ() - halfZ; // ✅ correct snap against wall face
+                        snapped.z = wallGrid.GetWallZ() - halfZ; 
                         draggingInstance.transform.position = snapped;
                     }
                     else
@@ -214,7 +202,6 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                     delta = Mathf.Abs(wall.transform.position.x - mouse.x);
                 }
 
-                Debug.Log($"[WALL SELECT] {name}: delta = {delta:F3}");
 
                 if (delta < minDelta)
                 {
@@ -223,8 +210,6 @@ public class UIDragToSpawn : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
                 }
             }
 
-            if (closest != null)
-                Debug.Log($"[UIDrag] Selected wall = {closest.gameObject.name}");
 
             return closest;
         }

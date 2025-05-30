@@ -10,10 +10,8 @@ public class StartMenuManager : MonoBehaviour
     
     private void Start()
     {
-        // Check if save file exists and set continue button state
-        // TODO: Implement proper save check
         ContinueBtn.interactable = false;
-        BGMManager.Instance?.PlayRoomBGM(0);  // 约定 0 代表 StartMenu
+        BGMManager.Instance?.PlayRoomBGM(0);  
 
         SetupButtonListeners();
     }
@@ -32,18 +30,15 @@ public class StartMenuManager : MonoBehaviour
     
     private void OnContinueClick()
     {
-        // TODO: Load saved game scene
-        SceneManager.LoadScene("MainScene3D"); // Load the main game scene
+        SceneManager.LoadScene("MainScene3D"); 
     }
     
     private void OnNewGameClick()
     {
-        // Load first game scene
         var oldBGM = GameObject.Find("BGMManager");
         if (oldBGM != null)
         {
             Destroy(oldBGM);
-            Debug.Log("[StartMenu] 🎵 Destroyed StartMenuBGM before scene switch");
         }
         SceneManager.LoadScene("MainScene3D");
     }
@@ -51,6 +46,5 @@ public class StartMenuManager : MonoBehaviour
     private void OnSettingsClick()
     {
         // TODO: Implement settings functionality
-        Debug.Log("Settings clicked - To be implemented");
     }
 }

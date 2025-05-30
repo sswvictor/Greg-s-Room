@@ -9,7 +9,6 @@ public class BranchOverviewPanel : MonoBehaviour
     {
         if (RoomManager.Instance == null || RoomManager.Instance.roomHistories == null)
         {
-            Debug.LogWarning("[BranchPanel] RoomManager Not prepared");
             return;
         }
 

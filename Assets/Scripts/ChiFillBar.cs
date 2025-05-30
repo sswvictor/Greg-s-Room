@@ -10,7 +10,6 @@ public class ChiFillBar : MonoBehaviour
     {
         if (chiFillImage == null)
         {
-            Debug.LogWarning("[ChiFillBar] chiFillImage 未设置！");
             return;
         }
 

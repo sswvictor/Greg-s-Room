@@ -21,7 +21,7 @@ public class BGMManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);  // 保证 BGMManager 跨房间保留
+            DontDestroyOnLoad(gameObject);  
         }
         else
         {
@@ -43,7 +43,6 @@ public class BGMManager : MonoBehaviour
 
         if (clip == null)
         {
-            Debug.LogWarning($"[BGMManager] No BGM assigned for room index {roomIndex}");
             return;
         }
 
@@ -52,7 +51,6 @@ public class BGMManager : MonoBehaviour
             bgmSource.clip = clip;
             bgmSource.loop = true;
             bgmSource.Play();
-            Debug.Log($"[BGMManager] ▶️ Playing BGM for room {roomIndex}: {clip.name}");
         }
     }
 }

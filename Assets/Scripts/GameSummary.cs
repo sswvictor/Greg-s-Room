@@ -5,10 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-
-using System.Collections.Generic;
-using UnityEngine;
-
 public static class GameSummary
 {
     public static int totalCHI;

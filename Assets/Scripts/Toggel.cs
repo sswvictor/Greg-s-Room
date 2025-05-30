@@ -16,7 +16,6 @@ public class PauseImageToggler : MonoBehaviour
         img = GetComponent<Image>();
         if (img == null)
         {
-            Debug.LogError("[PauseImageToggler] ❌ 找不到 Image 组件！");
             return;
         }
 
@@ -25,13 +24,11 @@ public class PauseImageToggler : MonoBehaviour
 
         if (spriteA == null || spriteB == null)
         {
-            Debug.LogError("[PauseImageToggler] ❌ 图片资源加载失败！");
             return;
         }
 
         img.sprite = spriteA;
 
-        // 自动绑定点击事件
         var btn = GetComponent<Button>();
         if (btn != null)
             btn.onClick.AddListener(ToggleImage);

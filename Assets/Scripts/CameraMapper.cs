@@ -1,4 +1,3 @@
-// ✅ CameraMapper.cs（支持 Floor / Wall / 自定义平面投影）
 using UnityEngine;
 
 public class CameraMapper : MonoBehaviour
@@ -9,11 +8,11 @@ public class CameraMapper : MonoBehaviour
     private int currentIndex = 0;
 
     [Header("Plane高度（地面）")]
-    public float ProjY = -0.15f; // Y轴吸附高度（可调）
+    public float ProjY = -0.15f; 
 
     [Header("墙面位置")]
-    public float ProjZ = 2.0f;   // Z轴正墙（XY投影）
-    public float ProjX = -2.0f;  // X轴侧墙（YZ投影）
+    public float ProjZ = 2.0f;   
+    public float ProjX = -2.0f;  
 
     private static Vector3 _mappedMousePosition;
     public static Vector3 MappedMousePosition => _mappedMousePosition;
@@ -43,7 +42,7 @@ public class CameraMapper : MonoBehaviour
         if (xPlane.Raycast(ray, out float xEnter))
             MappedMousePositionYZ = ray.GetPoint(xEnter);
 
-        _mappedMousePosition = MappedMousePositionXZ; // 默认是 XZ 平面（floor）
+        _mappedMousePosition = MappedMousePositionXZ; 
     }
 
     public void SwitchTo(int index)

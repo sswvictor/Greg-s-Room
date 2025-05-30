@@ -12,22 +12,17 @@ using UnityEngine.SceneManagement;
 public class RoomData
 {
     public GameObject roomPrefab;
-    public List<GameObject> buttonPrefabs; // ✅ 改为每个房间的按钮 prefab 列表
-
-
-    // public GameObject cutscenePrefab;  // ✅ 新增字段
-    // public List<Sprite> itemIcons;       // ❌ 已弃用
-    // public List<GameObject> itemPrefabs; // ❌ 已弃用
+    public List<GameObject> buttonPrefabs; 
 }
 
 [System.Serializable]
 public class CutsceneEntry
 {
-    public string itemName;             // 例如 "Basketball_Prefab"
+    public string itemName;          
     
     [Header("CHI Score Conditional Cutscenes")]
-    public VideoClip highCHIVideo;      // Video for CHI score >= 50%
-    public VideoClip lowCHIVideo;       // Video for CHI score < 50%
+    public VideoClip highCHIVideo;   
+    public VideoClip lowCHIVideo;  
 }
 
 public class RoomHistory {
@@ -59,13 +54,13 @@ public class RoomManager : MonoBehaviour
 
     public Dictionary<int, RoomHistory> roomHistories = new();
 
-    public string endSceneName = "SummaryScene";  // 或者用 SceneManager.GetSceneByBuildIndex()
+    public string endSceneName = "SummaryScene";   
     [Header("Video Player - MVP")]
-    public VideoPlayer videoPlayer;     // Drag VideoPlayer component here
-    public RawImage videoDisplay;       // Drag RawImage for display
-    public GameObject videoCanvas;      // Canvas to show/hide
+    public VideoPlayer videoPlayer;     
+    public RawImage videoDisplay;    
+    public GameObject videoCanvas;     
 
-    public GameObject gregStatusPanelPrefab;  // 拖拽 UI 预制体进来
+    public GameObject gregStatusPanelPrefab;  
 
 
     // public KeyObjectSelectionPanel keyObjectPanel;
@@ -98,11 +93,8 @@ public class RoomManager : MonoBehaviour
             GameObject chiTextGO = GameObject.Find("ChiScoreText");
             if (chiTextGO != null)
                 chiScoreText = chiTextGO.GetComponent<TextMeshProUGUI>();
-            else
-                Debug.LogWarning("[RoomManager] ChiScoreText not found in scene.");
         }
 
-        // ✅ 初始化 roomHistories 字典
         if (roomHistories == null)
             roomHistories = new Dictionary<int, RoomHistory>();
 
@@ -118,7 +110,6 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
-        // ✅ 避免中间显示空白，直接协程生成房间
         StartCoroutine(SwitchRoomCoroutine());
         BGMManager.Instance?.PlayRoomBGM(0);
 
@@ -148,7 +139,6 @@ public class RoomManager : MonoBehaviour
         }
 
         totalCHIScore += currentRoomCHIScore;
-        Debug.Log($"[GLOBAL CHI] Added {currentRoomCHIScore} points. Total now = {totalCHIScore}");
 
         UpdateRoomHistoryIfNeeded();
 
@@ -157,7 +147,6 @@ public class RoomManager : MonoBehaviour
 
         if (currentIndex != 2)
         { 
-            // ✅ 关键物体选择逻辑
             Transform spawnRoot = GameObject.Find("ItemSpawnRoot")?.transform;
             string[] keyObjects = null;
 
@@ -168,7 +157,7 @@ public class RoomManager : MonoBehaviour
             else if (currentIndex == 2)
                 keyObjects = new[] { "DeskComputer_Prefab", "Kallax_Prefab", "TV_Prefab" };
             else
-                keyObjects = new string[0]; // 防御性处理              
+                keyObjects = new string[0];               
             List<string> keyItemsThisRoom = new();
 
             if (spawnRoot != null)
@@ -202,14 +191,6 @@ public class RoomManager : MonoBehaviour
                         // RefreshKeyObjectChoice(RoomManager.Instance.CurrentRoomIndex, selected);
                         yield break;
                     }
-                    else
-                    {
-                        Debug.LogWarning("[RoomManager] ❌ 找到 GameObject 但没有 KeyObjectSelectionPanel 脚本！");
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning("[RoomManager] ❌ 找不到 KeyObjectSelectionPanel 物体！");
                 }
             }
 
@@ -241,8 +222,7 @@ public class RoomManager : MonoBehaviour
                 GameSummary.roomIndices.Add(index);
                 GameSummary.roomKeys.Add(chosen);
 
-                // 🧠 提取图标：通过 buttonPrefab → iconObject
-                GameObject buttonPrefab = FindButtonPrefabByKeyObject(chosen);  // 👈 改用按钮 prefab，而不是 model prefab
+                GameObject buttonPrefab = FindButtonPrefabByKeyObject(chosen); 
 
                 Sprite icon = null;
                 if (buttonPrefab != null)
@@ -253,7 +233,6 @@ public class RoomManager : MonoBehaviour
                 }
                 GameSummary.roomIcons.Add(icon);
 
-                // 🧠 生成总结文字
                 string summary = chosen switch
                 {
                     "Basketball_Prefab" => "You followed your passion for sports.",
@@ -269,27 +248,22 @@ public class RoomManager : MonoBehaviour
             yield break;
         }
 
-
-        // ✅ 播放关键物体关联的 cutscene（若存在）
         string chosenKeyObject = PlayerPrefs.GetString("next_key_object", "");
         if (chosenKeyObject != null)
             RefreshKeyObjectChoice(currentIndex-1, chosenKeyObject);
 
         if (!string.IsNullOrEmpty(chosenKeyObject) && hasStarted)
         {
-            VideoClip selectedVideo = null;  // CHANGE: GameObject → VideoClip
+            VideoClip selectedVideo = null; 
 
-            // ✅ CHI Score Conditional Logic - MVP
             float chiPercentage = (currentRoomCHIScore / maxScore) * 100f;
             bool isHighCHI = chiPercentage >= 50f;
-
-            Debug.Log($"[RoomManager] CHI Score: {currentRoomCHIScore}/{maxScore} ({chiPercentage:F1}%) - {(isHighCHI ? "HIGH" : "LOW")} CHI");
 
             foreach (var entry in cutsceneMapping)
             {
                 if (entry.itemName == chosenKeyObject)
                 {
-                    // ✅ Select video based on CHI score
+
                     if (isHighCHI && entry.highCHIVideo != null)
                     {
                         selectedVideo = entry.highCHIVideo;
@@ -308,13 +282,13 @@ public class RoomManager : MonoBehaviour
                 }
             }
 
-            PlayerPrefs.DeleteKey("next_key_object"); // ✅ 播放后清除
+            PlayerPrefs.DeleteKey("next_key_object");
             if (selectedVideo != null)
             {
-                yield return PlayCutscene(selectedVideo);  // CHANGE: parameter type
+                yield return PlayCutscene(selectedVideo);
             }
 
-            yield return ShowGregStatusPanel(chosenKeyObject);  // 👈 展示 GREG 状态和分数
+            yield return ShowGregStatusPanel(chosenKeyObject);
         }
 
 
@@ -323,7 +297,6 @@ public class RoomManager : MonoBehaviour
 
         BGMManager.Instance?.PlayRoomBGM(currentIndex);
 
-        // ✅ 接着进入下一个房间
         // currentIndex = (currentIndex + 1) % rooms.Count;
 
         var room = rooms[currentIndex];
@@ -331,8 +304,6 @@ public class RoomManager : MonoBehaviour
         doorMarker = currentRoom.transform.Find("DoorMarker");
         windowMarker = currentRoom.transform.Find("WindowMarker");
 
-        if (doorMarker == null) Debug.LogWarning("[RoomManager] ❌ DoorMarker not found!");
-        if (windowMarker == null) Debug.LogWarning("[RoomManager] ❌ WindowMarker not found!");
 
         var wallCtrl = currentRoom.GetComponent<WallVisibilityController>();
         if (wallCtrl != null) wallCtrl.ShowMainView();
@@ -342,8 +313,6 @@ public class RoomManager : MonoBehaviour
         var spawnRootNew = currentRoom.transform.Find("ItemSpawnRoot");
         if (spawnRootNew != null)
             RoomSpawner.Instance.SetSpawnParent(spawnRootNew);
-        else
-            Debug.LogWarning("ItemSpawnRoot not found in current room!");
 
         itemBoxController.ShowButtons(room.buttonPrefabs);
         yield return new WaitForSeconds(0.1f);
@@ -364,9 +333,9 @@ public class RoomManager : MonoBehaviour
             middle = chosenKeyObject.Replace("_Prefab", "");
 
         }
-        else // currentIndex == 2
+        else
         {
-            if (roomHistories.TryGetValue(0, out var prevHistory) && prevHistory.placedItemNames.Count >= 1)  // ✅ 现在这个逻辑是可靠的
+            if (roomHistories.TryGetValue(0, out var prevHistory) && prevHistory.placedItemNames.Count >= 1)
             {
                 string prevKey = prevHistory.placedItemNames[0];
                 middle = $"{chosenKeyObject.Replace("_Prefab", "")}_{prevKey.Replace("_Prefab", "")}";
@@ -381,10 +350,9 @@ public class RoomManager : MonoBehaviour
         string path = $"Gregs_ResumeScreen/Greg_{middle}_{level}";
         GameSummary.finalGregSpritePath = path;
 
-        Debug.Log($"[GregStatus ✅] 加载图片路径：{path}");
         Sprite sprite = Resources.Load<Sprite>(path);
         if (sprite == null)
-            Debug.LogWarning($"[GregStatus ❌] 未找到图片资源：{path}");
+            Debug.LogWarning($"[GregStatus] Fail to find：{path}");
 
         return sprite;
     }
@@ -399,19 +367,16 @@ public class RoomManager : MonoBehaviour
 
         if (gregStatusPanelPrefab == null)
         {
-            Debug.LogWarning("[GregStatus] ❌ 未设置状态面板 prefab");
             yield break;
         }
 
         GameObject panel = Instantiate(gregStatusPanelPrefab, GameObject.Find("CanvasRoot")?.transform, false);
         panel.SetActive(true);
 
-        // 设置图像
         var img = panel.transform.Find("GregImage")?.GetComponent<UnityEngine.UI.Image>();
         if (img != null)
             img.sprite = GetGregSpriteFromPlayScene(chosenKeyObject);
 
-        // 设置分数
         var chiText = panel.transform.Find("CHIScoreText")?.GetComponent<TextMeshProUGUI>();
         if (chiText != null)
             chiText.text = $"CHI Score: {GetCurrentRoomCHI()}";
@@ -461,20 +426,12 @@ public class RoomManager : MonoBehaviour
         }
 
         currentIndex = newIndex;
-        Debug.Log($"[RoomSwitcher] Index = {currentIndex}");
-
-        // ✅ 实例化新房间
         var room = rooms[currentIndex];
 
         currentRoom = Instantiate(room.roomPrefab, roomParent);
         doorMarker = currentRoom.transform.Find("DoorMarker");
         windowMarker = currentRoom.transform.Find("WindowMarker");
 
-        if (doorMarker == null)
-            Debug.LogWarning("[RoomManager] ❌ DoorMarker not found!");
-
-        if (windowMarker == null)
-            Debug.LogWarning("[RoomManager] ❌ WindowMarker not found!");
 
         var wallCtrl = currentRoom.GetComponent<WallVisibilityController>();
         if (wallCtrl != null)
@@ -485,16 +442,11 @@ public class RoomManager : MonoBehaviour
         var roomCollider = currentRoom.GetComponentInChildren<Collider>();
         if (roomCollider == null)
         {
-            Debug.LogError("[RoomManager ❌] roomCollider is NULL after Instantiate!");
-            Debug.Log($"[DEBUG] Room instantiated = {currentRoom.name}");
-            foreach (var col in currentRoom.GetComponentsInChildren<Collider>(true))
-            {
-                Debug.Log($"[DEBUG] Found collider on: {col.gameObject.name}");
-            }
+            Debug.LogError("[RoomManager] roomCollider is NULL after Instantiate!");
         }
         else
         {
-            Debug.Log($"[RoomManager ✅] Found roomCollider = {roomCollider.name}");
+            Debug.Log($"[RoomManager] Found roomCollider = {roomCollider.name}");
         }
 
         BGMManager.Instance?.PlayRoomBGM(currentIndex);
@@ -503,24 +455,21 @@ public class RoomManager : MonoBehaviour
         var spawnRootNew = currentRoom.transform.Find("ItemSpawnRoot");
         if (spawnRootNew != null)
             RoomSpawner.Instance.SetSpawnParent(spawnRootNew);
-        else
-            Debug.LogWarning("ItemSpawnRoot not found in current room!");
 
         var grid = Object.FindFirstObjectByType<FloorGrid>();
         if (grid != null)
         {
             grid.roomCollider = roomCollider;
-            Debug.Log($"[RoomManager ✅] FloorGrid.roomCollider = {roomCollider.name}");
         }
         else
         {
-            Debug.LogWarning("[RoomManager ❌] FloorGrid not found!");
+            Debug.LogWarning("[RoomManager] FloorGrid not found!");
         }
 
 
         itemBoxController.ShowButtons(room.buttonPrefabs);
 
-        yield return new WaitForSeconds(0.1f); // 轻微延迟更平滑
+        yield return new WaitForSeconds(0.1f); 
         CameraMapper.Instance.SwitchTo(0);
         currentRoomCHIScore = 0;
         UpdateRoomHistoryIfNeeded();
@@ -567,7 +516,6 @@ public class RoomManager : MonoBehaviour
         string[] keyObjects = { "DeskComputer_Prefab", "Basketball_Prefab", "Frame_Prefab", "Weed_Prefab", "Weights_Prefab", "Couch_Prefab", "TV_Prefab", "Kallax_Prefab" };
         List<string> newList = new();
 
-        // 只保留选中的 key object 和非 key 的内容
         foreach (var item in history.placedItemNames)
         {
             // if (item == selectedKeyObject || !keyObjects.Contains(item))
@@ -578,7 +526,7 @@ public class RoomManager : MonoBehaviour
         }
 
         history.placedItemNames = newList;
-        Debug.Log($"[LIFE CHOICE ✅] Room {roomIndex} now only keeps: {string.Join(", ", newList)}");
+        Debug.Log($"[LIFE CHOICE] Room {roomIndex} now only keeps: {string.Join(", ", newList)}");
     }
 
     private List<string> GetPlacedItemNamesFromCurrentRoom()
@@ -604,7 +552,6 @@ public class RoomManager : MonoBehaviour
     private bool CheckCompletionCriteria()
     {
         var placed = GetPlacedItemNamesFromCurrentRoom();
-        // ✅ 示例：放了床 + 桌子 + 灯算完成
         string[] keyItems = { "Bed_Prefab", "Nightstand_Prefab", "Frame_Prefab" };
 
         foreach (var item in keyItems)
@@ -639,21 +586,17 @@ public class RoomManager : MonoBehaviour
 
     public void RefreshCHIScore()
     {
-        Debug.Log("[CHI] RefreshCHIScore called!");
 
         if (chiScoreText == null)
         {
-            Debug.LogWarning("[CHI] chiScoreText is NULL! Skip refresh.");
             return;
         }
 
         if (CHIScoreManager.Instance == null)
         {
-            Debug.LogWarning("[CHI] CHIScoreManager.Instance is NULL! Skip refresh.");
             return;
         }
 
-        Debug.Log("[CHI] Passed null checks. Start calculating...");
 
         currentRoomCHIScore = CHIScoreManager.Instance.CalculateTotalCHI();
         chiScoreText.text = $"CHI Score: {currentRoomCHIScore}";
@@ -685,11 +628,7 @@ public class RoomManager : MonoBehaviour
         CameraMapper.Instance.SwitchTo(0);
 
         var spawnRoot = currentRoom.transform.Find("ItemSpawnRoot");
-        if (spawnRoot == null)
-        {
-            Debug.LogError("[❌ RoomManager] ItemSpawnRoot not found!");
-        }
-        else
+        if (spawnRoot != null)
         {
             RoomSpawner.Instance.SetSpawnParent(spawnRoot);
         }
@@ -700,16 +639,11 @@ public class RoomManager : MonoBehaviour
 
         BGMManager.Instance?.PlayRoomBGM(currentIndex);
 
-        // ✅ 生成房间内的所有物体（问题来源区域）
         foreach (var item in data.placedItems)
         {
             GameObject prefab = FindPrefabByName(item.prefabName);
             if (prefab != null)
             {
-                if (AlreadyHasBed(spawnRoot))
-                {
-                    Debug.LogWarning("[DEBUG] ItemSpawnRoot 中已经有一张床！");
-                }
                 if (spawnRoot == null)
                 {
                     continue;
@@ -721,22 +655,19 @@ public class RoomManager : MonoBehaviour
                 if (collider != null)
                 {
                     collider.enabled = true;
-                    Debug.Log($"[QuickLoad] Enabled collider for {go.name}");
                 }
                 else
                 {
-                    Debug.LogWarning($"[QuickLoad ❌] {go.name} has no collider!");
+                    Debug.LogWarning($"[QuickLoad] {go.name} has no collider!");
                 }
 
-                var slot = FindSlotForPrefab(item.prefabName);   // ✅ 补上这句
+                var slot = FindSlotForPrefab(item.prefabName);
                 var roomCollider = currentRoom.GetComponentInChildren<Collider>();
 
-                Debug.Log($"[QuickLoad] Instantiated {prefab.name} at {item.position:F3}");
 
                 if (tracker != null)
                 {
                     tracker.Init(slot, roomCollider);
-                    Debug.Log($"[QuickLoad] Init tracker for {prefab.name}");
 
                     PlacementType type = prefab.GetComponent<ItemType>()?.type ?? PlacementType.Floor;
 
@@ -747,11 +678,10 @@ public class RoomManager : MonoBehaviour
                         {
                             grid.roomCollider = roomCollider;
                             tracker.floorGrid = grid;
-                            Debug.Log($"[QuickLoad] Assigned FloorGrid to {prefab.name}");
                         }
                         else
                         {
-                            Debug.LogWarning("[QuickLoad ❌] FloorGrid not found");
+                            Debug.LogWarning("[QuickLoad] FloorGrid not found");
                         }
                     }
                     else if (type == PlacementType.Wall)
@@ -761,36 +691,27 @@ public class RoomManager : MonoBehaviour
                         {
                             grid.roomCollider = roomCollider;
                             tracker.wallGrid = grid;
-                            Debug.Log($"[QuickLoad] Assigned WallGrid to {prefab.name}");
                         }
                         else
                         {
-                            Debug.LogWarning("[QuickLoad ❌] WallGrid not found");
+                            Debug.LogWarning("[QuickLoad] WallGrid not found");
                         }
                     }
 
                     // tracker.CheckPositionImmediately();
                     tracker.StopDragging();
                     tracker.EnableDraggingOnClick();
-                    // ✅ 再次保险设置一次，确保 collider 真的启用了（双保险）
                     collider = go.GetComponent<Collider>();
                     if (collider != null && !collider.enabled)
                     {
                         collider.enabled = true;
-                        Debug.Log($"[QuickLoad] Forced enable of collider on {go.name}");
                     }
-                    Debug.Log($"[QuickLoad ✅] Tracker ready for click-drag: {prefab.name}");
-                }
-                else
-                {
-                    Debug.LogWarning($"[QuickLoad ❌] Tracker is null on {prefab.name}");
                 }
 
             }
         }
 
 
-        // ✅ 恢复 ItemBox 中按钮状态
         var itemSlots = Object.FindObjectsOfType<ItemSlotController>();
         foreach (var slot in itemSlots)
         {
@@ -808,8 +729,6 @@ public class RoomManager : MonoBehaviour
 
         // RefreshCHIScore();
     }
-
-
 
     private ItemSlotController FindSlotForPrefab(string prefabName)
     {
@@ -845,9 +764,8 @@ public class RoomManager : MonoBehaviour
 
         foreach (var t in spawnRoot.GetComponentsInChildren<Transform>(includeInactive: true))
         {
-            if (t.gameObject.name.Contains("Bed"))  // or == "Bed"
+            if (t.gameObject.name.Contains("Bed")) 
             {
-                Debug.Log("[DEBUG] 已经发现存在床对象: " + t.name);
                 return true;
             }
         }
@@ -855,46 +773,36 @@ public class RoomManager : MonoBehaviour
         return false;
     }
 
-    private IEnumerator PlayCutscene(VideoClip videoClip)  // Changed parameter type only
+    private IEnumerator PlayCutscene(VideoClip videoClip) 
     {
         if (videoClip == null || videoPlayer == null || videoCanvas == null)
         {
-            // Fallback: maintain same timing as before
-            Debug.LogWarning("[RoomManager] Video, player, or canvas prefab missing, using fallback timing");
             yield return new WaitForSeconds(3f);
             yield break;
         }
 
-        // Instantiate VideoCanvas prefab
         GameObject videoCanvasInstance = Instantiate(videoCanvas);
         
-        // Find the RawImage component for video display
         RawImage displayImage = videoCanvasInstance.GetComponentInChildren<RawImage>();
         if (displayImage != null && videoPlayer.targetTexture != null)
         {
             displayImage.texture = videoPlayer.targetTexture;
         }
         
-        // Set up and play video
         videoPlayer.clip = videoClip;
         videoPlayer.Play();
         
-        Debug.Log($"[RoomManager] Playing video: {videoClip.name}, duration: {videoPlayer.clip.length}s");
         
-        // Wait for video duration (preserves exact same user experience)
         yield return new WaitForSeconds((float)videoPlayer.clip.length);
         
-        // Cleanup: stop video and destroy canvas instance
         videoPlayer.Stop();
         if (videoCanvasInstance != null)
         {
             Destroy(videoCanvasInstance);
         }
-        
-        Debug.Log("[RoomManager] Video cutscene completed");
+    
     }
 
-    //Ricky's new code
     private void OnDrawGizmos()
     {
         if (Application.isPlaying && currentRoom != null)
@@ -915,7 +823,5 @@ public class RoomManager : MonoBehaviour
 
         return currentRoom != null ? currentRoom.transform.position : Vector3.zero;
     }
-
-
 
 }

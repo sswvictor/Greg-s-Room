@@ -31,11 +31,8 @@ public class CutsceneDirector : MonoBehaviour
             if (layer.layerImage != null)
             {
                 var rectTransform = layer.layerImage.rectTransform;
-                // Store the initial position from the editor instead of overwriting it
-                layer.startPosition = layer.startPosition;  // Preserve the position set in the inspector
                 layer.layerImage.preserveAspect = layer.preserveAspect;
                 
-                // Set initial scale and z-position
                 rectTransform.localScale = layer.scale;
                 Vector3 pos = rectTransform.localPosition;
                 pos.z = layer.zPosition;

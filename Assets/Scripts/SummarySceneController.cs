@@ -8,30 +8,25 @@ using UnityEditor;
 public class EndSceneController : MonoBehaviour
 {
     [Header("StartMenu 场景名")]
-    public string startMenuSceneName = "StartMenu";  // ⚠️ 请确保拼写与场景一致，并已加入 Build Settings
-
-    // 👉 退出游戏
+    public string startMenuSceneName = "StartMenu"; 
     public void QuitGame()
     {
-        Debug.Log("Quitting game...");
 
 #if UNITY_EDITOR
-        EditorApplication.isPlaying = false;  // 编辑器中退出播放模式
+        EditorApplication.isPlaying = false;  
 #else
-        Application.Quit();  // 打包后退出游戏
+        Application.Quit();  
 #endif
     }
 
-    // 👉 重启游戏，跳转回 StartMenu
+
     public void RestartGame()
     {
         var oldBGM = GameObject.Find("BGMManager");
         if (oldBGM != null)
         {
             Destroy(oldBGM);
-            Debug.Log("[StartMenu] 🎵 Destroyed StartMenuBGM before scene switch");
         }
-        Debug.Log("Restarting game...");
         SceneManager.LoadScene(startMenuSceneName);
     }
 }
